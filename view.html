@@ -1,0 +1,2420 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta name="robots" content="noindex, nofollow">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A01 住宅 3D 展示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#efe8dd;
+  --panel:rgba(251,248,242,.95);
+  --ink:#2e2a25;
+  --muted:#756b60;
+  --rule:rgba(46,42,37,.14);
+  --chip:#f4eee4;
+  --chip-hover:#eae1d3;
+  --accent:#8a6242;
+  --accent-ink:#ffffff;
+  --accent-soft:rgba(138,98,66,.14);
+  --poche:#8b8176;
+  --room:rgba(46,42,37,.06);
+  --shadow:0 12px 32px rgba(60,44,28,.14),0 1px 2px rgba(60,44,28,.08);
+  --scrim:rgba(30,24,18,.5);
+  --ok:#2f7a4a; --ok-bg:rgba(47,122,74,.13); --warn:#9a6a12; --warn-bg:rgba(196,140,30,.16); --bad:#b23a2c; --bad-bg:rgba(178,58,44,.13);
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#1c1a17; --panel:rgba(31,28,25,.93); --ink:#eee7dc; --muted:#a99e91;
+    --rule:rgba(238,231,220,.14); --chip:#27231f; --chip-hover:#312c27;
+    --accent:#d6b08a; --accent-ink:#1d1813; --accent-soft:rgba(214,176,138,.18);
+    --poche:#978c80; --room:rgba(238,231,220,.07);
+    --shadow:0 12px 32px rgba(0,0,0,.45); --scrim:rgba(0,0,0,.6);
+    --ok:#7cc795; --ok-bg:rgba(124,199,149,.14); --warn:#e2b75a; --warn-bg:rgba(226,183,90,.15); --bad:#f08a7c; --bad-bg:rgba(240,138,124,.14);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#1c1a17; --panel:rgba(31,28,25,.93); --ink:#eee7dc; --muted:#a99e91;
+  --rule:rgba(238,231,220,.14); --chip:#27231f; --chip-hover:#312c27;
+  --accent:#d6b08a; --accent-ink:#1d1813; --accent-soft:rgba(214,176,138,.18);
+  --poche:#978c80; --room:rgba(238,231,220,.07);
+  --shadow:0 12px 32px rgba(0,0,0,.45); --scrim:rgba(0,0,0,.6);
+  --ok:#7cc795; --ok-bg:rgba(124,199,149,.14); --warn:#e2b75a; --warn-bg:rgba(226,183,90,.15); --bad:#f08a7c; --bad-bg:rgba(240,138,124,.14);
+}
+[hidden]{display:none!important}
+.viewer [data-edit],:root:not(.viewer) [data-view]{display:none!important}
+.view-badge{display:inline-block;margin-left:8px;padding:1px 7px;border:1px solid var(--accent);border-radius:3px;color:var(--accent);font:500 11px/1.6 var(--sans);vertical-align:3px}
+.slot.view{grid-template-columns:1fr}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ground);color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;touch-action:none}
+.labels{position:fixed!important;inset:0;pointer-events:none}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 圖框式資訊面板 */
+.panel{position:fixed;z-index:10;top:calc(16px + env(safe-area-inset-top,0px));left:16px;width:332px;max-width:calc(100% - 32px);
+  max-height:calc(100% - 120px);overflow:auto;background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--rule);border-radius:6px;box-shadow:var(--shadow)}
+.tb{display:grid;grid-template-columns:1fr auto;border-bottom:1px solid var(--rule)}
+.tb-main{padding:12px 14px 10px}
+.brand{font:500 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.tb h1{margin:7px 0 0;font:700 18px/1.25 var(--sans);text-wrap:balance}
+.tb-toggle{align-self:start;margin:10px 10px 0 0;padding:4px 9px;border:1px solid var(--rule);border-radius:3px;background:transparent;font-size:12px;color:var(--muted);cursor:pointer}
+.tb-toggle:hover{background:var(--chip-hover);color:var(--ink)}
+.sheet{display:grid;grid-template-columns:repeat(4,1fr);margin:0;border-bottom:1px solid var(--rule)}
+.sheet div{padding:7px 10px 8px;border-right:1px solid var(--rule);min-width:0}
+.sheet div:last-child{border-right:0}
+.sheet dt{margin:0 0 3px;font:500 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sheet dd{margin:0;font:500 13px/1.2 var(--sans);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pbody{display:grid;gap:14px;padding:14px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule);border-radius:5px;overflow:hidden}
+.seg button{padding:9px 4px;border:0;border-right:1px solid var(--rule);background:transparent;font-size:13px;font-weight:500;cursor:pointer;line-height:1.25}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:var(--chip-hover)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.grp-label{margin:0 0 7px;font:500 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:baseline;gap:6px;padding:5px 9px;border:1px solid var(--rule);border-radius:3px;background:var(--chip);font-size:13px;cursor:pointer}
+.chip small{font:10px/1 var(--mono);color:var(--muted)}
+.chip:hover{background:var(--chip-hover)}
+.chip:disabled{opacity:.45;cursor:default}
+.chip[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.tog{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid var(--rule);border-radius:3px;background:transparent;font-size:13px;cursor:pointer}
+.tog::before{content:"";width:8px;height:8px;border-radius:50%;border:1.5px solid var(--muted)}
+.tog[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.tog[aria-pressed="true"]::before{background:var(--accent);border-color:var(--accent)}
+.tog:hover{background:var(--chip-hover)}
+.note{margin:0;font-size:12px;color:var(--muted);line-height:1.55}
+.ctemp{display:grid;gap:8px;margin-top:12px;font-size:12.5px}
+.ct-title{margin:0;font-size:12.5px;font-weight:500}
+.ct-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%}
+.ct-row>span{width:30px;flex:none;font-size:12px;color:var(--muted)}
+.share summary{cursor:pointer;font-size:12.5px;font-weight:500;margin-top:10px}
+.share-body{display:grid;gap:6px;margin-top:8px;font-size:12px;color:var(--muted)}
+.share-body input{width:100%;min-width:0;box-sizing:border-box;padding:5px 7px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);color:var(--ink);font:12px var(--mono)}
+.share-body input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.import-row{display:flex;gap:6px}
+.slots{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.slot{display:grid;grid-template-columns:1fr auto auto auto;gap:4px}
+.slot.naming{grid-template-columns:1fr auto}
+.slot-main.editing{cursor:default}
+.slot-main.editing input{width:100%;min-width:0;box-sizing:border-box;padding:3px 6px;border:1px solid var(--accent);border-radius:3px;background:var(--panel);color:var(--ink);font:500 13px var(--sans)}
+.store{margin-top:10px;padding:8px 10px;border:1px dashed var(--rule);border-radius:4px;display:grid;gap:6px}
+.store-status{margin:0;font-size:12px;line-height:1.55;color:var(--muted)}
+.store-status::before{content:"";display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--muted);vertical-align:1px}
+.store-status[data-mode="file"]::before{background:var(--ok)}
+.store .toggles:empty{display:none}
+.slot.empty{grid-template-columns:1fr auto}
+.slot-main{display:grid;grid-template-columns:auto 1fr;column-gap:8px;row-gap:1px;align-items:center;min-width:0;padding:6px 8px;border:1px solid var(--rule);border-radius:4px;background:var(--chip);text-align:left;cursor:pointer}
+.slot-main b{grid-row:1/3;display:grid;place-items:center;width:20px;height:20px;border:1px solid var(--rule);border-radius:50%;font:500 11px var(--mono);color:var(--muted)}
+.slot-name{font-size:13px;font-weight:500}
+.slot-sum{font-size:11px;line-height:1.4;color:var(--muted)}
+.slot-main[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.slot-main[aria-pressed="true"] b{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.slot.empty .slot-main{background:transparent;border-style:dashed;cursor:default}
+.slot.empty .slot-name{color:var(--muted);font-weight:400}
+.slot-act{padding:0 9px;border:1px solid var(--rule);border-radius:4px;background:transparent;font-size:12px;color:var(--muted);cursor:pointer}
+.slot-act:hover,.slot-main:not(:disabled):hover{background:var(--chip-hover);color:var(--ink)}
+.tog:disabled{opacity:.6;cursor:default}
+kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width:2px;border-radius:3px;padding:0 4px;letter-spacing:0}
+.ctemp input{width:100%;accent-color:var(--accent);background:linear-gradient(90deg,#ffb46b,#ffe7c6 35%,#fff6ec 60%,#dce9ff);height:6px;border-radius:3px;appearance:none;-webkit-appearance:none}
+.ctemp input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);cursor:pointer}
+.ctemp input::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);cursor:pointer}
+.ctemp input:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.ctemp output{font:500 11px var(--mono);color:var(--muted);letter-spacing:.04em}
+.body-edit{margin-top:10px;padding:10px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--chip);display:grid;gap:8px}
+.body-title{margin:0;font-weight:700;font-size:13px}
+.body-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px}
+.body-row input{width:48px;padding:4px 6px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);color:var(--ink);font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+.body-row input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.body-row span{color:var(--muted);margin-right:6px}
+.body-stats{margin:0;font:12px/1.5 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums}
+.swatch-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--rule);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--accent)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:12px}
+.checks li{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:baseline}
+.checks b{font-weight:500;font-size:11px;padding:1px 6px;border-radius:3px;white-space:nowrap}
+.checks .ok{background:var(--ok-bg);color:var(--ok)}
+.checks .warn{background:var(--warn-bg);color:var(--warn)}
+.checks .bad{background:var(--bad-bg);color:var(--bad)}
+.checks .sub{grid-column:1/-1;margin:4px 0 0;font:500 10px var(--mono);letter-spacing:.14em;color:var(--muted)}
+.ruler-label{width:0;height:0;pointer-events:none}
+.ruler-label span{position:absolute;left:10px;top:-10px;padding:1px 6px;border-radius:3px;background:rgba(98,68,44,.92);color:#fff;font:500 11px/18px var(--sans);white-space:nowrap}
+
+/* 操作提示 */
+.hint{position:fixed;z-index:9;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  max-width:calc(100% - 32px);padding:8px 14px;border:1px solid var(--rule);border-radius:999px;background:var(--panel);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow);font-size:12.5px;text-align:center;line-height:1.7}
+.hint kbd{display:inline-block;min-width:1.4em;padding:0 5px;margin:0 1px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:3px;background:var(--chip);font:500 11px/1.5 var(--mono)}
+
+/* 第一人稱 HUD */
+.cross{position:fixed;z-index:8;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.45);pointer-events:none}
+.hud{position:fixed;z-index:9;right:16px;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:grid;gap:6px;justify-items:end;pointer-events:none}
+.roomtag{padding:5px 10px;border:1px solid var(--rule);border-radius:3px;background:var(--panel);font-weight:700;font-size:14px;box-shadow:var(--shadow)}
+.roomtag span{margin-left:6px;font:500 10px var(--mono);letter-spacing:.16em;color:var(--muted)}
+.mini{width:216px;max-width:40vw;aspect-ratio:780/512;border:1px solid var(--rule);border-radius:4px;background:var(--panel);box-shadow:var(--shadow)}
+
+.overlay{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:16px;background:var(--scrim)}
+.card{width:min(360px,100%);padding:20px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);box-shadow:var(--shadow);text-align:center}
+.card h2{margin:0 0 4px;font-size:17px}
+.card p{margin:0 0 14px;color:var(--muted);font-size:13px}
+.card .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.btn{padding:8px 14px;border:1px solid var(--rule);border-radius:4px;background:var(--chip);font-weight:500;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.loading{position:fixed;z-index:30;inset:0;display:grid;place-items:center;background:var(--ground);color:var(--muted);font:500 12px var(--mono);letter-spacing:.14em;text-align:center;padding:16px}
+.toast{position:fixed;z-index:25;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:calc(100% - 32px);padding:8px 14px;border-radius:4px;background:var(--ink);color:var(--ground);font-size:13px;box-shadow:var(--shadow)}
+
+/* 平面圖房間標籤（畫在 3D 場景上，固定深色＋白暈） */
+.room-label{text-align:center;color:#3b3129;text-shadow:0 0 3px #fff,0 0 6px rgba(255,255,255,.9);pointer-events:none;line-height:1.15}
+.room-label b{display:block;font:700 14px var(--sans)}
+.room-label span{display:block;font:500 8.5px var(--mono);letter-spacing:.22em;margin-top:2px}
+.room-label em{display:inline-block;margin-top:3px;padding:0 4px;border:1px solid #3b3129;font:normal 10px var(--mono);background:rgba(255,252,246,.65)}
+
+.joy{position:fixed;z-index:9;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:1.5px solid rgba(255,255,255,.7);background:rgba(0,0,0,.18);pointer-events:none}
+.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(255,255,255,.75)}
+
+@media (max-width:640px){
+  .panel{width:auto;right:16px}
+  .tb h1{font-size:16px}
+  .sheet dd{font-size:12px}
+  .hud{top:calc(16px + env(safe-area-inset-top,0px));bottom:auto}
+  .mini{width:150px}
+  .hint{font-size:11.5px;border-radius:8px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<aside class="panel" id="panel" aria-label="模型控制">
+  <header class="tb">
+    <div class="tb-main">
+      <div class="brand">Inspace Interior</div>
+      <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
+    </div>
+    <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
+  </header>
+  <dl class="sheet">
+    <div><dt>圖號</dt><dd>AR01</dd></div>
+    <div><dt>比例</dt><dd>S 1:40</dd></div>
+    <div><dt>室內</dt><dd>14.2 坪</dd></div>
+    <div><dt>樓層</dt><dd>1F 單層</dd></div>
+  </dl>
+  <div class="pbody" id="pbody">
+    <div class="seg" role="group" aria-label="視角模式">
+      <button id="m-plan" data-mode="plan" aria-pressed="false">1F 平面俯視</button>
+      <button id="m-orbit" data-mode="orbit" aria-pressed="true">3D 鳥瞰</button>
+      <button id="m-fps" data-mode="fps" aria-pressed="false">進入第一人稱</button>
+    </div>
+    <div>
+      <p class="grp-label">空間 · 點選聚焦／傳送</p>
+      <div class="chips" id="rooms"></div>
+    </div>
+    <div data-edit>
+      <p class="grp-label">人物 · 直接拖曳到任意位置</p>
+      <div class="chips" id="people"></div>
+      <div class="body-edit" id="body-edit">
+        <p class="body-title" id="body-title">身形設定 · 男性</p>
+        <div class="body-row">
+          <label for="in-h">身高</label><input id="in-h" type="number" min="140" max="200" step="1" inputmode="numeric"><span>cm</span>
+          <label for="in-w">體重</label><input id="in-w" type="number" min="35" max="150" step="1" inputmode="numeric"><span>kg</span>
+        </div>
+        <p class="body-stats" id="body-stats"></p>
+        <div class="swatch-row"><span>上衣</span><div class="swatches" id="sw-top" role="group" aria-label="上衣顏色"></div></div>
+        <div class="swatch-row"><span>褲子</span><div class="swatches" id="sw-bottom" role="group" aria-label="褲子顏色"></div></div>
+        <ul class="checks" id="checks" aria-label="櫃高與走道檢查"></ul>
+        <div class="toggles"><button class="tog" id="body-fps" aria-pressed="false">用這個身形走第一人稱</button></div>
+      </div>
+    </div>
+    <div data-edit>
+      <p class="grp-label">風格 · 與設計師比較方案</p>
+      <div class="seg" id="styles" role="group" aria-label="裝潢風格">
+        <button id="st-nordic" data-style="nordic" aria-pressed="true">北歐奶油</button>
+        <button id="st-modern" data-style="modern" aria-pressed="false">現代風</button>
+        <button id="st-muji" data-style="muji" aria-pressed="false">日式無印</button>
+      </div>
+    </div>
+    <div>
+      <p class="grp-label"><span data-edit>我的方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）· 可自訂名稱</span><span data-view>設計方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）</span></p>
+      <ol class="slots" id="slots" aria-label="已儲存的方案"></ol>
+      <div class="toggles" data-edit style="margin-top:8px"><button class="tog" id="save-next" aria-pressed="false">＋ 儲存目前設定</button></div>
+      <div class="store" data-edit><p class="store-status" id="store-status" data-mode="local"></p><div class="toggles" id="store-actions"></div></div>
+      <div class="store" data-view><p class="store-status" id="view-status" data-mode="local"></p><div class="toggles" id="view-actions"></div></div>
+      <details class="share" id="share" data-edit>
+        <summary>分享方案給設計師</summary>
+        <div class="share-body">
+          <label for="out-code">方案代碼（包含全部已存方案）</label>
+          <input id="out-code" type="text" readonly>
+          <div class="toggles"><button class="chip" id="copy-code">複製代碼</button><button class="chip" id="copy-text">複製說明文字</button></div>
+          <p class="note">給設計師看：把這個雲端硬碟資料夾共用給對方（權限設「檢視者」），請對方用 Chrome 開啟「view.html」，再按「開啟方案檔」選「A01_3D方案.json」。</p>
+          <label for="in-code">匯入對方的代碼</label>
+          <div class="import-row"><input id="in-code" type="text" placeholder="貼上 zh3. 開頭的代碼" autocomplete="off" spellcheck="false"><button class="chip" id="do-import">匯入</button></div>
+          <p class="note">也可以把「#代碼」加在網址最後再開啟，頁面會自動載入這些方案。</p>
+        </div>
+      </details>
+    </div>
+    <div>
+      <p class="grp-label">環境</p>
+      <div class="toggles">
+        <button class="tog" id="t-night" aria-pressed="false">夜晚</button>
+        <button class="tog" id="t-lights" aria-pressed="true">室內燈</button>
+        <button class="tog" id="t-doors" aria-pressed="true">門全開</button>
+        <button class="tog" id="t-quality" aria-pressed="true">畫質：自動</button>
+      </div>
+      <div class="ctemp" data-edit>
+        <p class="ct-title">燈具色溫 · 主燈與間接燈可分開設定</p>
+        <div class="chips" id="ct-rooms" role="group" aria-label="色溫設定對象"></div>
+        <input id="in-ct" type="range" min="2700" max="6500" step="100" value="3000" aria-label="色溫（K）">
+        <output id="ct-out" for="in-ct">全室 3000K 暖白光</output>
+        <div class="toggles"><button class="chip" id="ct-plan">套用建議：臥室 2700K・客廳 3000K＋電視牆 2700K・廚浴 4000K</button></div>
+      </div>
+    </div>
+    <p class="note" data-view>這是唯讀展示版：可以切換設計方案，並用俯視、鳥瞰或第一人稱觀看；不會修改任何方案或檔案。</p>
+    <p class="note">依 260922 平面配置圖（AR01）1:40 向量尺寸建模。本案為單層住宅，故只有 1F 俯視。第一人稱模式下，門會在靠近時自動開啟。</p>
+  </div>
+</aside>
+
+<div class="hint" id="hint"></div>
+<div class="cross" id="cross" hidden></div>
+<div class="hud" id="hud" hidden>
+  <div class="roomtag" id="roomtag">玄關<span>ENTRY</span></div>
+  <canvas class="mini" id="mini" width="432" height="284"></canvas>
+</div>
+<div class="joy" id="joy" hidden><i id="knob"></i></div>
+
+<div class="overlay" id="pause" hidden>
+  <div class="card" role="dialog" aria-labelledby="pause-title">
+    <h2 id="pause-title">漫遊已暫停</h2>
+    <p id="pause-msg">點「繼續漫遊」重新鎖定滑鼠。</p>
+    <div class="row">
+      <button class="btn primary" id="resume">繼續漫遊</button>
+      <button class="btn" id="leave">回到 3D 鳥瞰</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="loading" id="loading">依 AR01 平面配置圖建模中…</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+window.__ready = true;
+const VIEWER = true;                          // true = 唯讀展示版（只能切換方案）
+if(VIEWER) document.documentElement.classList.add('viewer');
+
+/* =========================================================
+   0. 基本設定：圖面座標（PDF pt）→ 公尺
+   A3 圖紙 1pt = 0.3528mm，比例 1:40 → 1pt = 1.411cm
+   ========================================================= */
+const S = 0.0141111;
+const OX = 210.9, OY = 250.4;                 // 左上外牆角為原點
+const X = x => (x - OX) * S;                  // 圖面 x → 世界 x
+const Z = y => (y - OY) * S;                  // 圖面 y → 世界 z（往下為 +z）
+const L = d => d * S;
+const H = 2.7;                                // 天花板高度
+const DOOR_LAYER = 2;
+const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
+const LOW = IS_TOUCH;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const rng = mulberry32(260922);
+const rr = (a,b) => a + (b-a)*rng();
+const pick = arr => arr[Math.floor(rng()*arr.length)];
+
+/* ---------- Renderer ---------- */
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, LOW ? 1.5 : 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+const ANISO = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+labelRenderer.domElement.className = 'labels';
+document.body.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+
+/* ---------- 程序化材質貼圖（Canvas） ---------- */
+function cv(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return [c, c.getContext('2d')]; }
+function tex(c, srgb=true){ const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; if(srgb) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=ANISO; return t; }
+
+// 木紋：沿 x 方向的波動紋理線
+function grain(g, x, y, w, h, base, dark, density){
+  g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip();
+  g.fillStyle = base; g.fillRect(x,y,w,h);
+  const n = Math.max(4, Math.floor(h/density));
+  for(let i=0;i<n;i++){
+    const off = (i+rng())/n*h, amp=rr(.5,3.5), fr=rr(.004,.02), ph=rr(0,6.3);
+    g.strokeStyle = `rgba(${dark},${rr(.04,.17).toFixed(3)})`;
+    g.lineWidth = rr(.5,1.8);
+    g.beginPath();
+    for(let s=-6; s<=w+8; s+=6){
+      const d = off + Math.sin(s*fr+ph)*amp + Math.sin(s*fr*2.7+ph*1.7)*amp*.35;
+      if(s<0) g.moveTo(x+s, y+d); else g.lineTo(x+s, y+d);
+    }
+    g.stroke();
+  }
+  for(let i=0;i<6;i++){ g.fillStyle=`rgba(255,240,220,${rr(0,.06).toFixed(3)})`; g.fillRect(x, y+rng()*h, w, rr(2,10)); }
+  g.restore();
+}
+function floorTex(p){                             // 超耐磨木地板，貼圖代表 2m × 2m
+  const [c,g]=cv(1024,1024), rows=10, rh=1024/rows;
+  for(let r=0;r<rows;r++){
+    const lens=[]; let sum=0; while(sum<1024){ const l=rr(280,560); lens.push(l); sum+=l; }
+    const k=1024/sum, off=rng()*1024; let s=0;
+    for(const l0 of lens){
+      const l=l0*k, col=`hsl(${rr(...p.hue)},${rr(...p.sat)}%,${rr(...p.light)}%)`;
+      for(const sh of [0,-1024]){
+        const x=((s+off)%1024)+sh; if(x+l<0||x>1024) continue;
+        grain(g,x,r*rh,l,rh,col,p.grain,2.6);
+        g.fillStyle=`rgba(80,52,28,${p.joint})`; g.fillRect(x,r*rh,2,rh);
+      }
+      s+=l;
+    }
+    g.fillStyle=`rgba(80,52,28,${p.joint*.9})`; g.fillRect(0,r*rh,1024,2);
+  }
+  return tex(c);
+}
+function woodTex(base, dark, dens=3){ const [c,g]=cv(512,512); grain(g,0,0,512,512,base,dark,dens); return tex(c); }
+function tileTex({n,m,base,vary=5,grout,gw=3,speck=.15,offset=false,size=512}){
+  const [c,g]=cv(size,size), tw=size/n, th=size/m;
+  g.fillStyle=grout; g.fillRect(0,0,size,size);
+  for(let j=0;j<m;j++) for(let i=-1;i<=n;i++){
+    const ox=offset&&(j%2)?tw/2:0, v=rr(-vary,vary);
+    g.fillStyle=`rgb(${base[0]+v|0},${base[1]+v|0},${base[2]+v|0})`;
+    g.fillRect(i*tw+ox+gw/2, j*th+gw/2, tw-gw, th-gw);
+  }
+  const N=size*size*speck/30;
+  for(let k=0;k<N;k++){ g.fillStyle=`rgba(${rng()<.5?'0,0,0':'255,255,255'},${rr(.02,.07).toFixed(3)})`; g.fillRect(rng()*size,rng()*size,rr(1,2.5),rr(1,2.5)); }
+  return tex(c);
+}
+function marbleTex(base){
+  const [c,g]=cv(1024,1024); g.fillStyle=base; g.fillRect(0,0,1024,1024);
+  for(let i=0;i<60;i++){ const x=rng()*1024,y=rng()*1024,r=rr(60,220); const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,`rgba(196,194,188,${rr(.05,.15).toFixed(3)})`); gr.addColorStop(1,'rgba(196,194,188,0)'); g.fillStyle=gr; g.fillRect(x-r,y-r,2*r,2*r); }
+  g.translate(512,512); g.rotate(-.6); g.translate(-512,-512);
+  for(let i=0;i<18;i++){ let x=rr(-300,1324), y=-300; g.strokeStyle=`rgba(110,110,115,${rr(.08,.3).toFixed(3)})`; g.lineWidth=rr(.5,2.6); g.beginPath(); g.moveTo(x,y); while(y<1400){ x+=rr(-26,26); y+=rr(14,40); g.lineTo(x,y); } g.stroke(); }
+  return tex(c);
+}
+function fabricTex(hex, rep=4){
+  const size=256, [c,g]=cv(size,size); g.fillStyle=hex; g.fillRect(0,0,size,size);
+  const im=g.getImageData(0,0,size,size), d=im.data;
+  for(let y=0;y<size;y++) for(let x=0;x<size;x++){ const i=(y*size+x)*4, n=(rng()-.5)*16+(((x>>1)+(y>>1))%2?5:-5); d[i]+=n; d[i+1]+=n; d[i+2]+=n; }
+  g.putImageData(im,0,0); const t=tex(c); t.repeat.set(rep,rep); return t;
+}
+function rugTex(p){
+  const [c,g]=cv(1024,720); g.fillStyle=p.base; g.fillRect(0,0,1024,720);
+  g.strokeStyle=p.border; g.lineWidth=26; g.strokeRect(40,40,944,640);
+  g.lineWidth=4; g.strokeRect(84,84,856,552);
+  g.strokeStyle=p.dia; g.lineWidth=3;
+  for(let x=130;x<=900;x+=64) for(let y=130;y<=600;y+=64){ g.beginPath(); g.moveTo(x,y-22); g.lineTo(x+22,y); g.lineTo(x,y+22); g.lineTo(x-22,y); g.closePath(); g.stroke(); }
+  for(let k=0;k<9000;k++){ g.fillStyle=`rgba(0,0,0,${rr(.02,.06).toFixed(3)})`; g.fillRect(rng()*1024,rng()*720,2,2); }
+  return tex(c);
+}
+function tvTex(){
+  const [c,g]=cv(768,432); const sky=g.createLinearGradient(0,0,0,432);
+  sky.addColorStop(0,'#f0ad78'); sky.addColorStop(.55,'#f7dcb6'); sky.addColorStop(1,'#8aa6b6');
+  g.fillStyle=sky; g.fillRect(0,0,768,432);
+  g.fillStyle='rgba(255,242,215,.95)'; g.beginPath(); g.arc(520,205,36,0,7); g.fill();
+  [['#b88f7c',232],['#8b7a86',266],['#5f6478',304],['#3b4458',344]].forEach(([col,base],k)=>{
+    g.fillStyle=col; g.beginPath(); g.moveTo(0,432);
+    for(let x=0;x<=768;x+=12) g.lineTo(x, base-Math.sin(x*.008+k*1.7)*28-Math.sin(x*.023+k)*12);
+    g.lineTo(768,432); g.fill();
+  });
+  return tex(c);
+}
+function artTex(p){
+  const [c,g]=cv(600,420); g.fillStyle=p.bg; g.fillRect(0,0,600,420);
+  g.fillStyle=p.circle; g.beginPath(); g.arc(210,220,118,0,7); g.fill();
+  g.fillStyle=p.rect; g.fillRect(300,80,190,258);
+  g.fillStyle=p.arch; g.beginPath(); g.arc(395,338,94,Math.PI,0); g.fill();
+  g.strokeStyle=p.line; g.lineWidth=5; g.beginPath(); g.moveTo(80,330); g.bezierCurveTo(200,260,330,390,540,300); g.stroke();
+  return tex(c);
+}
+function pleatTex(){
+  const [c,g]=cv(64,128);
+  for(let y=0;y<128;y+=8){ const gr=g.createLinearGradient(0,y,0,y+8); gr.addColorStop(0,'#f5f0e7'); gr.addColorStop(.5,'#e4ddd0'); gr.addColorStop(1,'#cbc2b2'); g.fillStyle=gr; g.fillRect(0,y,64,8); }
+  return tex(c);
+}
+function zebraTex(){
+  const [c,g]=cv(64,160); g.clearRect(0,0,64,160);
+  for(let y=0;y<160;y+=40){ g.fillStyle='rgba(236,231,221,1)'; g.fillRect(0,y,64,22); g.fillStyle='rgba(245,242,236,.35)'; g.fillRect(0,y+22,64,18); }
+  return tex(c);
+}
+function noiseTex(hex, amt, size=256, rep=1){
+  const [c,g]=cv(size,size); g.fillStyle=hex; g.fillRect(0,0,size,size);
+  for(let k=0;k<size*size/6;k++){ g.fillStyle=`rgba(${rng()<.5?'0,0,0':'255,255,255'},${(rng()*amt).toFixed(3)})`; g.fillRect(rng()*size,rng()*size,2,2); }
+  const t=tex(c); t.repeat.set(rep,rep); return t;
+}
+// 城市建築立面：日間貼圖＋夜間發光窗
+function facadeTex(wall, glass, frame){
+  const [c,g]=cv(256,256), [e,ge]=cv(256,256);
+  g.fillStyle=wall; g.fillRect(0,0,256,256); ge.fillStyle='#000'; ge.fillRect(0,0,256,256);
+  for(let j=0;j<4;j++) for(let i=0;i<4;i++){
+    const x=i*64+10, y=j*64+14, w=44, h=38;
+    g.fillStyle=frame; g.fillRect(x-2,y-2,w+4,h+4);
+    g.fillStyle=glass; g.fillRect(x,y,w,h);
+    g.fillStyle='rgba(255,255,255,.12)'; g.fillRect(x,y,w,h*.35);
+    if(rng()<.45){ ge.fillStyle=`hsl(${rr(35,48)|0},${rr(60,90)|0}%,${rr(55,72)|0}%)`; ge.fillRect(x,y,w,h); }
+  }
+  for(let j=0;j<4;j++){ g.fillStyle='rgba(0,0,0,.08)'; g.fillRect(0,j*64+58,256,4); }
+  return [tex(c), tex(e)];
+}
+function cloudTex(){
+  const [c,g]=cv(256,128);
+  for(let i=0;i<14;i++){ const x=rr(50,206), y=rr(50,85), r=rr(22,48); const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(255,255,255,.55)'); gr.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=gr; g.fillRect(x-r,y-r,2*r,2*r); }
+  return tex(c);
+}
+
+/* ---------- 風格方案：北歐奶油／現代風／日式無印 ---------- */
+const THEMES = {
+  nordic:{ name:'北歐奶油', exposure:.94,
+    floor:{hue:[33,38],sat:[24,32],light:[71,78],grain:'125,90,55',joint:.2},
+    oak:['hsl(36,34%,75%)','135,100,62'], walnut:['hsl(33,34%,61%)','100,66,36',2.8],
+    bathFloor:{base:[206,198,186],grout:'#b3a898'}, bathWall:{base:[239,233,223],grout:'#d5cbbd'},
+    kitchenFloor:{base:[216,206,192],grout:'#b9ae9f'}, subway:{base:[243,237,227],grout:'#d9cfc0'}, balcony:{base:[200,184,162],grout:'#a89a86'},
+    fabric:'#e6dccb', fabricBeige:'#e3d7c4', fabricLinen:'#f0e7d8', marble:'#f3eee6',
+    rug:{base:'#efe6d7',border:'#cdb99c',dia:'rgba(178,150,116,.45)'},
+    art:{bg:'#f2ece1',circle:'#d4a373',rect:'#a9b19b',arch:'#e9d9c0',line:'#6b5646'},
+    doorMap:false, lacquerMap:false,
+    mat:{paint:0xf4ece0,capDark:0x877d72,capLight:0xc4bbaf,ceiling:0xfaf5ec,doorWood:0xeee5d6,lacquer:0xefe6d7,whiteMetal:0xebe3d6,gapDark:0x8e8275,shadowDark:0xa39685,blackMetal:0x3b3531,
+      pillowA:0xc79a6b,pillowB:0xb3b99f,cushion:0xe6dbcb,linen:0xf7f1e7,duvet:0xe4d6c0,duvet2:0xd7dbc9,throw:0xc9a27a,chairFabric:0xcfc2ae,alu:0xddd5c8,pot:0xefe6d8,potDark:0xa89782,
+      ceramicGreen:0xbcc4b0,entryDoor:0x8b8074,pendantOut:0xe9ddcb,tvBack:0xefe6d7},
+    handle:{color:0xc8a45c,metalness:1,roughness:.3},
+    books:[0xc8b79e,0xa98a6c,0xe8ddcc,0x9ca78e,0x8c7b6b,0xdac8ae,0xb98e6a,0x6e6258] },
+  modern:{ name:'現代風', exposure:1.0,
+    floor:{hue:[27,35],sat:[30,42],light:[57,67],grain:'95,58,28',joint:.35},
+    oak:['hsl(34,40%,66%)','110,70,35'], walnut:['hsl(24,34%,34%)','25,12,6',2.6],
+    bathFloor:{base:[152,152,148],grout:'#6f6f6b'}, bathWall:{base:[224,223,218],grout:'#bebdb7'},
+    kitchenFloor:{base:[196,189,178],grout:'#9c968c'}, subway:{base:[238,238,234],grout:'#cdcdc8'}, balcony:{base:[170,122,96],grout:'#8a7a70'},
+    fabric:'#8e979a', fabricBeige:'#d6cdbf', fabricLinen:'#e7ddce', marble:'#eeede9',
+    rug:{base:'#d9d1c3',border:'#5d6f78',dia:'rgba(150,118,82,.55)'},
+    art:{bg:'#ece6da',circle:'#c98b4f',rect:'#50656f',arch:'#e6d4b3',line:'#1f2326'},
+    doorMap:true, lacquerMap:false,
+    mat:{paint:0xf0ede7,capDark:0x6f716e,capLight:0xb4b6b2,ceiling:0xfaf9f6,doorWood:0xffffff,lacquer:0xf2f1ed,whiteMetal:0xeeeeea,gapDark:0x2a2a28,shadowDark:0x3a3936,blackMetal:0x1e1f21,
+      pillowA:0xc9a36a,pillowB:0x5f7480,cushion:0xb9b0a3,linen:0xf4f2ed,duvet:0xa9b9c2,duvet2:0xd9cbb2,throw:0xb98b4e,chairFabric:0x3d4448,alu:0x44474a,pot:0xe4ded4,potDark:0x3d3b38,
+      ceramicGreen:0x7f9a8a,entryDoor:0x3b3f42,pendantOut:0x202224,tvBack:0x3a3936},
+    handle:{color:0x1e1f21,metalness:.6,roughness:.45},
+    books:[0x8c3b2e,0x2f4a5c,0xc9b28a,0x3f5e45,0x6b6e70,0xd9d4c7,0x9a6b3a,0x1f2a33] },
+  muji:{ name:'日式無印', exposure:.97,
+    floor:{hue:[30,35],sat:[30,38],light:[63,70],grain:'110,75,42',joint:.24},
+    oak:['hsl(33,38%,68%)','115,80,45'], walnut:['hsl(31,36%,57%)','85,55,28',2.8],
+    bathFloor:{base:[176,171,162],grout:'#8e877c'}, bathWall:{base:[233,230,223],grout:'#c9c4ba'},
+    kitchenFloor:{base:[188,182,172],grout:'#9b948a'}, subway:{base:[241,239,233],grout:'#d2cec5'}, balcony:{base:[166,160,150],grout:'#85807a'},
+    fabric:'#cabfab', fabricBeige:'#cbbea8', fabricLinen:'#e7e0d3', marble:'#efece6',
+    rug:{base:'#e2dace',border:'#9c8f7c',dia:'rgba(120,105,85,.32)'},
+    art:{bg:'#efeae1',circle:'#b8a88c',rect:'#8f9b88',arch:'#dad0bd',line:'#4a4038'},
+    doorMap:true, lacquerMap:true,
+    mat:{paint:0xf1efe9,capDark:0x7b766f,capLight:0xbdb8b0,ceiling:0xf7f5f0,doorWood:0xffffff,lacquer:0xffffff,whiteMetal:0xeeece7,gapDark:0x6f675e,shadowDark:0x8a8177,blackMetal:0x2f2c29,
+      pillowA:0xb9ab92,pillowB:0x8e8878,cushion:0xcfc4b2,linen:0xf2efe8,duvet:0xd9d3c7,duvet2:0xc9c3b7,throw:0x9b8f7b,chairFabric:0x8f8778,alu:0x9a958d,pot:0xd8d2c8,potDark:0x6d665e,
+      ceramicGreen:0x9fa894,entryDoor:0x6e675f,pendantOut:0xf0ebe0,tvBack:0xe9e3d8},
+    handle:{color:0xb49a74,metalness:0,roughness:.6},
+    books:[0xd8d2c6,0x8f8778,0xb9ab92,0x6f7d6a,0x5b534b,0xe8e3d9,0xa0896c,0x3f3a35] },
+};
+function makeThemeTextures(th){
+  const oak=woodTex(...th.oak), oakV=oak.clone(); oakV.center.set(.5,.5); oakV.rotation=Math.PI/2; oakV.needsUpdate=true;   // 直紋（高門片用）
+  const oakDoor=woodTex(th.oak[0],th.oak[1],3.4); oakDoor.center.set(.5,.5); oakDoor.rotation=Math.PI/2;
+  const floor=floorTex(th.floor); floor.anisotropy=ANISO;
+  return { floor, oak, oakV, oakDoor, walnut:woodTex(...th.walnut), marble:marbleTex(th.marble),
+    bathFloor:tileTex({n:2,m:2,vary:5,gw:3,speck:.3,...th.bathFloor}), bathWall:tileTex({n:2,m:4,vary:3,gw:2,speck:.1,...th.bathWall}),
+    kitchenFloor:tileTex({n:2,m:2,vary:5,gw:3,speck:.28,...th.kitchenFloor}), subway:tileTex({n:4,m:8,vary:3,gw:3,speck:.05,offset:true,...th.subway}),
+    balcony:tileTex({n:4,m:4,vary:8,gw:4,speck:.35,...th.balcony}),
+    fabric:fabricTex(th.fabric,3), fabricBeige:fabricTex(th.fabricBeige), fabricLinen:fabricTex(th.fabricLinen,6),
+    rug:rugTex(th.rug), art:artTex(th.art) };
+}
+const THEME_TEX = { nordic: makeThemeTextures(THEMES.nordic) };
+const T = {
+  ...THEME_TEX.nordic,
+  entry: tileTex({n:2,m:2,base:[122,124,122],vary:6,grout:'#55575a',gw:3,speck:.5}),
+  corridor: tileTex({n:2,m:2,base:[180,178,172],vary:4,grout:'#8f8d88',gw:3,speck:.3}),
+  tv: tvTex(), pleat: pleatTex(), zebra: zebraTex(),
+  grass: noiseTex('#6f8660',.12,256,220),
+  cloud: cloudTex(),
+};
+
+/* =========================================================
+   1. 材質
+   ========================================================= */
+const std = o => new THREE.MeshStandardMaterial(o);
+const env = { envMap: envTex };
+const M = {
+  paint: std({color:0xf4ece0, roughness:.93}),               // 暖奶油白牆
+  capDark: std({color:0x877d72, roughness:1}),        // 剖切牆頂（同平面圖灰色實牆）
+  capLight: std({color:0xc4bbaf, roughness:1}),       // 門窗上方過樑頂
+  sill: std({map:T.marble, roughness:.35}),
+  ceiling: std({color:0xfaf5ec, roughness:.95}),
+  concrete: std({color:0xa3a29c, roughness:1}),
+  floorWood: std({map:T.floor, roughness:.5, ...env, envMapIntensity:.22}),
+  bathFloor: std({map:T.bathFloor, roughness:.35, ...env, envMapIntensity:.4}),
+  bathWall: std({map:T.bathWall, roughness:.22, ...env, envMapIntensity:.55}),
+  kitchenFloor: std({map:T.kitchenFloor, roughness:.4, ...env, envMapIntensity:.3}),
+  entryTile: std({map:T.entry, roughness:.45}),
+  balconyTile: std({map:T.balcony, roughness:.8}),
+  corridor: std({map:T.corridor, roughness:.5}),
+  subway: std({map:T.subway, roughness:.18, ...env, envMapIntensity:.6}),
+  oak: std({map:T.oak, roughness:.62}),
+  oakV: std({map:T.oakV, roughness:.58}),
+  doorWood: std({color:0xeee5d6, roughness:.45}),           // 奶油色烤漆門
+  walnut: std({map:T.walnut, roughness:.5}),
+  walnutTop: std({map:T.walnut, roughness:.3, ...env, envMapIntensity:.35}),
+  lacquer: std({color:0xefe6d7, roughness:.4, ...env, envMapIntensity:.3}),
+  whiteMetal: std({color:0xebe3d6, roughness:.4, metalness:.2}),
+  gapDark: std({color:0x8e8275, roughness:.9}),
+  shadowDark: std({color:0xa39685, roughness:1}),
+  blackMetal: std({color:0x3b3531, roughness:.45, metalness:.5, ...env, envMapIntensity:.45}),
+  brass: std({color:0xc8a45c, roughness:.3, metalness:1, ...env}),
+  chrome: std({color:0xffffff, roughness:.06, metalness:1, ...env, envMapIntensity:1.1}),
+  steel: std({color:0xcfd2d4, roughness:.3, metalness:1, ...env, envMapIntensity:.9}),
+  blackGlass: std({color:0x0b0b0c, roughness:.08, metalness:.2, ...env, envMapIntensity:.8}),
+  ceramic: std({color:0xfbfbfa, roughness:.1, ...env, envMapIntensity:.7}),
+  ceramicDS: std({color:0xfbfbfa, roughness:.1, ...env, envMapIntensity:.7, side:THREE.DoubleSide}),
+  marble: std({map:T.marble, roughness:.22, ...env, envMapIntensity:.45}),
+  sofa: std({map:T.fabric, roughness:.95}),
+  pillowA: std({color:0xc79a6b, roughness:.95}),
+  pillowB: std({color:0xb3b99f, roughness:.95}),
+  cushion: std({color:0xe6dbcb, roughness:.95}),
+  linen: std({color:0xf7f1e7, roughness:.9}),
+  duvet: std({color:0xe4d6c0, roughness:.92}),
+  duvet2: std({color:0xd7dbc9, roughness:.92}),
+  throw: std({color:0xc9a27a, roughness:.95}),
+  bedBase: std({map:T.fabricBeige, roughness:.95}),
+  chairFabric: std({color:0xcfc2ae, roughness:.9}),
+  rug: std({map:T.rug, roughness:1}),
+  glass: new THREE.MeshPhysicalMaterial({color:0xdbeef2, roughness:.03, metalness:0, transparent:true, opacity:.14, ...env, envMapIntensity:1.3, depthWrite:false}),
+  showerGlass: new THREE.MeshPhysicalMaterial({color:0xf2fafa, roughness:.02, metalness:0, transmission:1, thickness:.01, ior:1.5, ...env, envMapIntensity:1}),
+  alu: std({color:0xddd5c8, roughness:.5, metalness:.2}),
+  leaf: std({color:0x3e7a3a, roughness:.7}),
+  leaf2: std({color:0x5d8f3c, roughness:.7}),
+  trunk: std({color:0x6b5139, roughness:.9}),
+  pot: std({color:0xefe6d8, roughness:.55}),
+  potDark: std({color:0xa89782, roughness:.6}),
+  potTerra: std({color:0xb5673f, roughness:.8}),
+  soil: std({color:0x3a2a1e, roughness:1}),
+  ceramicGreen: std({color:0xbcc4b0, roughness:.3, ...env}),
+  tvFrame: std({color:0x111214, roughness:.4, metalness:.4}),
+  tvScreen: std({map:T.tv, emissiveMap:T.tv, emissive:0xffffff, emissiveIntensity:.85, roughness:.2}),
+  art: std({map:T.art, roughness:.9}),
+  lampShade: std({color:0xf3e8d4, emissive:0xffd9a0, emissiveIntensity:.8, roughness:.9, side:THREE.DoubleSide}),
+  lightPanel: std({color:0xffffff, emissive:0xfff1dc, emissiveIntensity:1.6}),
+  bulb: std({color:0xffffff, emissive:0xffe0b0, emissiveIntensity:3}),
+  whiteApp: std({color:0xf5f5f3, roughness:.3, ...env, envMapIntensity:.4}),
+  darkGlass: std({color:0x1b2328, roughness:.05, metalness:.3, ...env}),
+  water: new THREE.MeshPhysicalMaterial({color:0x5fb4d6, emissive:0x1d6b8a, emissiveIntensity:.6, transparent:true, opacity:.42, roughness:.1, depthWrite:false}),
+  fish: std({color:0xff7a2a, emissive:0x662200, emissiveIntensity:.5, roughness:.4}),
+  gravel: std({color:0xcbbd9f, roughness:1}),
+  pleat: std({map:T.pleat, roughness:.95, side:THREE.DoubleSide}),
+  zebra: std({map:T.zebra, roughness:.95, transparent:true, side:THREE.DoubleSide, depthWrite:false}),
+  curtain: std({map:T.fabricLinen, roughness:.95, side:THREE.DoubleSide}),
+  sheer: std({color:0xffffff, roughness:.9, transparent:true, opacity:.5, side:THREE.DoubleSide, depthWrite:false}),
+  towel: std({color:0xdcd6cc, roughness:1}),
+  entryDoor: std({color:0x8b8074, roughness:.5, metalness:.2}),
+  pendantOut: std({color:0xe9ddcb, roughness:.5, metalness:.1}),
+  pendantIn: std({color:0xf5f1e8, roughness:.6, side:THREE.BackSide}),
+  handle: std({color:0xc8a45c, roughness:.3, metalness:1, ...env}),      // 櫃體把手（隨風格換色）
+  tvBack: std({color:0xefe6d7, roughness:.9}),                           // 電視牆格柵底板
+  grass: std({map:T.grass, roughness:1}),
+  road: std({color:0x4a4d50, roughness:.95}),
+  walk: std({color:0x9c9a94, roughness:.95}),
+  tree: std({color:0x4f7a44, roughness:.9}),
+};
+const BOOK_MATS = [0xc8b79e,0xa98a6c,0xe8ddcc,0x9ca78e,0x8c7b6b,0xdac8ae,0xb98e6a,0x6e6258].map(c=>std({color:c, roughness:.8}));
+const FIXTURE_MATS = [M.lightPanel, M.bulb, M.lampShade];
+
+/* =========================================================
+   2. 幾何小工具（y 一律以「底面」定位，單位公尺）
+   ========================================================= */
+const staticG = new THREE.Group(); scene.add(staticG);   // 靜態物件（最後合併以減少 draw call）
+const ceilG   = new THREE.Group(); scene.add(ceilG);     // 天花板、燈具（俯視／鳥瞰時隱藏）
+const upperG  = new THREE.Group(); scene.add(upperG);    // 樓上量體（僅第一人稱顯示）
+const cityG   = new THREE.Group(); scene.add(cityG);     // 天空、城市景觀
+const doorG   = new THREE.Group(); scene.add(doorG);     // 可動門扇
+const dynG    = new THREE.Group(); scene.add(dynG);      // 魚缸等動畫
+const labelG  = new THREE.Group(); scene.add(labelG);
+
+function mk(geo, mat, cast=true, recv=true){ const m=new THREE.Mesh(geo,mat); m.castShadow=cast; m.receiveShadow=recv; return m; }
+function B(p,w,h,d,mat,x,y,z,cast=true){ const m=mk(new THREE.BoxGeometry(w,h,d),mat,cast); m.position.set(x,y+h/2,z); p.add(m); return m; }
+function RB(p,w,h,d,r,mat,x,y,z,cast=true){ const rad=Math.min(r,w/2-1e-3,h/2-1e-3,d/2-1e-3); const m=mk(new RoundedBoxGeometry(w,h,d,3,rad),mat,cast); m.position.set(x,y+h/2,z); p.add(m); return m; }
+function C(p,rt,rb,h,mat,x,y,z,seg=20,cast=true){ const m=mk(new THREE.CylinderGeometry(rt,rb,h,seg),mat,cast); m.position.set(x,y+h/2,z); p.add(m); return m; }
+function R(p,r,yb,yt,mat,cast=true){ const [x0,y0,x1,y1]=r; return B(p,L(x1-x0),yt-yb,L(y1-y0),mat,X((x0+x1)/2),yb,Z((y0+y1)/2),cast); }
+
+// 碰撞盒（水平面 AABB ＋ 垂直範圍）與地面高度
+const colliders = [], FLOORS = [];
+function addCol(minX,maxX,minZ,maxZ,minY=0,maxY=H){ colliders.push({minX,maxX,minZ,maxZ,minY,maxY}); }
+function colRect(r,minY=0,maxY=H){ addCol(X(r[0]),X(r[2]),Z(r[1]),Z(r[3]),minY,maxY); }
+function colObj(o){ o.updateWorldMatrix(true,true); const b=new THREE.Box3().setFromObject(o); addCol(b.min.x,b.max.x,b.min.z,b.max.z,b.min.y,b.max.y); }
+function put(o,xPt,yPt,rot=0,collide=true,parent=staticG){ o.position.x=X(xPt); o.position.z=Z(yPt); o.rotation.y=rot; parent.add(o); if(collide) colObj(o); return o; }
+function groundAt(x,z){ let g=-100; for(const f of FLOORS) if(x>=f.minX&&x<=f.maxX&&z>=f.minZ&&z<=f.maxZ&&f.top>g) g=f.top; return g; }
+
+// 以世界座標重算 UV，讓磁磚／木地板依實際尺寸重複
+function worldUV(geo,size,mode){
+  const p=geo.attributes.position, uv=geo.attributes.uv;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i), y=p.getY(i), z=p.getZ(i);
+    if(mode==='xz') uv.setXY(i,x/size,-z/size); else if(mode==='xy') uv.setXY(i,x/size,y/size); else uv.setXY(i,z/size,y/size);
+  }
+  uv.needsUpdate=true;
+}
+
+/* =========================================================
+   3. 結構：牆、樓板、門窗開口（座標取自 PDF 向量圖）
+   ========================================================= */
+const wm = cap => [M.paint,M.paint,cap,M.paint,M.paint,M.paint];
+const WALL_M = wm(M.capDark), LINTEL_M = wm(M.capLight), SILL_M = wm(M.sill);
+function wall(r,yb=0,yt=H,mats=WALL_M,collide=true){
+  const [x0,y0,x1,y1]=r;
+  const m=mk(new THREE.BoxGeometry(L(x1-x0),yt-yb,L(y1-y0)),mats);
+  m.position.set(X((x0+x1)/2),yb+(yt-yb)/2,Z((y0+y1)/2)); staticG.add(m);
+  if(collide) colRect(r,yb,yt);
+  return m;
+}
+const WALLS = [
+  [221.5,250.4,503.2,261.0],[637.9,250.4,654.6,261.0],[643.9,261.0,654.6,277.0],[643.9,277.0,700.6,287.6],
+  [764.4,277.0,817.6,287.6],[775.0,261.0,806.9,277.0],[806.9,261.0,817.6,277.0],[806.9,287.6,817.6,470.1],
+  [806.9,541.0,817.6,665.0],[210.9,665.0,817.6,675.6],[210.9,634.9,221.5,665.0],[210.9,431.1,221.5,464.8],
+  [115.3,176.0,221.5,261.0],[775.0,176.0,860.1,261.0],                        // 結構柱
+  [496.2,261.0,503.2,457.7],[285.3,457.7,580.1,464.8],[643.9,457.7,701.0,464.8],[761.2,457.7,806.9,464.8],
+  [643.9,287.6,651.0,393.9],[643.9,393.9,694.2,401.0],[687.1,401.0,694.2,457.7],
+  [597.9,542.7,651.0,549.8],[704.2,542.7,743.1,549.8],[736.0,549.8,743.1,571.1],[736.0,571.1,806.9,578.2],
+  [597.9,549.8,604.9,665.0],[597.9,628.5,675.8,635.6],[668.7,635.6,675.8,665.0],[604.9,635.6,668.7,665.0], // 浴室＋管道間
+  [817.6,425,880,430],[817.6,590,880,595],[880,425,885,595],                 // 門外公共走廊
+];
+WALLS.forEach(r=>wall(r));
+
+const DOOR_OPENINGS = [
+  {r:[221.5,457.7,285.3,464.8],h:2.1,axis:'x'},   // 主臥
+  {r:[580.1,457.7,643.9,464.8],h:2.1,axis:'x'},   // 客房
+  {r:[701.0,457.7,761.2,464.8],h:2.1,axis:'x'},   // 廚房
+  {r:[651.0,542.7,704.2,549.8],h:2.1,axis:'x'},   // 浴廁
+  {r:[806.9,470.1,817.6,541.0],h:2.15,axis:'z',trim:'dark'}, // 大門
+  {r:[700.6,277.0,764.4,287.6],h:2.1,axis:'x',trim:'alu'},   // 陽台門
+];
+DOOR_OPENINGS.forEach(o=>{
+  wall(o.r,o.h,H,LINTEL_M);
+  const [x0,y0,x1,y1]=o.r, g=new THREE.Group();
+  g.position.set(X((x0+x1)/2),0,Z((y0+y1)/2)); if(o.axis==='z') g.rotation.y=Math.PI/2;
+  const w=o.axis==='x'?L(x1-x0):L(y1-y0), t=o.axis==='x'?L(y1-y0):L(x1-x0);
+  const tm=o.trim==='dark'?M.entryDoor:o.trim==='alu'?M.alu:M.lacquer, jt=.02, cw=.06, ct=.012, h=o.h;
+  B(g,jt,h,t,tm,-w/2+jt/2,0,0); B(g,jt,h,t,tm,w/2-jt/2,0,0); B(g,w,jt,t,tm,0,h-jt,0);
+  for(const s of [-1,1]){ const z=s*(t/2+ct/2);
+    B(g,cw,h+cw-jt,ct,tm,-w/2-cw/2+jt,0,z); B(g,cw,h+cw-jt,ct,tm,w/2+cw/2-jt,0,z); B(g,w+2*cw-2*jt,cw,ct,tm,0,h-jt,z); }
+  staticG.add(g);
+});
+
+const WINDOWS = [
+  {r:[210.9,261.0,221.5,431.1],sill:.9, head:2.2,axis:'z',panes:3},  // 主臥（風琴簾）
+  {r:[210.9,464.8,221.5,634.9],sill:.45,head:2.3,axis:'z',panes:3},  // 客廳（一紗一布簾）
+  {r:[503.2,250.4,637.9,261.0],sill:.9, head:2.2,axis:'x',panes:2},  // 客房（調光簾）
+];
+WINDOWS.forEach(o=>{
+  wall(o.r,0,o.sill,SILL_M,false); wall(o.r,o.head,H,LINTEL_M,false); colRect(o.r,0,H);
+  const [x0,y0,x1,y1]=o.r, len=o.axis==='z'?L(y1-y0):L(x1-x0);
+  const g=new THREE.Group(); g.position.set(X((x0+x1)/2),0,Z((y0+y1)/2)); if(o.axis==='z') g.rotation.y=Math.PI/2;
+  const fh=o.head-o.sill, fd=.07, fw=.05;
+  B(g,len,fw,fd,M.alu,0,o.sill,0); B(g,len,fw,fd,M.alu,0,o.head-fw,0);
+  B(g,fw,fh,fd,M.alu,-len/2+fw/2,o.sill,0); B(g,fw,fh,fd,M.alu,len/2-fw/2,o.sill,0);
+  for(let i=1;i<o.panes;i++) B(g,.045,fh,fd,M.alu,-len/2+len*i/o.panes,o.sill,0);
+  B(g,len-.06,fh-.06,.008,M.glass,0,o.sill+.03,0,false);
+  staticG.add(g);
+});
+
+// 樓板與地坪（上表面高度不同的面材分區；同時作為地面偵測）
+function floorRect(r,top,mat,size){
+  const [x0,y0,x1,y1]=r, geo=new THREE.BoxGeometry(L(x1-x0),top+.05,L(y1-y0));
+  geo.translate(X((x0+x1)/2),(top-.05)/2,Z((y0+y1)/2)); worldUV(geo,size,'xz');
+  staticG.add(mk(geo,mat,false,true));
+  FLOORS.push({minX:X(x0),maxX:X(x1),minZ:Z(y0),maxZ:Z(y1),top});
+}
+R(staticG,[115,176,885,675.6],-.3,-.05,M.concrete);                 // 結構樓板
+floorRect([221.5,261,643.9,287.6],.01,M.floorWood,2);
+floorRect([221.5,287.6,806.9,665],.01,M.floorWood,2);         // 木地板：客餐廳、臥室、玄關
+floorRect([694.2,287.6,806.9,457.7],.013,M.kitchenFloor,1.2);       // 廚房磁磚
+floorRect([700.6,277,764.4,287.6],.013,M.sill,1);                   // 陽台門檻
+floorRect([806.9,470.1,817.6,541],.013,M.sill,1);                   // 大門門檻
+floorRect([604.9,549.8,806.9,665],.016,M.bathFloor,1.2);            // 浴廁
+floorRect([654.6,181,775,277],-.04,M.balconyTile,1.2);              // 陽台（低 5cm）
+floorRect([817.6,430,880,590],.005,M.corridor,1.2);                 // 公共走廊
+
+// 牆面貼磚（浴室、廚房壁磚）
+function clad(axis,at,a0,a1,yb,yt,dir,mat,size){
+  const t=.008; let g;
+  if(axis==='x'){ g=new THREE.BoxGeometry(t,yt-yb,L(a1-a0)); g.translate(X(at)+dir*t/2,yb+(yt-yb)/2,Z((a0+a1)/2)); worldUV(g,size,'zy'); }
+  else { g=new THREE.BoxGeometry(L(a1-a0),yt-yb,t); g.translate(X((a0+a1)/2),yb+(yt-yb)/2,Z(at)+dir*t/2); worldUV(g,size,'xy'); }
+  staticG.add(mk(g,mat,false,true));
+}
+[
+  ['x',604.9,549.8,628.5,1],['z',549.8,604.9,651,1],['z',549.8,704.2,736,1],['x',736,549.8,578.2,-1],
+  ['z',578.2,736,806.9,1],['x',806.9,578.2,665,-1],['z',665,675.8,806.9,-1],['z',628.5,604.9,675.8,-1],['x',675.8,635.6,665,1],
+].forEach(([a,at,a0,a1,d])=>clad(a,at,a0,a1,0,H,d,M.bathWall,1.2));
+clad('x',806.9,287.6,457.7,.9,1.52,-1,M.subway,.6);
+
+/* =========================================================
+   4. 可動門扇（靠近自動開啟）
+   ========================================================= */
+const doors = [];
+function lever(g,x,y,t){
+  for(const s of [-1,1]){
+    const z=s*t/2;
+    const rose=mk(new THREE.CylinderGeometry(.026,.026,.012,20),M.chrome); rose.rotation.x=Math.PI/2; rose.position.set(x,y,z+s*.006); g.add(rose);
+    const neck=mk(new THREE.CylinderGeometry(.009,.009,.045,10),M.chrome); neck.rotation.x=Math.PI/2; neck.position.set(x,y,z+s*.025); g.add(neck);
+    const arm=mk(new THREE.BoxGeometry(.13,.018,.018),M.chrome); arm.position.set(x-.055,y,z+s*.045); g.add(arm);
+  }
+}
+const LEAF = {
+  wood(w,h,t){ const g=new THREE.Group(); B(g,w,h,t,M.doorWood,w/2,0,0);
+    for(const s of [-1,1]) B(g,w-.16,.004,.002,M.gapDark,w/2,h*.5,s*(t/2+.001),false);
+    lever(g,w-.065,1.0,t); return g; },
+  entry(w,h,t){ const g=new THREE.Group(); B(g,w,h,t,M.entryDoor,w/2,0,0);
+    for(const s of [-1,1]){ B(g,w-.14,h-.14,.004,M.walnut,w/2,.07,s*(t/2+.002)); }
+    B(g,.025,.9,.03,M.chrome,w-.09,.6,t/2+.035); B(g,.025,.9,.03,M.chrome,w-.09,.6,-t/2-.035);
+    const eye=mk(new THREE.CylinderGeometry(.01,.01,t+.01,10),M.chrome); eye.rotation.x=Math.PI/2; eye.position.set(w/2,1.55,0); g.add(eye);
+    return g; },
+  glass(w,h,t){ const g=new THREE.Group(), f=.055;
+    B(g,w,f,t,M.alu,w/2,0,0); B(g,w,f,t,M.alu,w/2,h-f,0); B(g,f,h,t,M.alu,f/2,0,0); B(g,f,h,t,M.alu,w-f/2,0,0);
+    B(g,w-2*f,h-2*f,.008,M.glass,w/2,f,0,false);
+    B(g,.02,.28,.03,M.blackMetal,w-.03,.92,t/2+.02); B(g,.02,.28,.03,M.blackMetal,w-.03,.92,-t/2-.02);
+    return g; },
+  shower(w,h,t){ const g=new THREE.Group();
+    const p=mk(new THREE.BoxGeometry(w,h,t),M.showerGlass,false,false); p.position.set(w/2,.05+h/2,0); g.add(p);
+    for(const y of [.35,h-.25]) B(g,.05,.1,.03,M.chrome,.03,y,0);
+    for(const s of [-1,1]){ B(g,.018,.34,.018,M.chrome,w-.08,.95,s*.045); B(g,.018,.02,.04,M.chrome,w-.08,.95,s*.022); B(g,.018,.02,.04,M.chrome,w-.08,1.27,s*.022); }
+    return g; },
+};
+function addDoor(o){
+  const pivot=new THREE.Group(); pivot.position.set(X(o.hinge[0]),o.base||0,Z(o.hinge[1]));
+  const thc=Math.atan2(-o.closed[1],o.closed[0]), tho=Math.atan2(-o.open[1],o.open[0]);
+  let d=tho-thc; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI;
+  const leaf=LEAF[o.type](o.width,o.height,o.thick); pivot.add(leaf); pivot.rotation.y=thc;
+  leaf.traverse(m=>{ if(m.isMesh) m.layers.set(DOOR_LAYER); });
+  doorG.add(pivot);
+  doors.push({pivot,thc,delta:d,t:1,target:1,width:o.width,thick:o.thick,hx:pivot.position.x,hz:pivot.position.z,
+    cx:X(o.center[0]),cz:Z(o.center[1]),openR:o.openR||1.5});
+}
+addDoor({type:'wood', hinge:[223.8,461.25],closed:[1,0], open:[0,-1],width:.86,height:2.08,thick:.04,center:[253.4,461.25]});
+addDoor({type:'wood', hinge:[641.6,461.25],closed:[-1,0],open:[0,-1],width:.86,height:2.08,thick:.04,center:[612,461.25]});
+addDoor({type:'wood', hinge:[703.3,461.25],closed:[1,0], open:[0,-1],width:.81,height:2.08,thick:.04,center:[731,461.25]});
+addDoor({type:'wood', hinge:[701.9,546.25],closed:[-1,0],open:[0,1], width:.71,height:2.08,thick:.04,center:[677.6,546.25]});
+addDoor({type:'entry',hinge:[812.25,538.7],closed:[0,-1],open:[-1,0],width:.96,height:2.13,thick:.055,center:[812.25,505.5]});
+addDoor({type:'glass',hinge:[702.9,282.3],closed:[1,0], open:[0,1], width:.86,height:2.08,thick:.045,center:[732.5,282.3]});
+addDoor({type:'shower',hinge:[738.45,584.5],closed:[0,1],open:[1,0],width:.6,height:1.95,thick:.008,center:[738.45,606],openR:.95});
+// 淋浴拉門兩側固定玻璃
+[[736.9,578.2,740,584.5],[736.9,628,740,665]].forEach(r=>{
+  const g=R(staticG,r,.02,2.02,M.showerGlass,false); g.receiveShadow=false; colRect(r,0,H);
+});
+R(staticG,[736.6,578.2,740.3,665],2.0,2.03,M.chrome);
+
+/* =========================================================
+   5. 家具建構函式（區域座標：正面朝 +z，底面 y=0）
+   ========================================================= */
+const leafGeo = new THREE.SphereGeometry(1,10,6);
+function sofa(){
+  const g=new THREE.Group(), W=2.35, D=.9, f=M.sofa;
+  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.018,.014,.1,M.blackMetal,sx*(W/2-.1),0,sz*(D/2-.1),10);
+  RB(g,W,.22,D,.04,f,0,.1,0);
+  for(const sx of [-1,1]) RB(g,.17,.5,D,.06,f,sx*(W/2-.085),.1,0);
+  RB(g,W-.34,.5,.2,.06,f,0,.3,-D/2+.1);
+  const cw=(W-.34)/3;
+  for(let i=0;i<3;i++){ const x=-(W-.34)/2+cw*(i+.5);
+    RB(g,cw-.012,.15,D-.22,.06,f,x,.31,.1);
+    RB(g,cw-.02,.44,.17,.07,f,x,.44,-D/2+.27).rotation.x=-.12; }
+  [[-.9,M.pillowA,.55],[.9,M.pillowB,-.55]].forEach(([x,m,ry])=>{ RB(g,.36,.36,.12,.06,m,x,.46,-D/2+.36).rotation.set(-.22,ry,x>0?-.1:.1); });
+  return g;
+}
+function coffeeTable(){
+  const g=new THREE.Group();
+  RB(g,.95,.035,.5,.012,M.walnutTop,0,.37,0); RB(g,.85,.02,.4,.008,M.walnut,0,.12,0);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.012,.012,.37,M.blackMetal,sx*.42,0,sz*.2,8);
+  B(g,.22,.03,.16,BOOK_MATS[1],-.2,.405,.02); B(g,.2,.025,.15,BOOK_MATS[2],-.2,.435,.02);
+  C(g,.045,.035,.14,M.ceramicGreen,.22,.405,-.05,16);
+  return g;
+}
+function diningTable(){
+  const g=new THREE.Group(), w=.8, l=1.2;
+  RB(g,w,.04,l,.01,M.walnutTop,0,.72,0); B(g,w-.12,.07,l-.12,M.walnut,0,.65,0);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.025,.018,.65,M.walnut,sx*(w/2-.07),0,sz*(l/2-.07),12);
+  return g;
+}
+function chair(){
+  const g=new THREE.Group();
+  RB(g,.44,.045,.43,.012,M.oak,0,.44,0);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.016,.013,.44,M.oak,sx*.18,0,sz*.17,10);
+  for(const sx of [-1,1]) C(g,.014,.014,.42,M.oak,sx*.18,.46,-.18,10);
+  RB(g,.42,.16,.025,.01,M.oak,0,.7,-.19).rotation.x=.08;
+  RB(g,.4,.035,.38,.015,M.cushion,0,.485,.01);
+  return g;
+}
+function cabinet({w,d,h,doors=2,front=M.lacquer,body=M.lacquer,plinth=.08,y0=0,handle=true}){
+  const g=new THREE.Group(), fh=h-plinth, dw=w/doors;
+  if(plinth>0) B(g,w-.03,plinth,d-.06,M.shadowDark,0,y0,-.03);
+  B(g,w,fh,d-.02,body,0,y0+plinth,-.01);
+  for(let i=0;i<doors;i++){
+    const x=-w/2+dw*(i+.5);
+    B(g,dw-.004,fh-.004,.018,front,x,y0+plinth+.002,d/2-.009);
+    if(i>0) B(g,.003,fh,.002,M.gapDark,-w/2+dw*i,y0+plinth,d/2+.0005,false);
+    if(handle){ const tall=fh>1.5, hh=tall?.6:.16, hx=x+((i%2===0)?1:-1)*(dw/2-.035)*(doors===1?-1:1);
+      B(g,.014,hh,.02,M.handle,hx,tall?y0+plinth+.75:y0+plinth+fh*.72-hh/2,d/2+.01); }
+  }
+  return g;
+}
+function bed(w,l,single=false){
+  const g=new THREE.Group();
+  RB(g,w,.26,l,.03,M.bedBase,0,.08,0);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) B(g,.05,.08,.05,M.walnut,sx*(w/2-.08),0,sz*(l/2-.08));
+  RB(g,w-.06,.22,l-.08,.07,M.linen,0,.33,.02);
+  RB(g,w+.04,.07,l*.66,.035,single?M.duvet2:M.duvet,0,.5,l/2-l*.33+.01);
+  RB(g,w+.05,.05,.14,.025,M.linen,0,.53,l/2-l*.66+.05);
+  RB(g,w+.06,.035,.34,.015,M.throw,0,.56,l/2-.26);
+  if(single) RB(g,.62,.14,.38,.07,M.linen,0,.55,-l/2+.27);
+  else for(const s of [-1,1]) RB(g,w/2-.1,.15,.38,.07,M.linen,s*w/4,.55,-l/2+.27);
+  RB(g,w+.02,single?.55:.72,.09,.035,M.bedBase,0,.3,-l/2-.035);
+  return g;
+}
+function nightstand(){
+  const g=new THREE.Group();
+  RB(g,.46,.44,.36,.015,M.walnut,0,.06,0); B(g,.42,.004,.004,M.gapDark,0,.28,.181,false);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.012,.01,.06,M.brass,sx*.19,0,sz*.14,8);
+  C(g,.06,.07,.02,M.brass,.08,.5,-.04,20); C(g,.008,.008,.28,M.brass,.08,.52,-.04,8);
+  const shade=mk(new THREE.CylinderGeometry(.1,.13,.18,24,1,true),M.lampShade,true,false); shade.position.set(.08,.86,-.04); g.add(shade);
+  B(g,.16,.03,.12,BOOK_MATS[5],-.1,.5,.02);
+  return g;
+}
+function desk(w,d){
+  const g=new THREE.Group();
+  RB(g,w,.035,d,.01,M.oak,0,.72,0);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) B(g,.04,.72,.04,M.whiteMetal,sx*(w/2-.05),0,sz*(d/2-.06));
+  B(g,.42,.13,d-.12,M.lacquer,w/2-.27,.58,0); B(g,.1,.012,.012,M.blackMetal,w/2-.27,.64,d/2-.055);
+  return g;
+}
+function officeChair(){
+  const g=new THREE.Group();
+  for(let i=0;i<5;i++){ const a=i/5*Math.PI*2;
+    B(g,.3,.03,.04,M.blackMetal,Math.cos(a)*.15,.05,Math.sin(a)*.15).rotation.y=-a;
+    C(g,.025,.025,.05,M.blackMetal,Math.cos(a)*.29,0,Math.sin(a)*.29,10); }
+  C(g,.025,.025,.38,M.chrome,0,.08,0,12);
+  RB(g,.5,.08,.48,.03,M.chairFabric,0,.45,0);
+  RB(g,.46,.5,.06,.03,M.chairFabric,0,.58,-.25).rotation.x=.1;
+  for(const sx of [-1,1]) B(g,.04,.2,.3,M.blackMetal,sx*.26,.53,-.02);
+  return g;
+}
+function books(g,xa,xb,y,d,maxH){
+  let x=xa+rr(0,.05);
+  while(x<xb-.03){
+    if(rng()<.12){ x+=rr(.04,.12); continue; }
+    const bw=rr(.018,.045), bh=Math.min(maxH,rr(.17,.29)), bd=rr(.15,Math.min(.24,d-.04));
+    if(x+bw>xb) break;
+    B(g,bw,bh,bd,pick(BOOK_MATS),x+bw/2,y,-d/2+.02+bd/2); x+=bw+.002;
+  }
+}
+function bookshelf(w,d,h,levels){
+  const g=new THREE.Group(), t=.025;
+  B(g,t,h,d,M.oak,-w/2+t/2,0,0); B(g,t,h,d,M.oak,w/2-t/2,0,0); B(g,w-2*t,h,.01,M.lacquer,0,0,-d/2+.005);
+  const step=(h-.05-t)/levels;
+  for(let i=0;i<=levels;i++){ const y=.05+i*step; B(g,w-2*t,t,d-.01,M.oak,0,y,.005); if(i<levels) books(g,-w/2+t+.01,w/2-t-.01,y+t,d,step-t-.04); }
+  B(g,w-2*t,.05,.015,M.shadowDark,0,0,d/2-.02);
+  return g;
+}
+function plant({h=1.4,spread=.45,potR=.18,potH=.34,n=40,leafS=.14,potMat=M.pot,kind='tree'}={}){
+  const g=new THREE.Group();
+  const pot=mk(new THREE.CylinderGeometry(potR,potR*.78,potH,24),potMat); pot.position.y=potH/2; g.add(pot);
+  C(g,potR*.92,potR*.92,.01,M.soil,0,potH-.03,0,20,false);
+  if(kind==='tree') C(g,.015,.024,h-potH,M.trunk,0,potH-.02,0,8);
+  for(let i=0;i<n;i++){
+    let y,r; const a=rng()*Math.PI*2;
+    if(kind==='tree'){ const t=rr(.3,1); y=potH+(h-potH)*t; r=spread*(1-t*.55)*rr(.35,1); }
+    else { const t=Math.pow(rng(),.7); y=potH+.04+(h-potH)*.85*t; r=spread*rr(.25,1)*(.35+.65*t); }
+    const s=leafS*rr(.75,1.25), leaf=mk(leafGeo,rng()<.5?M.leaf:M.leaf2);
+    leaf.scale.set(s*.62,s*.07,s);
+    leaf.position.set(Math.cos(a)*r,y,Math.sin(a)*r);
+    leaf.rotation.set(rr(-.7,.35),Math.PI/2-a,rr(-.4,.4),'YXZ');
+    g.add(leaf);
+    if(kind!=='tree'){ const stem=mk(new THREE.CylinderGeometry(.004,.006,1,5),M.trunk,false); const len=Math.hypot(r,y-potH); stem.scale.y=len; stem.position.set(Math.cos(a)*r/2,potH+(y-potH)/2,Math.sin(a)*r/2); stem.lookAt(new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r).add(new THREE.Vector3(0,0,0))); stem.rotateX(Math.PI/2); g.add(stem); }
+  }
+  return g;
+}
+function acUnit(){
+  const g=new THREE.Group();
+  RB(g,.82,.28,.2,.04,M.whiteApp,0,0,0);
+  B(g,.7,.012,.01,M.gapDark,0,.05,.1,false); B(g,.72,.004,.004,M.gapDark,0,.2,.101,false);
+  return g;
+}
+function acOutdoor(){
+  const g=new THREE.Group();
+  B(g,.84,.6,.3,M.whiteApp,0,.04,0);
+  const fan=mk(new THREE.CylinderGeometry(.21,.21,.01,28),M.gapDark); fan.rotation.x=Math.PI/2; fan.position.set(-.1,.34,.151); g.add(fan);
+  for(const r of [.1,.17,.21]){ const ring=mk(new THREE.TorusGeometry(r,.006,6,28),M.whiteApp); ring.position.set(-.1,.34,.158); g.add(ring); }
+  for(const sx of [-1,1]) B(g,.05,.04,.3,M.alu,sx*.33,0,0);
+  return g;
+}
+function toilet(){
+  const g=new THREE.Group(), c=M.ceramic;
+  RB(g,.4,.38,.17,.04,c,0,.4,-.27);
+  B(g,.1,.012,.05,M.chrome,0,.78,-.27);
+  const base=mk(new THREE.CylinderGeometry(.15,.12,.36,24),c); base.scale.set(1,1,1.45); base.position.set(0,.18,.02); g.add(base);
+  const bowl=mk(new THREE.CylinderGeometry(.19,.16,.08,28),c); bowl.scale.set(1,1,1.35); bowl.position.set(0,.37,.04); g.add(bowl);
+  const seat=mk(new THREE.CylinderGeometry(.195,.195,.025,28),c); seat.scale.set(1,1,1.35); seat.position.set(0,.4225,.04); g.add(seat);
+  return g;
+}
+function vanity(){
+  const g=new THREE.Group();
+  RB(g,.6,.32,.46,.01,M.oak,0,.5,0); B(g,.56,.004,.004,M.gapDark,0,.66,.231,false);
+  RB(g,.62,.025,.48,.005,M.marble,0,.82,0);
+  const pts=[]; for(let i=0;i<=12;i++){ const t=i/12; pts.push(new THREE.Vector2(.06+.15*Math.sin(t*Math.PI/2),t*.13)); }
+  const basin=mk(new THREE.LatheGeometry(pts,36),M.ceramicDS); basin.scale.set(1,1,.8); basin.position.set(0,.845,.04); g.add(basin);
+  const bottom=mk(new THREE.CircleGeometry(.06,24),M.ceramic); bottom.rotation.x=-Math.PI/2; bottom.position.set(0,.847,.04); g.add(bottom);
+  C(g,.013,.016,.3,M.chrome,0,.845,-.17,16); B(g,.022,.022,.14,M.chrome,0,1.125,-.11);
+  B(g,.015,.06,.015,M.chrome,.05,1.1,-.17);
+  return g;
+}
+function fridge(){
+  const g=new THREE.Group();
+  RB(g,.75,1.85,.68,.02,M.steel,0,0,0);
+  B(g,.74,.006,.004,M.gapDark,0,1.15,.341,false); B(g,.004,.72,.004,M.gapDark,0,1.13,.341,false);
+  B(g,.02,.5,.03,M.chrome,-.04,1.3,.36); B(g,.02,.5,.03,M.chrome,.04,1.3,.36); B(g,.5,.02,.03,M.chrome,0,1.05,.36);
+  B(g,.12,.16,.004,M.blackGlass,.22,1.45,.341,false);
+  return g;
+}
+function washer(){
+  const g=new THREE.Group();
+  RB(g,.6,.85,.58,.02,M.whiteApp,0,0,0);
+  const ring=mk(new THREE.TorusGeometry(.16,.025,12,32),M.chrome); ring.position.set(0,.43,.29); g.add(ring);
+  const glassD=mk(new THREE.CircleGeometry(.16,32),M.darkGlass); glassD.position.set(0,.43,.292); g.add(glassD);
+  B(g,.56,.09,.006,M.blackGlass,0,.72,.29,false);
+  return g;
+}
+function curtainPanel(width,height,folds,mat,cast=true){
+  const geo=new THREE.PlaneGeometry(width,height,folds*8,1), p=geo.attributes.position;
+  for(let i=0;i<p.count;i++){ const x=p.getX(i); p.setZ(i,Math.sin((x/width)*folds*Math.PI*2)*.035); }
+  geo.computeVertexNormals(); return mk(geo,mat,cast,true);
+}
+
+/* =========================================================
+   6. 室內佈置（位置依平面圖家具圖塊）
+   ========================================================= */
+const PI=Math.PI, HP=Math.PI/2;
+const DINE_X=485-.15/S;                                                           // 餐桌中心（原圖 485pt，往沙發方向移 15cm）
+
+/* ---- 客廳 ---- */
+R(staticG,[285.3,464.8,457,465.6],0,H,M.tvBack);                              // 電視牆底板
+for(let x=286.3; x<455.5; x+=3.55) B(staticG,.03,H,.022,M.walnut,X(x)+.015,0,Z(465.6)+.011); // 木格柵電視牆
+R(staticG,[286,467.2,457,493.5],.18,.5,M.walnut); colRect([286,464.8,457,493.5],.18,.5);  // 懸浮電視櫃
+for(const x of [343.7,400.3]) B(staticG,.003,.3,.002,M.gapDark,X(x),.19,Z(493.5)+.001,false);
+B(staticG,1.45,.84,.03,M.tvFrame,X(343.7),.8,Z(465.6)+.075);                      // 壁掛 65 吋電視
+{ const s=mk(new THREE.PlaneGeometry(1.42,.8),M.tvScreen,false,false); s.position.set(X(343.7),1.22,Z(465.6)+.091); staticG.add(s); }
+B(staticG,.9,.06,.09,M.blackMetal,X(343.7),.5,Z(480));                            // 聲霸
+C(staticG,.06,.045,.22,M.ceramicGreen,X(430),.5,Z(482),18);
+B(staticG,.2,.05,.15,BOOK_MATS[0],X(412),.5,Z(482)); B(staticG,.18,.04,.14,BOOK_MATS[5],X(412),.55,Z(482));
+put(cabinet({w:L(123),d:L(28.7),h:2.45,doors:4}),518.5,479.15,0);                // 高櫃（含吸塵器收納）
+R(staticG,[457,464.8,580,493.5],2.45,H,M.lacquer);
+put(sofa(),319.4,631,PI);                                                          // 沙發 235×90
+put(coffeeTable(),319.4,555,0);                                                    // 茶几
+{ const rug=mk(new THREE.BoxGeometry(2.0,.012,1.4),M.rug,false,true); rug.position.set(X(319.4),.017,Z(566)); staticG.add(rug); }
+{ const f=B(staticG,1.14,.76,.03,M.walnut,X(319.4),1.2,Z(665)-.015); const a=mk(new THREE.PlaneGeometry(1.08,.7),M.art,false,true); a.position.set(X(319.4),1.58,Z(665)-.031); a.rotation.y=PI; staticG.add(a); }
+// 一紗一布簾（收在兩側）＋窗簾盒
+for(const [z0,dir] of [[464.8,1],[634.9,-1]]){
+  const zc=Z(z0)+dir*.26;
+  const cur=curtainPanel(.46,H-.17,5,M.curtain); cur.position.set(X(221.5)+.14,.02+(H-.17)/2,zc); cur.rotation.y=HP; staticG.add(cur);
+  const sh=curtainPanel(.5,H-.17,6,M.sheer,false); sh.position.set(X(221.5)+.07,.02+(H-.17)/2,Z(z0)+dir*.3); sh.rotation.y=HP; staticG.add(sh);
+}
+R(ceilG,[221.5,464.8,235.6,634.9],H-.15,H,M.ceiling);
+put(acUnit(),243,545.5,HP,false).position.y=2.4;
+
+/* ---- 餐廳 ---- */
+put(diningTable(),DINE_X,617.5,0);
+for(const y of [596,640]){ put(chair(),DINE_X-42,y,HP); put(chair(),DINE_X+42,y,-HP); }
+{ const v=C(staticG,.05,.04,.16,M.ceramic,X(DINE_X),.76,Z(617.5),18);
+  const sprig=plant({h:.42,spread:.14,potR:.001,potH:.16,n:14,leafS:.06,kind:'bush'}); sprig.position.set(X(DINE_X),.76,Z(617.5)); staticG.add(sprig); }
+put(cabinet({w:L(124),d:L(32.9),h:2.45,doors:4}),581.45,603,-HP);                // 掃拖機器人收納高櫃
+R(staticG,[565,541,597.9,665],2.45,H,M.lacquer);
+
+/* ---- 玄關 ---- */
+{ const g=new THREE.Group(), w=.9, d=.4;
+  g.add(cabinet({w,d,h:.95,doors:2}));
+  g.add(cabinet({w,d,h:1.0,doors:2,plinth:0,y0:1.45}));
+  B(g,w,.5,.02,M.walnut,0,.95,-d/2+.01); B(g,.02,.5,d,M.lacquer,-w/2+.01,.95,0); B(g,.02,.5,d,M.lacquer,w/2-.01,.95,0);
+  B(g,w,H-2.45,d,M.lacquer,0,2.45,0);
+  put(g,775,556.9,PI);                                                             // 鞋櫃（中段魚缸）
+}
+{ const g=new THREE.Group(); g.position.set(X(775),0,Z(556.9)+.02);                // 魚缸
+  const tank=mk(new THREE.BoxGeometry(.8,.4,.3),M.glass,false,false); tank.position.y=1.16; g.add(tank);
+  const water=mk(new THREE.BoxGeometry(.78,.34,.28),M.water,false,false); water.position.y=1.14; g.add(water);
+  B(g,.78,.035,.28,M.gravel,0,.965,0,false);
+  for(let i=0;i<7;i++){ const k=mk(new THREE.ConeGeometry(.018,rr(.1,.22),5),M.leaf2,false); k.position.set(rr(-.35,.35),1.0+.06,rr(-.1,.1)); g.add(k); }
+  const fishGeo=new THREE.SphereGeometry(1,10,6);
+  g.userData.fish=[];
+  for(let i=0;i<7;i++){ const f=mk(fishGeo,M.fish,false,false); f.scale.set(.032,.016,.01); g.add(f);
+    const tail=mk(new THREE.ConeGeometry(.35,.6,4),M.fish,false,false); tail.rotation.z=HP; tail.position.x=-1.2; f.add(tail);
+    g.userData.fish.push({m:f,ph:rr(0,6.3),sp:rr(.4,.9),y:rr(1.03,1.26),z:rr(-.09,.09),amp:rr(.22,.32)}); }
+  dynG.add(g); window.__tank=g;
+}
+R(staticG,[772,480,802,532],.013,.022,M.shadowDark,false);                        // 地墊
+R(ceilG,[701,464.8,806.9,542.7],2.38,H,M.ceiling);                                  // 玄關天花：行李箱收納
+for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);
+{ const f=B(staticG,.46,.58,.025,M.oak,X(624),1.25,Z(542.7)-.013); const a=mk(new THREE.PlaneGeometry(.4,.52),M.art,false); a.position.set(X(624),1.54,Z(542.7)-.027); a.rotation.y=PI; staticG.add(a); }
+
+/* ---- 主臥室 ---- */
+R(staticG,[293,261,451,266.6],0,H,M.walnut); colRect([293,261,451,266.6]);         // 床背板 D:8cm
+for(const y of [.95,1.9]) B(staticG,L(158),.006,.004,M.gapDark,X(372),y,Z(266.6)+.002,false);
+R(staticG,[291.6,261,295,304],0,H,M.walnut); colRect([291.6,261,295,304]);         // 造型側落板
+put(bed(1.614,1.93),352.4,340.7,0);                                                // 雙人床 5×6.2
+put(nightstand(),427,280,0);
+put(desk(.9,.6),259.5,282.5,0);                                                      // 化妝桌 90×60
+put(chair(),259.5,318,PI);
+{ const m=mk(new THREE.CircleGeometry(.28,40),M.chrome,false,false); m.position.set(X(261),1.45,Z(261)+.012); staticG.add(m);
+  const ring=mk(new THREE.TorusGeometry(.285,.012,8,40),M.brass); ring.position.set(X(261),1.45,Z(261)+.012); staticG.add(ring); }
+{ const p=plant({h:.36,spread:.14,potR:.06,potH:.1,n:12,leafS:.06,kind:'bush',potMat:M.potTerra}); p.position.set(X(235),.755,Z(270)); staticG.add(p); }
+{ const g=cabinet({w:L(196.7),d:L(45.2),h:2.5,doors:3,front:M.oakV}); B(g,L(196.7),.2,L(45.2),M.lacquer,0,2.5,0); put(g,473.6,359.35,-HP); } // 衣櫃
+put(acUnit(),228,351.5,HP,false).position.y=2.31;
+for(let i=0;i<3;i++){ const len=L(431.1-261)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
+{ const r=mk(new THREE.BoxGeometry(1.1,.01,.7),M.rug,false,true); r.position.set(X(355),.016,Z(432)); staticG.add(r); }
+
+/* ---- 客房／書房 ---- */
+put(bed(.97,1.9,true),576.5,296.5,HP);                                             // 單人床 3×6.2
+put(desk(1.2,.78),531.4,374.3,HP);                                                 // 書桌 120×80
+{ const g=new THREE.Group(); g.position.set(X(531.4),0,Z(374.3)); g.rotation.y=HP;
+  B(g,.6,.36,.02,M.tvFrame,0,.9,-.26); B(g,.58,.33,.002,M.blackGlass,0,.915,-.249);
+  C(g,.08,.08,.012,M.blackMetal,0,.755,-.27,20); B(g,.03,.14,.02,M.blackMetal,0,.76,-.28);
+  B(g,.42,.015,.13,M.whiteMetal,0,.755,-.02); B(g,.07,.01,.1,M.whiteMetal,.3,.755,0);
+  C(g,.07,.07,.015,M.blackMetal,-.45,.755,-.2,16); C(g,.008,.008,.35,M.blackMetal,-.45,.77,-.2,8);
+  B(g,.2,.03,.03,M.blackMetal,-.37,1.1,-.2); C(g,.05,.03,.06,M.lampShade,-.29,1.05,-.2,16);
+  C(g,.035,.032,.09,M.ceramic,.42,.755,.1,14);
+  books(g,.18,.5,.755,.3,.25);
+  staticG.add(g); }
+put(officeChair(),572,374,-HP);
+{ const bs=bookshelf(.79,.42,2.0,5); put(bs,532,442.8,PI);                          // 書架
+  const p=plant({h:.4,spread:.2,potR:.08,potH:.14,n:16,leafS:.07,kind:'bush',potMat:M.potDark}); p.position.set(X(522),2.0,Z(444)); staticG.add(p); }
+for(const y of [1.35,1.72]){ const g=new THREE.Group(); g.position.set(X(503.2)+.12,0,Z(374)); g.rotation.y=HP;
+  B(g,1.0,.025,.24,M.oak,0,y,0); books(g,-.45,.35,y+.025,.24,.26); staticG.add(g); colObj(g); }
+put(cabinet({w:L(56.7),d:L(36.1),h:2.5,doors:2}),669.05,429.35,-HP);                 // 客房衣櫃
+put(acUnit(),609,457.7-7.3,PI,false).position.y=2.3;
+{ const b=B(staticG,L(637.9-503.2)-.04,.5,.012,M.zebra,X(570.55),1.7,Z(261)+.03,false); }  // 調光簾
+
+/* ---- 廚房 ---- */
+put(cabinet({w:.71,d:.6,h:2.5,doors:1}),672.3,312.8,HP);                            // 電器高櫃
+put(fridge(),675,365.2,HP);                                                         // 冰箱 70×70
+put(cabinet({w:.75,d:.6,h:.6,doors:2,plinth:0,y0:1.9}),672.3,365.2,HP,false);
+R(staticG,[651,338.5,694.2,393.9],2.5,H,M.lacquer);
+R(staticG,[770,289,806.9,457.7],0,.1,M.shadowDark);                                // 踢腳
+R(staticG,[766,287.6,806.9,457.7],.1,.86,M.lacquer);                                 // 下櫃
+for(const y of [346,391,426]) B(staticG,.004,.74,.004,M.gapDark,X(766)-.002,.11,Z(y),false);
+B(staticG,.004,.004,L(58),M.gapDark,X(766)-.002,.55,Z(317),false);
+for(const [a,b] of [[290,344],[393,424],[428,455]]) B(staticG,.02,.012,L(b-a)-.1,M.blackMetal,X(766)-.012,.78,Z((a+b)/2));
+R(staticG,[765,348,766.2,390],.1,.85,M.steel);                                      // 洗碗機 W60
+for(const r of [[763,287.6,806.9,404],[763,448,806.9,457.7],[763,404,769,448],[801,404,806.9,448]]) R(staticG,r,.86,.9,M.marble); // 檯面
+R(staticG,[769,404,801,448],.66,.67,M.steel);                                        // 不鏽鋼水槽
+for(const r of [[769,404,770,448],[800,404,801,448],[769,404,801,405],[769,447,801,448]]) R(staticG,r,.66,.86,M.steel);
+C(staticG,.016,.018,.3,M.chrome,X(803.5),.9,Z(426),14);
+{ const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(X(803.5),1.19,Z(426)),new THREE.Vector3(X(803.5),1.36,Z(426)),new THREE.Vector3(X(787),1.12,Z(426)));
+  staticG.add(mk(new THREE.TubeGeometry(curve,24,.013,10),M.chrome)); B(staticG,.1,.015,.015,M.chrome,X(803.5)-.03,1.02,Z(426)+.03); }
+R(staticG,[768,293,801,344],.9,.906,M.blackGlass);                                  // 爐台
+for(const y of [306,331]){ const t=mk(new THREE.TorusGeometry(.075,.007,8,28),M.steel); t.rotation.x=-HP; t.position.set(X(784.5),.909,Z(y)); staticG.add(t); }
+C(staticG,.1,.1,.12,M.steel,X(784.5),.906,Z(331),24); C(staticG,.105,.105,.01,M.steel,X(784.5),1.026,Z(331),24);
+B(staticG,.3,.015,.2,M.oak,X(785),.9,Z(372));
+R(staticG,[779,292,806.9,343],1.62,1.7,M.steel); R(staticG,[791,305,806.9,330],1.7,H,M.steel); // 抽油煙機
+R(staticG,[779.5,295,780.5,340],1.6,1.62,M.blackGlass,false);
+put(cabinet({w:L(112.7),d:.31,h:.85,doors:3,plinth:0,y0:1.5}),795.95,401.35,-HP,false); // 吊櫃
+R(staticG,[785,345,806.9,457.7],2.35,H,M.lacquer);
+colRect([763,287.6,806.9,457.7],0,.9);
+
+/* ---- 浴廁 ---- */
+put(toilet(),630.4,589,HP);
+put(vanity(),697.2,648.7,PI);
+B(staticG,.58,.78,.012,M.blackMetal,X(697.2),1.1,Z(665)-.006);
+const mirror = new Reflector(new THREE.PlaneGeometry(.55,.75),{clipBias:.003,textureWidth:LOW?512:1024,textureHeight:LOW?700:1400,color:0xc4c8c9});
+mirror.position.set(X(697.2),1.485,Z(665)-.0135); mirror.rotation.y=PI; scene.add(mirror);
+if(mirror.camera) mirror.camera.layers.enableAll();
+{ const x=X(773), z=Z(665)-.045;                                                    // 淋浴柱＋頂噴
+  C(staticG,.012,.012,1.12,M.chrome,x,.95,z,12);
+  B(staticG,.022,.022,.32,M.chrome,x,2.05,z-.15);
+  C(staticG,.13,.13,.012,M.chrome,x,2.03,z-.31,32);
+  B(staticG,.16,.07,.06,M.chrome,x,1.0,z+.01); B(staticG,.03,.03,.05,M.chrome,x+.06,1.02,z-.04);
+  C(staticG,.022,.018,.2,M.chrome,x-.12,1.2,z-.02,12); }
+R(staticG,[741,647.6,803.6,656],.016,.019,M.steel,false);                            // 線性排水
+{ const x0=X(720), z=Z(549.8)+.04; B(staticG,.4,.015,.015,M.chrome,x0,1.25,z); B(staticG,.34,.5,.03,M.towel,x0,.78,z+.005); }
+C(staticG,.05,.05,.1,M.chrome,X(604.9)+.05,.62,Z(612),16).rotation.z=HP;
+
+/* ---- 陽台 ---- */
+put(washer(),680,213,0);                                                             // 洗衣機 60×61.5
+{ const g=new THREE.Group();                                                         // 不鏽鋼水槽 60×50
+  for(const sx of [-1,1]) for(const sz of [-1,1]) B(g,.03,.72,.03,M.steel,sx*.22,0,sz*.26);
+  B(g,.5,.2,.58,M.steel,0,.72,0); B(g,.44,.005,.5,M.shadowDark,0,.92,.02,false);
+  C(g,.012,.012,.3,M.chrome,0,.92,-.26,10); B(g,.02,.02,.14,M.chrome,0,1.2,-.2);
+  put(g,757,211.5,0); }
+R(staticG,[650,181,775,184.5],-.05,.3,M.concrete); R(staticG,[650,184.5,654.6,250.4],-.05,.3,M.concrete);
+R(staticG,[650,181,775,184.5],1.05,1.1,M.blackMetal); R(staticG,[650,184.5,654.6,250.4],1.05,1.1,M.blackMetal);
+for(let x=652; x<775; x+=8.5) R(staticG,[x,182,x+.9,183.5],.3,1.05,M.blackMetal);
+for(let y=186; y<250; y+=8.5) R(staticG,[651.6,y,653,y+.9],.3,1.05,M.blackMetal);
+colRect([650,176,775,184.5],-1,1.1); colRect([646,184.5,654.6,250.4],-1,1.1);
+B(staticG,.36,.6,.18,M.whiteApp,X(677),1.45,Z(277)-.09);                             // 熱水器
+put(plant({h:.9,spread:.34,potR:.16,potH:.3,n:30,leafS:.13,kind:'bush',potMat:M.potTerra}),716,206,0);
+
+/* ---- 戶外：花台、冷氣平台 ---- */
+R(staticG,[221.5,197,650,250.4],-.3,-.12,M.concrete); R(staticG,[221.5,194,540,197],-.12,.45,M.concrete);
+for(let x=541; x<650; x+=5) R(staticG,[x,194.5,x+1.6,197],-.12,1.15,M.alu);
+R(staticG,[538,194,650,197],1.12,1.18,M.alu);
+for(let y=198; y<250; y+=5) R(staticG,[538.4,y,541,y+1.6],-.12,1.15,M.alu);
+put(acOutdoor(),593,223,PI,false).position.y=-.12;
+R(staticG,[168.5,261,210.9,675.6],-.3,-.12,M.concrete); R(staticG,[165.5,261,168.5,675.6],-.12,.45,M.concrete);
+R(staticG,[172,468,206,632],-.12,.28,M.potDark);
+for(let y=474; y<628; y+=9){ const s=mk(leafGeo,rng()<.5?M.leaf:M.leaf2); const r=rr(.16,.24); s.scale.set(r,r*.8,r); s.position.set(X(189)+rr(-.06,.06),.3+r*.4,Z(y)); staticG.add(s); }
+
+/* ---- 天花板、樓上量體 ---- */
+R(ceilG,[115,176,885,675.6],H,H+.15,M.ceiling);
+
+/* =========================================================
+   7. 燈光：環境光、太陽光、室內頂燈
+   ========================================================= */
+const ambient = new THREE.AmbientLight(0xffffff,.3); scene.add(ambient);
+const hemi = new THREE.HemisphereLight(0xdde8f0,0x9a8a72,.6); scene.add(hemi);
+const HOUSE = new THREE.Vector3(X(514),0,Z(425));
+const sun = new THREE.DirectionalLight(0xfff0dc,3.0);
+sun.castShadow = true;
+sun.shadow.mapSize.set(LOW?2048:4096, LOW?2048:4096);
+Object.assign(sun.shadow.camera,{left:-10,right:10,top:10,bottom:-10,near:1,far:70});
+sun.shadow.bias=-.0004; sun.shadow.normalBias=.025;
+sun.shadow.camera.layers.enable(DOOR_LAYER);
+sun.target.position.copy(HOUSE); scene.add(sun,sun.target);
+
+const interior = [];
+function pLight(room,xPt,yPt,y,intensity,dist,shadow,color=0xffe2bd){
+  const l=new THREE.PointLight(color,intensity,dist,2); l.position.set(X(xPt),y,Z(yPt)); l.userData.room=room;
+  l.userData.shadow=shadow && !LOW;
+  if(l.userData.shadow){ l.shadow.mapSize.set(512,512); l.shadow.bias=-.003; l.shadow.normalBias=.02; l.shadow.camera.near=.05; l.shadow.autoUpdate=false; }
+  l.userData.base=intensity; scene.add(l); interior.push(l); return l;
+}
+const LP={};                                                              // 各房燈面材質（色溫可分開設定）
+const lpMat=room=>LP[room]||(LP[room]=M.lightPanel.clone());
+function panel(room,xPt,yPt,r,y=H){ const m=mk(new THREE.CylinderGeometry(r,r,.03,32),lpMat(room),false,false); m.position.set(X(xPt),y-.015,Z(yPt)); ceilG.add(m); }
+pLight('living',330,560,2.45,16,9,true);   panel('living',330,560,.3);          // 客廳
+pLight('dining',DINE_X,617.5,1.78,7,6,true);                                     // 餐桌吊燈
+pLight('master',360,352,2.45,13,8,true);   panel('master',360,352,.26);         // 主臥
+pLight('guest',578,360,2.45,10,7,false);   panel('guest',578,360,.2);           // 客房
+pLight('kitchen',740,372,2.45,10,6,false); R(ceilG,[722,340,758,404],H-.03,H,lpMat('kitchen'),false); // 廚房
+pLight('bath',688,598,2.4,7,5,false);      panel('bath',688,598,.14); panel('bath',772,620,.09);   // 浴廁
+pLight('entry',758,505,2.28,6,5,false);    panel('entry',740,505,.05,2.38); panel('entry',778,505,.05,2.38); // 玄關嵌燈
+// 間接照明：可與主燈分開設定色溫
+pLight('livingInd',371,487,2.5,.8,4,false);                                       // 客廳：電視牆洗牆燈
+R(staticG,[287,465.8,456,467],2.58,2.6,lpMat('livingInd'),false);                   //   格柵頂端燈條
+R(staticG,[288,468,455,492],.172,.178,lpMat('livingInd'),false);                    //   懸浮電視櫃下燈條
+pLight('masterInd',372,288,2.5,.8,4,false);                                       // 主臥：床背板洗牆燈
+R(staticG,[293,266.6,451,267.8],2.58,2.6,lpMat('masterInd'),false);
+pLight('kitchenInd',795,400,1.42,1.5,2.5,false);                                  // 廚房：吊櫃下燈
+R(staticG,[787,347,804,456],1.494,1.5,lpMat('kitchenInd'),false);
+pLight('bathInd',697.2,650,1.9,1.2,2.5,false);                                    // 浴廁：鏡前燈
+B(staticG,.5,.02,.02,lpMat('bathInd'),X(697.2),1.875,Z(665)-.02,false);
+panel('entry',715,228,.1);                                                        // 陽台
+panel('entry',850,508,.12);                                                       // 走廊
+R(ceilG,[680,570,694,584],H-.02,H,M.lacquer,false);                      // 浴室排風扇
+{ // 餐桌吊燈燈罩
+  const y=1.84, x=X(DINE_X), z=Z(617.5);
+  C(ceilG,.004,.004,H-y-.2,M.blackMetal,x,y+.2,z,6,false);
+  const dome=new THREE.SphereGeometry(.22,32,12,0,Math.PI*2,0,Math.PI/2);
+  const o=mk(dome,M.pendantOut,true,false); o.position.set(x,y,z); ceilG.add(o);
+  const i=mk(new THREE.SphereGeometry(.215,32,12,0,Math.PI*2,0,Math.PI/2),M.pendantIn,false,false); i.position.set(x,y,z); ceilG.add(i);
+  const b=mk(new THREE.SphereGeometry(.045,16,10),M.bulb,false,false); b.position.set(x,y+.03,z); ceilG.add(b);
+}
+
+/* =========================================================
+   8. 天空與城市景觀（位於 12 樓高度）
+   ========================================================= */
+const GY = -36.2;
+const skyMat = new THREE.ShaderMaterial({
+  side:THREE.BackSide, depthWrite:false, fog:false, toneMapped:false,
+  uniforms:{ top:{value:new THREE.Color(0x5f97d0)}, horizon:{value:new THREE.Color(0xdfe8ee)}, bottom:{value:new THREE.Color(0xa9b3b0)} },
+  vertexShader:'varying vec3 vP; void main(){ vP=normalize(position); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+  fragmentShader:`uniform vec3 top; uniform vec3 horizon; uniform vec3 bottom; varying vec3 vP;
+void main(){ float h=vP.y; vec3 c = h>0. ? mix(horizon, top, pow(smoothstep(0.,1.,h),.6)) : mix(horizon, bottom, smoothstep(0.,-.25,h)); gl_FragColor=vec4(c,1.);
+#include <colorspace_fragment>
+}`
+});
+const sky = new THREE.Mesh(new THREE.SphereGeometry(1100,32,16),skyMat); sky.position.copy(HOUSE); sky.userData.noMerge=true; sky.renderOrder=-1; cityG.add(sky);
+scene.fog = new THREE.Fog(0xdfe8ee,110,700);
+
+{ const g=mk(new THREE.PlaneGeometry(2400,2400),M.grass,false,false); g.rotation.x=-HP; g.position.y=GY; cityG.add(g); }
+const FACADES = [facadeTex('#d9d6cf','#56708a','#9a9994'), facadeTex('#b9bdc0','#3f5566','#6f7478'), facadeTex('#e3dccd','#6b7f8c','#b3a996')];
+const facadeMats = FACADES.map(([m,e])=>std({map:m, emissiveMap:e, emissive:0xffffff, emissiveIntensity:0, roughness:.85}));
+function towerBox(w,h,d,cx,cy,cz){
+  const geo=new THREE.BoxGeometry(w,h,d), uv=geo.attributes.uv;
+  for(let i=0;i<uv.count;i++){ const f=Math.floor(i/4);
+    if(f===2||f===3) uv.setXY(i,.02,.02);
+    else uv.setXY(i, uv.getX(i)*((f<2?d:w)/12), uv.getY(i)*(h/12.8)); }
+  geo.translate(cx,cy,cz); return geo;
+}
+{
+  const lists=[[],[],[]], roads=[], walks=[];
+  const BL=64;
+  for(let k=-7;k<=7;k++){
+    const c=k*BL+BL/2;
+    roads.push(new THREE.PlaneGeometry(10,BL*15).rotateX(-HP).translate(HOUSE.x+c,GY+.05,HOUSE.z));
+    roads.push(new THREE.PlaneGeometry(BL*15,10).rotateX(-HP).translate(HOUSE.x,GY+.05,HOUSE.z+c));
+  }
+  for(let i=-6;i<=6;i++) for(let j=-6;j<=6;j++){
+    const bx=HOUSE.x+i*BL, bz=HOUSE.z+j*BL;
+    walks.push(new THREE.PlaneGeometry(BL-10,BL-10).rotateX(-HP).translate(bx,GY+.03,bz));
+    if(i===0&&j===0) continue;                             // 本棟所在街廓：公園
+    const n=1+Math.floor(rng()*3), far=Math.max(Math.abs(i),Math.abs(j));
+    for(let q=0;q<n;q++){
+      const w=rr(14,24), d=rr(14,24), h=rr(16,far<2?62:95);
+      const ox=rr(-(BL-12-w)/2,(BL-12-w)/2), oz=rr(-(BL-12-d)/2,(BL-12-d)/2);
+      lists[Math.floor(rng()*3)].push(towerBox(w,h,d,bx+ox,GY+h/2,bz+oz));
+    }
+  }
+  const [tx0,tz0,tx1,tz1]=[X(110),Z(170),X(885),Z(680)];
+  lists[0].push(towerBox(tx1-tx0,-.3-GY,tz1-tz0,(tx0+tx1)/2,(GY-.3)/2,(tz0+tz1)/2));   // 本棟下方量體
+  lists.forEach((l,k)=>{ const m=new THREE.Mesh(mergeGeometries(l),facadeMats[k]); m.userData.noMerge=true; cityG.add(m); });
+  const rm=new THREE.Mesh(mergeGeometries(roads),M.road); rm.userData.noMerge=true; cityG.add(rm);
+  const wm2=new THREE.Mesh(mergeGeometries(walks),M.walk); wm2.userData.noMerge=true; cityG.add(wm2);
+  const up=mk(towerBox(tx1-tx0,28,tz1-tz0,(tx0+tx1)/2,H+.15+14,(tz0+tz1)/2),facadeMats[0],false,false); up.userData.noMerge=true; upperG.add(up);
+  // 行道樹與公園樹木
+  const pts=[];
+  for(let k=0;k<140;k++){ const a=rng()*Math.PI*2, r=rr(12,27); pts.push([HOUSE.x+Math.cos(a)*r,HOUSE.z+Math.sin(a)*r,rr(.8,1.3)]); }
+  for(let k=-6;k<=6;k++) for(let s=-6;s<=6;s++){ const c=k*BL+BL/2; if(rng()<.8) pts.push([HOUSE.x+c+7,HOUSE.z+s*BL+rr(-20,20),rr(.8,1.1)]); if(rng()<.8) pts.push([HOUSE.x+s*BL+rr(-20,20),HOUSE.z+c+7,rr(.8,1.1)]); }
+  const crown=new THREE.InstancedMesh(new THREE.SphereGeometry(1,8,6),M.tree,pts.length);
+  const trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.25,1,6),M.trunk,pts.length);
+  const mtx=new THREE.Matrix4(), q=new THREE.Quaternion();
+  pts.forEach(([x,z,s],i)=>{
+    mtx.compose(new THREE.Vector3(x,GY+4.2*s,z),q,new THREE.Vector3(2.4*s,2.8*s,2.4*s)); crown.setMatrixAt(i,mtx);
+    mtx.compose(new THREE.Vector3(x,GY+1.5*s,z),q,new THREE.Vector3(s,3*s,s)); trunk.setMatrixAt(i,mtx);
+  });
+  cityG.add(crown,trunk);
+}
+const cloudMat = new THREE.SpriteMaterial({map:T.cloud, transparent:true, depthWrite:false, fog:false, opacity:.9});
+const clouds = [];
+for(let i=0;i<18;i++){ const s=new THREE.Sprite(cloudMat); const a=rng()*Math.PI*2, r=rr(320,650); s.position.set(HOUSE.x+Math.cos(a)*r, rr(70,190), HOUSE.z+Math.sin(a)*r); const k=rr(120,260); s.scale.set(k,k*.45,1); cityG.add(s); clouds.push(s); }
+
+/* =========================================================
+   9. 靜態幾何合併（大幅減少 draw call）
+   ========================================================= */
+function subGeo(g,start,count){ const ng=new THREE.BufferGeometry(); for(const n of ['position','normal','uv']){ const a=g.attributes[n]; ng.setAttribute(n,new THREE.BufferAttribute(a.array.slice(start*a.itemSize,(start+count)*a.itemSize),a.itemSize)); } return ng; }
+function strip(g){ const ng=new THREE.BufferGeometry(); for(const n of ['position','normal','uv']) ng.setAttribute(n,g.attributes[n]); return ng; }
+function mergeGroup(group){
+  group.updateMatrixWorld(true);
+  const buckets=new Map(), removes=[];
+  group.traverse(o=>{
+    if(!o.isMesh||o.isInstancedMesh||o.userData.noMerge) return;
+    removes.push(o);
+    const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();
+    g.applyMatrix4(o.matrixWorld);
+    const parts=Array.isArray(o.material)?g.groups.map(gr=>[subGeo(g,gr.start,gr.count),o.material[gr.materialIndex]]):[[strip(g),o.material]];
+    for(const [pg,mat] of parts){
+      const key=mat.uuid+(o.castShadow?'c':'')+(o.receiveShadow?'r':'');
+      if(!buckets.has(key)) buckets.set(key,{mat,cast:o.castShadow,recv:o.receiveShadow,list:[]});
+      buckets.get(key).list.push(pg);
+    }
+  });
+  removes.forEach(o=>o.parent.remove(o));
+  for(let i=group.children.length-1;i>=0;i--){ const c=group.children[i]; if(c.isGroup&&c.children.length===0) group.remove(c); }
+  for(const b of buckets.values()){ const m=new THREE.Mesh(mergeGeometries(b.list,false),b.mat); m.castShadow=b.cast; m.receiveShadow=b.recv; group.add(m); }
+}
+mergeGroup(staticG); mergeGroup(ceilG);
+
+/* ---------- 房間資料（標籤、聚焦、傳送、小地圖） ---------- */
+const ROOMS = [
+  {id:'living', zh:'客廳',     en:'LIVING',         ping:'5.7P', r:[221.5,464.8,430,665],   lab:[335,522], spot:[420,522], face:[-1,.55]},
+  {id:'dining', zh:'餐廳',     en:'DINING',         ping:'',     r:[430,493.5,597.9,665],   lab:[485,556], spot:[485,527], face:[0,1]},
+  {id:'master', zh:'主臥室',   en:'MASTER BEDROOM', ping:'3.3P', r:[221.5,261,496.2,457.7], lab:[352,432], spot:[340,433], face:[.15,-1]},
+  {id:'guest',  zh:'客房・書房', en:'GUEST · STUDY',  ping:'1.9P', r:[503.2,261,643.9,457.7], lab:[603,374], spot:[612,392], face:[-1,-.1]},
+  {id:'kitchen',zh:'廚房',     en:'KITCHEN',        ping:'1.5P', r:[694.2,287.6,806.9,457.7],lab:[731,372], spot:[731,430], face:[.2,-1]},
+  {id:'bath',   zh:'浴廁',     en:'BATHROOM',       ping:'1.1P', r:[604.9,549.8,806.9,665], lab:[700,594], spot:[678,592], face:[.3,1]},
+  {id:'balcony',zh:'陽台',     en:'BALCONY',        ping:'0.7P', r:[654.6,181,775,277],     lab:[722,250], spot:[722,258], face:[0,-1]},
+  {id:'entry',  zh:'玄關',     en:'ENTRY',          ping:'',     r:[597.9,464.8,806.9,542.7],lab:[690,506], spot:[775,505], face:[-1,0]},
+];
+for(const rm of ROOMS){
+  const el=document.createElement('div'); el.className='room-label';
+  el.innerHTML=`<b>${rm.zh}</b><span>${rm.en}</span>${rm.ping?`<em>${rm.ping}</em>`:''}`;
+  const o=new CSS2DObject(el); o.position.set(X(rm.lab[0]),.05,Z(rm.lab[1])); labelG.add(o);
+}
+
+/* =========================================================
+   9b. 人物（依身高體重生成體型；可拖曳，放到座位上會自動坐下）
+   ========================================================= */
+const peopleG = new THREE.Group(); scene.add(peopleG);
+const EYE_MAT = std({color:0x1b1a19, roughness:.3});
+const TOP_COLORS = [['#34506b','深藍'],['#c4826b','磚紅'],['#efece6','米白'],['#6b7a4f','橄欖綠'],['#3a3d40','炭灰'],['#c79a3e','芥末黃']];
+const BOTTOM_COLORS = [['#b7a583','卡其'],['#56687f','牛仔藍'],['#2d2e30','黑'],['#8a8d90','淺灰'],['#d9d0bf','奶油白']];
+function personMats(kind,body){
+  const c=hex=>std({color:new THREE.Color(hex),roughness:.85});
+  return kind==='m'
+    ? {skin:std({color:0xd9aa8a,roughness:.65}), top:c(body.top), bottom:c(body.bottom), shoe:std({color:0x2b2623,roughness:.6}), hair:std({color:0x1d1916,roughness:.8})}
+    : {skin:std({color:0xe8bea2,roughness:.65}), top:c(body.top), bottom:c(body.bottom), shoe:std({color:0xe9e3da,roughness:.6}), hair:std({color:0x3b2a1f,roughness:.75})};
+}
+function joint(p,x,y,z){ const g=new THREE.Group(); g.position.set(x,y,z); p.add(g); return g; }
+function limb(p,r,len,mat){ const m=mk(new THREE.CapsuleGeometry(r,Math.max(.001,len-2*r),4,12),mat); m.position.y=-len/2; p.add(m); return m; }
+// 基準模型高 179.3cm；身高決定縱向比例，BMI 決定圍度
+function bodyMetrics(kind,body){
+  const f=kind==='f', s=body.h/179.3, bmi=body.kg/Math.pow(body.h/100,2);
+  const g=Math.min(1.35,Math.max(.85,Math.sqrt(bmi/22))), gw=Math.pow(g,.55);
+  const hipW=(f?.172:.17)*s*gw, shW=(f?.16:.185)*s*gw, armR=.048*s*g, torsoD=.22*s*g, belly=Math.max(0,g-1)*.16*s;
+  const half=Math.max(shW+.02*s+armR, hipW+.01);
+  return {f,s,bmi,g,gw,hipW,shW,armR,torsoD,belly,radius:half,width:half*2,depth:torsoD+belly,eye:body.h*.936/100,reach:body.h*1.25/100};
+}
+function makePerson(kind,body){
+  const k=bodyMetrics(kind,body), {f,s,g,hipW,shW,armR,torsoD,belly}=k, m=personMats(kind,body), root=new THREE.Group();
+  const hips=joint(root,0,.97*s,0);
+  RB(hips,hipW*2,.16*s,.22*s*g,.06*s,m.bottom,0,-.1*s,0);
+  const spine=joint(hips,0,.04*s,0);
+  RB(spine,shW*2,.48*s,torsoD,Math.min(.09*s*g,torsoD/2-.005),m.top,0,0,0);
+  if(g>1.02){ const rb=.12*s*g, b=mk(new THREE.SphereGeometry(rb,20,14),m.top); b.scale.set(1.2,1,.9); b.position.set(0,.15*s,torsoD/2+belly-rb*.9); spine.add(b); }
+  const neck=joint(spine,0,.48*s,0);
+  C(neck,.045*s*Math.pow(g,.8),.05*s*Math.pow(g,.8),.09*s,m.skin,0,0,0,12);
+  const head=joint(neck,0,.09*s,0);
+  const skull=mk(new THREE.SphereGeometry(.105*s,22,16),m.skin); skull.scale.set(.9*Math.pow(g,.3),1.08,.98*Math.pow(g,.2)); skull.position.set(0,.1*s,.01*s); head.add(skull);
+  for(const sx of [-1,1]){ const e=mk(new THREE.SphereGeometry(.011*s,8,6),EYE_MAT,false,false); e.position.set(sx*.034*s,.112*s,.098*s*Math.pow(g,.2)); head.add(e); }
+  const nose=mk(new THREE.ConeGeometry(.012*s,.032*s,6),m.skin,false); nose.rotation.x=HP; nose.position.set(0,.085*s,.112*s*Math.pow(g,.2)); head.add(nose);
+  const cap=mk(new THREE.SphereGeometry(.112*s,22,12,0,Math.PI*2,0,Math.PI*(f?.52:.6)),m.hair); cap.scale.set(.93*Math.pow(g,.3),1.1,1.02*Math.pow(g,.2)); cap.position.set(0,.11*s,-.004*s); cap.rotation.x=f?-.32:-.5; head.add(cap);
+  if(f){ RB(head,.22*s,.3*s,.09*s,.04*s,m.hair,0,-.11*s,-.06*s); for(const sx of [-1,1]) RB(head,.05*s,.2*s,.12*s,.025*s,m.hair,sx*.088*s,-.02*s,-.02*s); }
+  const arms=[-1,1].map(side=>{
+    const sh=joint(spine,side*(shW+.02*s),.43*s,0);
+    limb(sh,armR,.3*s,m.top);
+    const el=joint(sh,0,-.3*s,0);
+    limb(el,.04*s*Math.pow(g,.8),.25*s,m.skin);
+    const hand=mk(new THREE.SphereGeometry(.045*s,12,10),m.skin); hand.scale.set(.75,1.1,.6); hand.position.y=-.28*s; el.add(hand);
+    return {sh,el,side};
+  });
+  const legs=[-1,1].map(side=>{
+    const hp=joint(hips,side*hipW*.55,-.02*s,0);
+    limb(hp,.075*s*g,.44*s,m.bottom);
+    const kn=joint(hp,0,-.44*s,0);
+    limb(kn,.058*s*Math.pow(g,.8),.44*s,m.bottom);
+    const an=joint(kn,0,-.44*s,0);
+    RB(an,.1*s,.07*s,.25*s,.03*s,m.shoe,0,-.07*s,.06*s);
+    return {hp,kn,an,side};
+  });
+  root.userData={...k,hips,spine,head,arms,legs,mats:Object.values(m)};
+  root.traverse(o=>{ if(o.isMesh){ o.layers.set(DOOR_LAYER); o.castShadow=true; o.receiveShadow=true; o.userData.person=root; } });
+  peopleG.add(root);
+  return root;
+}
+function pose(obj,type,seat){
+  const u=obj.userData, s=u.s, splay=.07+Math.max(0,u.g-1)*.35;
+  u.spine.rotation.set(0,0,0); u.head.rotation.set(0,0,0);
+  if(type!=='sit'){
+    u.hips.position.y=.97*s;
+    u.legs.forEach(l=>{ l.hp.rotation.set(0,0,0); l.kn.rotation.set(0,0,0); l.an.rotation.set(0,0,0); });
+    u.arms.forEach(a=>{ a.sh.rotation.set(0,0,a.side*splay); a.el.rotation.set(-.12,0,0); });
+    return;
+  }
+  const hipH=seat.h+.09*s, hipJ=hipH-.02*s, Lt=.44*s, Ls=.44*s, fh=.07*s;
+  const a=Math.asin(Math.min(.6,Math.max(0,(hipJ-fh-Ls)/Lt)));
+  const kneeY=hipJ-Lt*Math.sin(a), drop=kneeY-fh, phi=drop<Ls?Math.acos(drop/Ls):0;
+  u.hips.position.y=hipH;
+  u.legs.forEach(l=>{ l.hp.rotation.set(-HP+a,0,l.side*(.04+Math.max(0,u.g-1)*.2)); l.kn.rotation.set(HP-a-phi,0,0); l.an.rotation.set(phi,0,0); });
+  u.spine.rotation.x=seat.lean;
+  const desk=seat.arms==='desk';
+  u.arms.forEach(ar=>{ ar.sh.rotation.set(desk?-.7:-.35,0,ar.side*(splay+.03)); ar.el.rotation.set(desk?-.95:-1.05,0,0); });
+  u.head.rotation.x=desk?.1:-.03;
+}
+
+// 座位錨點（臀部關節位置）：家具中心、區域偏移、朝向、座面高度
+const SEATS=[];
+function addSeat(name,xPt,yPt,lx,lz,rot,h,lean,arms){
+  const c=Math.cos(rot), sn=Math.sin(rot);
+  SEATS.push({name,x:X(xPt)+lx*c+lz*sn,z:Z(yPt)-lx*sn+lz*c,yaw:rot,h,lean,arms});
+}
+[-.6,0,.6].forEach(lx=>addSeat('客廳沙發',319.4,631,lx,.1,PI,.46,-.16,'lap'));
+addSeat('客房書桌椅',572,374,0,-.06,-HP,.53,.04,'desk');
+for(const y of [596,640]){ addSeat('餐椅',DINE_X-42,y,0,-.04,HP,.52,0,'desk'); addSeat('餐椅',DINE_X+42,y,0,-.04,-HP,.52,0,'desk'); }
+addSeat('化妝椅',259.5,318,0,-.04,PI,.52,0,'desk');
+
+const PEOPLE=[
+  {name:'男性', kind:'m', body:{h:170,kg:90,top:'#34506b',bottom:'#b7a583'}, home:SEATS.find(s=>s.name==='客房書桌椅'), seat:null},
+  {name:'女性', kind:'f', body:{h:155,kg:50,top:'#c4826b',bottom:'#56687f'}, home:SEATS[1], seat:null},
+];
+PEOPLE.forEach(P=>{ P.defaults={...P.body}; P.obj=makePerson(P.kind,P.body); P.obj.userData.entry=P; });
+function seatPerson(P,s){ P.seat=s; pose(P.obj,'sit',s); P.obj.position.set(s.x,0,s.z); P.obj.rotation.y=s.yaw; }
+function standPerson(P,x,z,yaw){ P.seat=null; pose(P.obj,'stand'); P.obj.position.set(x,Math.max(0,groundAt(x,z)),z); P.obj.rotation.y=yaw; }
+function rebuildPerson(P){
+  const old=P.obj, x=old.position.x, z=old.position.z, yaw=old.rotation.y, seat=P.seat, vis=old.visible;
+  peopleG.remove(old); old.traverse(o=>{ if(o.isMesh) o.geometry.dispose(); }); old.userData.mats.forEach(mt=>mt.dispose());
+  P.obj=makePerson(P.kind,P.body); P.obj.userData.entry=P; P.obj.visible=vis;
+  if(seat) seatPerson(P,seat); else standPerson(P,x,z,yaw);
+}
+PEOPLE.forEach(P=>seatPerson(P,P.home));
+
+/* =========================================================
+   10. 相機與控制器
+   ========================================================= */
+const aspect = () => innerWidth/innerHeight;
+const orbitCam = new THREE.PerspectiveCamera(45,aspect(),.05,3000);
+const fpsCam = new THREE.PerspectiveCamera(72,aspect(),.03,3000); fpsCam.rotation.order='YXZ';
+const planCam = new THREE.OrthographicCamera(-1,1,1,-1,.1,300); planCam.up.set(0,0,-1);
+[orbitCam,fpsCam,planCam].forEach(c=>c.layers.enable(DOOR_LAYER));
+const CENTER = new THREE.Vector3(X(492),0,Z(426));
+
+orbitCam.position.set(CENTER.x-2.4,12.8,CENTER.z+6.2);
+const orbit = new OrbitControls(orbitCam,renderer.domElement);
+orbit.target.set(CENTER.x,.4,CENTER.z); orbit.enableDamping=true; orbit.maxPolarAngle=1.45; orbit.minDistance=2; orbit.maxDistance=32; orbit.update();
+
+planCam.position.set(CENTER.x,60,CENTER.z);
+const plan = new OrbitControls(planCam,renderer.domElement);
+plan.target.set(CENTER.x,0,CENTER.z); plan.enableRotate=false; plan.screenSpacePanning=true; plan.enableDamping=true;
+plan.minZoom=.6; plan.maxZoom=6;
+plan.mouseButtons={LEFT:THREE.MOUSE.PAN,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
+plan.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.DOLLY_PAN};
+plan.update();
+function fitPlan(){ const a=aspect(), bw=13.4, bh=9.4; let h=bh; if(a<bw/bh) h=bw/a; Object.assign(planCam,{left:-h*a/2,right:h*a/2,top:h/2,bottom:-h/2}); planCam.updateProjectionMatrix(); }
+fitPlan();
+
+const plc = new PointerLockControls(fpsCam,renderer.domElement);
+
+/* =========================================================
+   11. 狀態、介面
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const ui = { panel:$('#panel'), pbody:$('#pbody'), collapse:$('#collapse'), rooms:$('#rooms'), hint:$('#hint'), cross:$('#cross'),
+  hud:$('#hud'), roomtag:$('#roomtag'), mini:$('#mini'), pause:$('#pause'), pauseMsg:$('#pause-msg'), resume:$('#resume'), leave:$('#leave'),
+  toast:$('#toast'), quality:$('#t-quality'), night:$('#t-night'), lights:$('#t-lights'), doors:$('#t-doors'), loading:$('#loading'), joy:$('#joy'), knob:$('#knob') };
+const state = { mode:'orbit', night:false, lights:true, doorsOpen:true, locked:false, drag:false, touch:false, leaving:false, lastUnlock:0 };
+let activeCam = orbitCam, tween = null;
+
+const HINTS = {
+  plan:'拖曳人物可移動（放到椅子或沙發會自動坐下）· <kbd>R</kbd> 旋轉人物 · 拖曳空白處平移 · 滾輪縮放',
+  orbit:'拖曳人物可移動（放到椅子或沙發會自動坐下）· <kbd>R</kbd> 旋轉人物 · 拖曳空白處旋轉視角 · 右鍵平移',
+  fps:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動 · 滑鼠轉向 · <kbd>Shift</kbd> 快走 · <kbd>Space</kbd> 跳 · <kbd>Esc</kbd> 暫停 · <kbd>1</kbd>–<kbd>5</kbd> 切換方案 · 靠近門自動開啟',
+  drag:'按住左鍵拖曳轉向 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動 · <kbd>Shift</kbd> 快走 · <kbd>Space</kbd> 跳 · <kbd>1</kbd>–<kbd>5</kbd> 切換方案 · <kbd>Esc</kbd> 離開',
+  touch:'左下拖曳移動 · 右半邊拖曳轉向 · 靠近門自動開啟',
+};
+if(VIEWER){ HINTS.plan='拖曳平移 · 滾輪或雙指縮放 · 點選左側方案即可切換'; HINTS.orbit='左鍵拖曳旋轉 · 右鍵拖曳平移 · 滾輪縮放 · 點選左側方案即可切換'; }
+let toastTimer=0;
+function toast(msg){ ui.toast.textContent=msg; ui.toast.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>ui.toast.hidden=true,3600); }
+
+ROOMS.forEach(rm=>{
+  const b=document.createElement('button'); b.className='chip'; b.id='room-'+rm.id; b.dataset.room=rm.id;
+  b.innerHTML=`${rm.zh}${rm.ping?`<small>${rm.ping}</small>`:''}`;
+  b.addEventListener('click',()=>focusRoom(rm)); ui.rooms.appendChild(b);
+});
+
+function setPanelOpen(open){ ui.pbody.hidden=!open; ui.collapse.textContent=open?'收合':'展開'; ui.collapse.setAttribute('aria-expanded',String(open)); }
+ui.collapse.addEventListener('click',()=>setPanelOpen(ui.pbody.hidden));
+document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+ui.night.addEventListener('click',()=>{ state.night=!state.night; applyEnv(); });
+ui.lights.addEventListener('click',()=>{ state.lights=!state.lights; applyEnv(); });
+ui.doors.addEventListener('click',()=>{ state.doorsOpen=!state.doorsOpen; ui.doors.setAttribute('aria-pressed',String(state.doorsOpen)); if(state.mode==='fps') toast('第一人稱模式下門會依距離自動開關'); });
+/* ---------- 畫質（自動依效能調整） ---------- */
+const GPU=(()=>{ try{ const gl=renderer.getContext(), e=gl.getExtension('WEBGL_debug_renderer_info'); return e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):''; }catch(e){ return ''; } })();
+const WEAK=LOW||/Intel|Mali|Adreno|PowerVR|SwiftShader|llvmpipe|Microsoft Basic/i.test(GPU);
+const TIERS={3:{name:'高',dpr:Math.min(devicePixelRatio,1.75),ps:true,sun:4096},2:{name:'中',dpr:Math.min(devicePixelRatio,1),ps:false,sun:2048},1:{name:'低',dpr:.75,ps:false,sun:1024}};
+const Q={auto:true,start:WEAK?2:3,tier:WEAK?2:3,acc:0,frames:0,low:0};
+function applyQuality(){
+  const t=TIERS[Q.tier]; let changed=false;
+  renderer.setPixelRatio(t.dpr); renderer.setSize(innerWidth,innerHeight);
+  interior.forEach(l=>{ const want=t.ps&&l.userData.shadow; if(l.castShadow!==want){ l.castShadow=want; changed=true; if(want) l.shadow.needsUpdate=true; } });
+  if(sun.shadow.mapSize.x!==t.sun){ sun.shadow.mapSize.set(t.sun,t.sun); if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; } }
+  if(changed) scene.traverse(o=>{ if(o.material) (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true); });
+  ui.quality.textContent=`畫質：${Q.auto?'自動・':''}${t.name}`; ui.quality.setAttribute('aria-pressed',String(Q.auto));
+}
+ui.quality.addEventListener('click',()=>{
+  if(Q.auto){ Q.auto=false; Q.tier=3; } else if(Q.tier>1) Q.tier--; else { Q.auto=true; Q.tier=Q.start; }
+  Q.low=0; applyQuality();
+});
+function watchQuality(raw){
+  if(!Q.auto||document.visibilityState!=='visible') return;
+  Q.acc+=raw; Q.frames++;
+  if(Q.acc<2) return;
+  const fps=Q.frames/Q.acc; Q.acc=0; Q.frames=0;
+  if(fps<26&&Q.tier>1){ if(++Q.low>=2){ Q.tier--; Q.low=0; applyQuality(); toast(`已自動調整畫質以維持流暢（${TIERS[Q.tier].name}）`); } } else Q.low=0;
+}
+ui.resume.addEventListener('click',()=>{ ui.pause.hidden=true; lockPointer(); });
+ui.leave.addEventListener('click',()=>setMode('orbit'));
+
+function applyEnv(){
+  const n=state.night;
+  skyMat.uniforms.top.value.set(n?0x0a1224:0x5f97d0);
+  skyMat.uniforms.horizon.value.set(n?0x1c2842:0xdfe8ee);
+  skyMat.uniforms.bottom.value.set(n?0x070a10:0xa9b3b0);
+  if(scene.fog) scene.fog.color.copy(skyMat.uniforms.horizon.value);
+  sun.intensity=n?.22:3.0; sun.color.set(n?0x9fb4ff:0xfff0dc);
+  hemi.intensity=n?.1:.6; ambient.intensity=n?.07:.3;
+  facadeMats.forEach(m=>m.emissiveIntensity=n?1.25:0);
+  cloudMat.opacity=n?.08:.9;
+  interior.forEach(l=>l.intensity=state.lights?l.userData.base*(n?1.15:.85)*(l.userData.gain??1):0);
+  Object.values(LP).forEach(m=>m.emissiveIntensity=state.lights?1.6:0); M.bulb.emissiveIntensity=state.lights?3:0; M.lampShade.emissiveIntensity=state.lights?.8:0;
+  renderer.toneMappingExposure=n?1.1:(state.exposure??.94);
+  ui.night.setAttribute('aria-pressed',String(n)); ui.lights.setAttribute('aria-pressed',String(state.lights));
+  placeSun();
+}
+function placeSun(){
+  const low=state.mode==='fps';
+  const off=state.night?new THREE.Vector3(8,14,-6):low?new THREE.Vector3(-13,7.5,4.5):new THREE.Vector3(-7,15,5.5);
+  sun.position.copy(HOUSE).add(off);
+}
+
+/* ---------- 模式切換 ---------- */
+function setMode(m){
+  if(state.mode==='fps' && m!=='fps') exitFPS();
+  state.mode=m; tween=null;
+  document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  const fps=m==='fps';
+  ceilG.visible=upperG.visible=fps;
+  cityG.visible=m!=='plan';
+  scene.background=m==='plan'?new THREE.Color(getCss('--ground')||'#e4e8e6'):null;
+  scene.fog=m==='plan'?null:(scene.fog||new THREE.Fog(skyMat.uniforms.horizon.value.getHex(),110,700));
+  if(scene.fog) scene.fog.color.copy(skyMat.uniforms.horizon.value);
+  orbit.enabled=m==='orbit'; plan.enabled=m==='plan';
+  activeCam=m==='plan'?planCam:m==='orbit'?orbitCam:fpsCam;
+  labelRenderer.domElement.hidden=fps;
+  ui.cross.hidden=ui.hud.hidden=!fps;
+  ui.hint.innerHTML=HINTS[m];
+  if(fps) enterFPS();
+  placeSun();
+}
+function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function focusRoom(rm){
+  document.querySelectorAll('#rooms .chip').forEach(c=>c.setAttribute('aria-current',String(c.dataset.room===rm.id)));
+  const cx=X((rm.r[0]+rm.r[2])/2), cz=Z((rm.r[1]+rm.r[3])/2), w=L(rm.r[2]-rm.r[0]), d=L(rm.r[3]-rm.r[1]);
+  const dur=REDUCED?0:.8;
+  if(state.mode==='fps'){ spawn(rm.spot,rm.face); toast(`已傳送到 ${rm.zh}`); return; }
+  if(state.mode==='plan'){
+    const fw=planCam.right-planCam.left, fh=planCam.top-planCam.bottom;
+    const z=Math.min(plan.maxZoom,Math.max(1,Math.min(fw/(w*1.9),fh/(d*1.9))));
+    tween={cam:planCam,ctl:plan,p0:planCam.position.clone(),p1:new THREE.Vector3(cx,60,cz),t0:plan.target.clone(),t1:new THREE.Vector3(cx,0,cz),z0:planCam.zoom,z1:z,t:0,dur};
+  } else {
+    const dir=orbitCam.position.clone().sub(orbit.target).normalize();
+    const dist=Math.max(w,d)*1.5+3.2, t1=new THREE.Vector3(cx,.6,cz);
+    tween={cam:orbitCam,ctl:orbit,p0:orbitCam.position.clone(),p1:t1.clone().add(dir.multiplyScalar(dist)),t0:orbit.target.clone(),t1,z0:1,z1:1,t:0,dur};
+  }
+}
+
+/* =========================================================
+   12. 第一人稱：鎖定滑鼠、WASD、碰撞、重力
+   ========================================================= */
+const player={pos:new THREE.Vector3(),vel:new THREE.Vector3(),vy:0,feet:0,onGround:true,bob:0};
+let PR=.2, EYE=1.6, HEAD=1.75; const STEP=.3;
+const keys=new Set(); let jump=false; const joy={x:0,y:0};
+const ENTRY=ROOMS.find(r=>r.id==='entry');
+function spawn(spot,face){
+  player.pos.set(X(spot[0]),0,Z(spot[1])); player.feet=groundAt(player.pos.x,player.pos.z);
+  player.vy=0; player.vel.set(0,0,0);
+  fpsCam.rotation.set(0,Math.atan2(-face[0],-face[1]),0,'YXZ');
+  fpsCam.position.set(player.pos.x,player.feet+EYE,player.pos.z);
+}
+function enterFPS(){
+  state.leaving=false; state.drag=false; state.touch=IS_TOUCH;
+  doors.forEach(d=>d.target=0);
+  if(!player.spawned){ spawn(ENTRY.spot,ENTRY.face); player.spawned=true; }
+  applyBodyFPS();
+  setPanelOpen(false);
+  if(state.touch){ ui.hint.innerHTML=HINTS.touch; return; }
+  lockPointer();
+}
+function lockPointer(){
+  if(!renderer.domElement.requestPointerLock){ useDrag(); return; }
+  try{ const r=renderer.domElement.requestPointerLock(); if(r&&r.catch) r.catch(()=>{}); }catch(e){ useDrag(); }
+}
+function useDrag(){ state.drag=true; ui.pause.hidden=true; ui.hint.innerHTML=HINTS.drag; toast('此環境無法鎖定滑鼠，已改為「按住左鍵拖曳」轉向'); }
+function exitFPS(){
+  state.leaving=true; if(plc.isLocked) plc.unlock();
+  restoreBodyFPS();
+  state.drag=false; ui.pause.hidden=true; ui.joy.hidden=true; keys.clear(); joy.x=joy.y=0;
+  setPanelOpen(true);
+}
+plc.addEventListener('lock',()=>{ state.locked=true; ui.pause.hidden=true; });
+plc.addEventListener('unlock',()=>{ state.locked=false; state.lastUnlock=performance.now();
+  if(state.mode==='fps' && !state.leaving && !state.drag){ ui.pauseMsg.textContent='點「繼續漫遊」重新鎖定滑鼠。'; ui.pause.hidden=false; } });
+document.addEventListener('pointerlockerror',()=>{
+  if(state.mode!=='fps') return;
+  if(state.lastUnlock>0 && performance.now()-state.lastUnlock<2500){ ui.pauseMsg.textContent='瀏覽器需要稍候一下，請再點一次「繼續漫遊」。'; ui.pause.hidden=false; return; }
+  useDrag();
+});
+const active = () => state.mode==='fps' && (state.locked||state.drag||state.touch) && ui.pause.hidden;
+
+addEventListener('keydown',e=>{
+  if(state.mode!=='fps') return;
+  keys.add(e.code);
+  if(e.code==='Space'){ jump=true; e.preventDefault(); }
+  if(e.code.startsWith('Arrow')) e.preventDefault();
+  if(e.code==='Escape' && (state.drag||state.touch)) setMode('orbit');
+});
+addEventListener('keyup',e=>keys.delete(e.code));
+addEventListener('blur',()=>keys.clear());
+
+const eul=new THREE.Euler(0,0,0,'YXZ');
+function look(dx,dy){ eul.setFromQuaternion(fpsCam.quaternion); eul.y-=dx; eul.x-=dy; eul.x=Math.max(-1.45,Math.min(1.45,eul.x)); fpsCam.quaternion.setFromEuler(eul); }
+let dragging=false, lastM=[0,0];
+renderer.domElement.addEventListener('mousedown',e=>{ if(state.mode==='fps'&&state.drag){ dragging=true; lastM=[e.clientX,e.clientY]; } });
+addEventListener('mousemove',e=>{ if(!dragging) return; look((e.clientX-lastM[0])*.004,(e.clientY-lastM[1])*.004); lastM=[e.clientX,e.clientY]; });
+addEventListener('mouseup',()=>dragging=false);
+
+let joyId=null, lookId=null, joyO=[0,0], lookL=[0,0];
+const cvs=renderer.domElement;
+cvs.addEventListener('touchstart',e=>{
+  if(state.mode!=='fps') return;
+  for(const t of e.changedTouches){
+    if(t.clientX<innerWidth*.45 && joyId===null){ joyId=t.identifier; joyO=[t.clientX,t.clientY]; ui.joy.style.left=t.clientX+'px'; ui.joy.style.top=t.clientY+'px'; ui.knob.style.transform=''; ui.joy.hidden=false; }
+    else if(lookId===null){ lookId=t.identifier; lookL=[t.clientX,t.clientY]; }
+  }
+  e.preventDefault();
+},{passive:false});
+cvs.addEventListener('touchmove',e=>{
+  if(state.mode!=='fps') return;
+  for(const t of e.changedTouches){
+    if(t.identifier===joyId){ let dx=(t.clientX-joyO[0])/50, dy=(t.clientY-joyO[1])/50; const l=Math.hypot(dx,dy); if(l>1){ dx/=l; dy/=l; }
+      joy.x=dx; joy.y=-dy; ui.knob.style.transform=`translate(${dx*33}px,${dy*33}px)`; }
+    if(t.identifier===lookId){ look((t.clientX-lookL[0])*.006,(t.clientY-lookL[1])*.006); lookL=[t.clientX,t.clientY]; }
+  }
+  e.preventDefault();
+},{passive:false});
+const endTouch=e=>{ for(const t of e.changedTouches){ if(t.identifier===joyId){ joyId=null; joy.x=joy.y=0; ui.joy.hidden=true; } if(t.identifier===lookId) lookId=null; } };
+cvs.addEventListener('touchend',endTouch); cvs.addEventListener('touchcancel',endTouch);
+
+function collide(p,feet){
+  for(let it=0;it<4;it++){
+    let hit=false;
+    for(const c of colliders){
+      if(c.maxY<=feet+STEP||c.minY>=feet+HEAD) continue;
+      if(p.x<c.minX-PR||p.x>c.maxX+PR||p.z<c.minZ-PR||p.z>c.maxZ+PR) continue;
+      const cx=Math.max(c.minX,Math.min(p.x,c.maxX)), cz=Math.max(c.minZ,Math.min(p.z,c.maxZ));
+      const dx=p.x-cx, dz=p.z-cz, d2=dx*dx+dz*dz;
+      if(d2>=PR*PR) continue;
+      if(d2>1e-10){ const d=Math.sqrt(d2); p.x+=dx/d*(PR-d); p.z+=dz/d*(PR-d); }
+      else { const l=p.x-c.minX, r=c.maxX-p.x, t=p.z-c.minZ, b=c.maxZ-p.z, m=Math.min(l,r,t,b);
+        if(m===l) p.x=c.minX-PR; else if(m===r) p.x=c.maxX+PR; else if(m===t) p.z=c.minZ-PR; else p.z=c.maxZ+PR; }
+      hit=true;
+    }
+    for(const o of PEOPLE){ if(o.seat||!o.obj.visible) continue;
+      const dx=p.x-o.obj.position.x, dz=p.z-o.obj.position.z, d=Math.hypot(dx,dz), mn=PR+o.obj.userData.radius;
+      if(d<mn&&d>1e-6){ p.x+=dx/d*(mn-d); p.z+=dz/d*(mn-d); hit=true; } }
+    for(const d of doors){
+      const th=d.pivot.rotation.y, vx=Math.cos(th)*d.width, vz=-Math.sin(th)*d.width;
+      let t=((p.x-d.hx)*vx+(p.z-d.hz)*vz)/(vx*vx+vz*vz); t=Math.max(0,Math.min(1,t));
+      const dx=p.x-(d.hx+vx*t), dz=p.z-(d.hz+vz*t), rr2=PR+d.thick/2, d2=dx*dx+dz*dz;
+      if(d2<rr2*rr2 && d2>1e-10){ const dd=Math.sqrt(d2); p.x+=dx/dd*(rr2-dd); p.z+=dz/dd*(rr2-dd); hit=true; }
+    }
+    if(!hit) break;
+  }
+}
+const fwd=new THREE.Vector3(), rgt=new THREE.Vector3(), wish=new THREE.Vector3();
+function updatePlayer(dt){
+  fpsCam.getWorldDirection(fwd); fwd.y=0; fwd.normalize(); rgt.set(-fwd.z,0,fwd.x);
+  const k=c=>keys.has(c);
+  const mx=(k('KeyD')||k('ArrowRight')?1:0)-(k('KeyA')||k('ArrowLeft')?1:0)+joy.x;
+  const mz=(k('KeyW')||k('ArrowUp')?1:0)-(k('KeyS')||k('ArrowDown')?1:0)+joy.y;
+  wish.copy(fwd).multiplyScalar(mz).addScaledVector(rgt,mx); if(wish.lengthSq()>1) wish.normalize();
+  const speed=(k('ShiftLeft')||k('ShiftRight'))?3.4:1.9, a=1-Math.exp(-(player.onGround?12:3)*dt);
+  player.vel.x+=(wish.x*speed-player.vel.x)*a; player.vel.z+=(wish.z*speed-player.vel.z)*a;
+  const steps=Math.max(1,Math.ceil(Math.max(Math.abs(player.vel.x),Math.abs(player.vel.z))*dt/.04));
+  for(let i=0;i<steps;i++){ player.pos.x+=player.vel.x*dt/steps; player.pos.z+=player.vel.z*dt/steps; collide(player.pos,player.feet); }
+  if(jump&&player.onGround){ player.vy=3.6; player.onGround=false; } jump=false;
+  player.vy-=9.8*dt; player.feet+=player.vy*dt;
+  const g=groundAt(player.pos.x,player.pos.z);
+  if(player.feet<=g){ player.feet=g; player.vy=0; player.onGround=true; }
+  else if(player.onGround&&player.vy<=0&&player.feet-g<STEP){ player.feet=g; player.vy=0; }
+  else player.onGround=false;
+  if(player.feet<-6) spawn(ENTRY.spot,ENTRY.face);
+  const sp=Math.hypot(player.vel.x,player.vel.z);
+  if(player.onGround&&!REDUCED) player.bob+=sp*dt*5.5;
+  fpsCam.position.set(player.pos.x,player.feet+EYE+(REDUCED?0:Math.sin(player.bob)*.022*Math.min(1,sp/2)),player.pos.z);
+}
+function updateDoors(dt){
+  for(const d of doors){
+    if(state.mode==='fps'){ const dist=Math.hypot(player.pos.x-d.cx,player.pos.z-d.cz); if(dist<d.openR) d.target=1; else if(dist>d.openR+.45) d.target=0; }
+    else d.target=state.doorsOpen?1:0;
+    const s=dt*1.7; d.t=d.t<d.target?Math.min(d.target,d.t+s):Math.max(d.target,d.t-s);
+    d.pivot.rotation.y=d.thc+d.delta*(d.t*d.t*(3-2*d.t));
+  }
+}
+
+/* ---------- 小地圖 ---------- */
+const MB={x0:110,y0:170,x1:890,y1:682}, mctx=ui.mini.getContext('2d');
+let miniCol={};
+function readMiniColors(){ miniCol={wall:getCss('--poche')||'#7e807d',room:getCss('--room')||'rgba(0,0,0,.06)',accent:getCss('--accent')||'#2c75a0',soft:getCss('--accent-soft')||'rgba(44,117,160,.14)',ink:getCss('--ink')||'#1b2320'}; }
+readMiniColors();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ readMiniColors(); if(state.mode==='plan') scene.background=new THREE.Color(getCss('--ground')); });
+function currentRoom(){ const xp=player.pos.x/S+OX, yp=player.pos.z/S+OY; return ROOMS.find(r=>xp>=r.r[0]&&xp<=r.r[2]&&yp>=r.r[1]&&yp<=r.r[3]); }
+let lastRoom=null;
+function drawMini(){
+  const c=ui.mini, g=mctx, s=c.width/(MB.x1-MB.x0), P=(x,y)=>[(x-MB.x0)*s,(y-MB.y0)*s];
+  g.clearRect(0,0,c.width,c.height);
+  const cur=currentRoom();
+  for(const r of ROOMS){ const [a,b]=P(r.r[0],r.r[1]); g.fillStyle=r===cur?miniCol.soft:miniCol.room; g.fillRect(a,b,(r.r[2]-r.r[0])*s,(r.r[3]-r.r[1])*s); }
+  g.fillStyle=miniCol.wall; for(const w of WALLS){ const [a,b]=P(w[0],w[1]); g.fillRect(a,b,(w[2]-w[0])*s,(w[3]-w[1])*s); }
+  g.fillStyle=miniCol.accent; for(const w of WINDOWS){ const [a,b]=P(w.r[0],w.r[1]); g.globalAlpha=.45; g.fillRect(a,b,(w.r[2]-w.r[0])*s,(w.r[3]-w.r[1])*s); g.globalAlpha=1; }
+  g.strokeStyle=miniCol.ink; g.lineWidth=1.6;
+  for(const d of doors){ const th=d.pivot.rotation.y; const [a,b]=P(d.hx/S+OX,d.hz/S+OY); const [e,f]=P((d.hx+Math.cos(th)*d.width)/S+OX,(d.hz-Math.sin(th)*d.width)/S+OY); g.beginPath(); g.moveTo(a,b); g.lineTo(e,f); g.stroke(); }
+  for(const o of PEOPLE){ if(!o.obj.visible) continue; const [a,b]=P(o.obj.position.x/S+OX,o.obj.position.z/S+OY); g.fillStyle=o.body.top; g.beginPath(); g.arc(a,b,4.5,0,7); g.fill(); }
+  const [px,py]=P(player.pos.x/S+OX,player.pos.z/S+OY);
+  fpsCam.getWorldDirection(fwd); const ang=Math.atan2(fwd.z,fwd.x);
+  g.fillStyle=miniCol.soft; g.beginPath(); g.moveTo(px,py); g.arc(px,py,34,ang-.55,ang+.55); g.closePath(); g.fill();
+  g.fillStyle=miniCol.accent; g.beginPath(); g.arc(px,py,5,0,7); g.fill();
+  if(cur!==lastRoom){ lastRoom=cur; ui.roomtag.innerHTML=(cur?`${cur.zh}<span>${cur.en}</span>`:'門外走廊<span>CORRIDOR</span>')+(state.body?`<span>· ${state.body.name}視角 ${state.body.body.h}cm</span>`:''); }
+}
+
+
+/* =========================================================
+   12b. 人物拖曳（平面俯視／3D 鳥瞰）
+   ========================================================= */
+const ray=new THREE.Raycaster(); ray.layers.set(DOOR_LAYER);
+const ndc=new THREE.Vector2(), dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0), tmpV=new THREE.Vector3();
+const ring=mk(new THREE.RingGeometry(.27,.33,48),new THREE.MeshBasicMaterial({color:0x9a6b45,transparent:true,opacity:.9,depthTest:false,side:THREE.DoubleSide}),false,false);
+ring.rotation.x=-HP; ring.renderOrder=10; ring.visible=false; scene.add(ring);
+let pdrag=null, selected=null;
+ui.people=$('#people');
+
+function toNDC(e){ const r=renderer.domElement.getBoundingClientRect(); ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); ray.setFromCamera(ndc,activeCam); }
+function pickPerson(e){ toNDC(e); PEOPLE.forEach(p=>p.obj.updateMatrixWorld(true)); const h=ray.intersectObjects(PEOPLE.map(p=>p.obj),true)[0]; return h?{P:h.object.userData.person.userData.entry,y:h.point.y}:null; }
+function planeHit(e,y){ toNDC(e); dragPlane.constant=-y; return ray.ray.intersectPlane(dragPlane,tmpV)?tmpV.clone():null; }
+function roomNameAt(x,z){ const xp=x/S+OX, yp=z/S+OY, r=ROOMS.find(r=>xp>=r.r[0]&&xp<=r.r[2]&&yp>=r.r[1]&&yp<=r.r[3]); return r?r.zh:'室內'; }
+function placeName(P){ return P.seat?P.seat.name:roomNameAt(P.obj.position.x,P.obj.position.z); }
+const activeCtl=()=>state.mode==='orbit'?orbit:plan;
+
+function select(P){ selected=P; refreshPeopleChips(); renderBodyUI(); }
+function refreshPeopleChips(){
+  ui.people.querySelectorAll('[data-person]').forEach(b=>{ const P=PEOPLE[+b.dataset.person]; b.setAttribute('aria-current',String(P===selected)); b.querySelector('small').textContent=placeName(P); });
+  ui.rotate.disabled=!selected||!!selected.seat;
+}
+
+// 站立位置檢查：推離牆與家具，並確認仍在室內地板上
+function fitStanding(P,p){
+  const r=P.obj.userData.radius, blocking=c=>c.maxY>.35&&c.minY<1.6;
+  for(let it=0;it<8;it++){
+    let hit=false;
+    for(const c of colliders){ if(!blocking(c)) continue;
+      const cx=Math.max(c.minX,Math.min(p.x,c.maxX)), cz=Math.max(c.minZ,Math.min(p.z,c.maxZ)), dx=p.x-cx, dz=p.z-cz, d2=dx*dx+dz*dz;
+      if(d2>=r*r) continue;
+      if(d2>1e-10){ const d=Math.sqrt(d2); p.x+=dx/d*(r-d); p.z+=dz/d*(r-d); }
+      else { const l=p.x-c.minX, rt=c.maxX-p.x, t=p.z-c.minZ, b=c.maxZ-p.z, m=Math.min(l,rt,t,b);
+        if(m===l) p.x=c.minX-r; else if(m===rt) p.x=c.maxX+r; else if(m===t) p.z=c.minZ-r; else p.z=c.maxZ+r; }
+      hit=true;
+    }
+    for(const o of PEOPLE){ if(o===P) continue; const dx=p.x-o.obj.position.x, dz=p.z-o.obj.position.z, d=Math.hypot(dx,dz), mn=r+o.obj.userData.radius+.02;
+      if(d<mn){ const k=d>1e-6?1/d:0; p.x+=(d>1e-6?dx*k:1)*(mn-d); p.z+=dz*k*(mn-d); hit=true; } }
+    if(!hit) break;
+  }
+  if(groundAt(p.x,p.z)<-1) return false;
+  for(const c of colliders){ if(!blocking(c)) continue; const cx=Math.max(c.minX,Math.min(p.x,c.maxX)), cz=Math.max(c.minZ,Math.min(p.z,c.maxZ)); if(Math.hypot(p.x-cx,p.z-cz)<r-.02) return false; }
+  return true;
+}
+function dropPerson(d){
+  const P=d.P, x=P.obj.position.x, z=P.obj.position.z;
+  let best=null, bd=.6;
+  for(const s of SEATS){ if(PEOPLE.some(o=>o!==P&&o.seat===s)) continue; const dd=Math.hypot(s.x-x,s.z-z); if(dd<bd){ bd=dd; best=s; } }
+  if(best){ seatPerson(P,best); toast(`${P.name}坐到${best.name}`); }
+  else { const p={x,z};
+    if(fitStanding(P,p)){ standPerson(P,p.x,p.z,d.from.yaw); toast(`${P.name}站在${roomNameAt(p.x,p.z)}`); }
+    else { if(d.from.seat) seatPerson(P,d.from.seat); else standPerson(P,d.from.x,d.from.z,d.from.yaw); toast('這個位置放不下，已放回原位'); }
+  }
+  refreshPeopleChips();
+}
+stage.addEventListener('pointerdown',e=>{
+  if(VIEWER||state.mode==='fps'||(e.pointerType==='mouse'&&e.button!==0)) return;
+  const hit=pickPerson(e);
+  if(!hit){ if(selected) select(null); return; }
+  e.stopPropagation(); e.preventDefault();
+  const P=hit.P, o=P.obj, h=planeHit(e,hit.y)||new THREE.Vector3(o.position.x,hit.y,o.position.z);
+  pdrag={P,id:e.pointerId,y:hit.y,off:new THREE.Vector3(o.position.x-h.x,0,o.position.z-h.z),from:{x:o.position.x,z:o.position.z,yaw:o.rotation.y,seat:P.seat}};
+  P.seat=null; pose(o,'stand'); o.position.y=.12;
+  activeCtl().enabled=false; renderer.domElement.style.cursor='grabbing'; select(P);
+},{capture:true});
+addEventListener('pointermove',e=>{
+  if(pdrag){ if(e.pointerId!==pdrag.id) return; const h=planeHit(e,pdrag.y); if(h){ pdrag.P.obj.position.x=h.x+pdrag.off.x; pdrag.P.obj.position.z=h.z+pdrag.off.z; } return; }
+  if(!VIEWER&&state.mode!=='fps'&&e.pointerType==='mouse'&&e.target===renderer.domElement) renderer.domElement.style.cursor=pickPerson(e)?'grab':'';
+});
+const endPersonDrag=e=>{ if(!pdrag||e.pointerId!==pdrag.id) return; const d=pdrag; pdrag=null; dropPerson(d); activeCtl().enabled=true; renderer.domElement.style.cursor=''; };
+addEventListener('pointerup',endPersonDrag); addEventListener('pointercancel',endPersonDrag);
+
+function rotateSelected(){ if(!selected||selected.seat) return; selected.obj.rotation.y+=Math.PI/4; }
+addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return; if(!VIEWER&&state.mode!=='fps'&&(e.code==='KeyR')&&!e.ctrlKey&&!e.metaKey) rotateSelected(); });
+
+PEOPLE.forEach((P,i)=>{
+  const b=document.createElement('button'); b.className='chip'; b.id='person-'+i; b.dataset.person=i;
+  b.innerHTML=`${P.name}<small></small>`;
+  b.addEventListener('click',()=>{ select(P);
+    if(state.mode==='fps'){ toast('切到「1F 平面俯視」或「3D 鳥瞰」即可拖曳人物'); return; }
+    const xp=P.obj.position.x/S+OX, yp=P.obj.position.z/S+OY;
+    focusRoom({id:'person',zh:P.name,r:[xp-45,yp-45,xp+45,yp+45]});
+  });
+  ui.people.appendChild(b);
+});
+ui.rotate=document.createElement('button'); ui.rotate.className='chip'; ui.rotate.id='person-rotate'; ui.rotate.textContent='旋轉 45°';
+ui.rotate.addEventListener('click',rotateSelected); ui.people.appendChild(ui.rotate);
+{ const b=document.createElement('button'); b.className='chip'; b.id='person-reset'; b.textContent='回到預設位置';
+  b.addEventListener('click',()=>{ PEOPLE.forEach(P=>{ Object.assign(P.body,P.defaults); P.seat=P.home; rebuildPerson(P); if(state.body===P&&state.mode==='fps') P.obj.visible=false; }); if(state.body) setFPSBody(state.body); refreshPeopleChips(); renderBodyUI(); toast('已恢復預設：男性 170cm／90kg 坐客房書桌椅、女性 155cm／50kg 坐客廳沙發'); });
+  ui.people.appendChild(b); }
+refreshPeopleChips();
+
+function updatePeople(){
+  const show=!!selected&&state.mode!=='fps'&&selected.obj.visible;
+  ring.visible=show;
+  if(show){ const o=selected.obj.position, r=selected.obj.userData.radius; ring.position.set(o.x,Math.max(0,groundAt(o.x,o.z))+.03,o.z); ring.scale.setScalar(Math.max(1,(r+.08)/.3)); }
+  const rs=show&&!selected.seat&&!pdrag;
+  ruler.visible=labs[0].visible=labs[1].visible=rs;
+  if(rs){ const k=selected.obj.userData, o=selected.obj.position, yaw=selected.obj.rotation.y, off=k.radius+.12;
+    ruler.position.set(o.x+Math.cos(yaw)*off,o.y,o.z-Math.sin(yaw)*off); ruler.rotation.y=yaw;
+    pole.scale.y=k.reach; pole.position.y=k.reach/2;
+    ticks[0].position.y=labs[0].position.y=k.eye; ticks[1].position.y=labs[1].position.y=k.reach;
+    labs[0].element.firstChild.textContent=`眼高 ${cm(k.eye)} cm`; labs[1].element.firstChild.textContent=`伸手可及 ${cm(k.reach)} cm`; }
+}
+
+/* ---------- 身高尺標（站立時顯示眼高與伸手可及高度） ---------- */
+const rulerMat=new THREE.MeshBasicMaterial({color:0x9a6b45,depthTest:false,transparent:true,opacity:.9});
+const ruler=new THREE.Group(); ruler.visible=false; scene.add(ruler);
+const pole=mk(new THREE.CylinderGeometry(.007,.007,1,8),rulerMat,false,false); pole.renderOrder=11; ruler.add(pole);
+const ticks=[0,1].map(()=>{ const t=mk(new THREE.BoxGeometry(.14,.01,.01),rulerMat,false,false); t.renderOrder=11; ruler.add(t); return t; });
+const labs=[0,1].map(()=>{ const el=document.createElement('div'); el.className='ruler-label'; el.appendChild(document.createElement('span')); const o=new CSS2DObject(el); o.visible=false; ruler.add(o); return o; });
+
+/* ---------- 身形設定、櫃高與走道檢查 ---------- */
+const bodyUI={title:$('#body-title'),h:$('#in-h'),w:$('#in-w'),stats:$('#body-stats'),top:$('#sw-top'),bottom:$('#sw-bottom'),checks:$('#checks'),fps:$('#body-fps')};
+const editing=()=>selected||PEOPLE[0];
+const cm=v=>Math.round(v*100);
+const SHELVES=[{name:'廚房吊櫃頂層',top:2.35},{name:'主臥衣櫃頂層',top:2.5},{name:'客房書架頂層',top:2.0}];
+const AISLES=[{name:'主臥 床—衣櫃',w:L(451-409.6)},{name:'廚房 冰箱—檯面',w:L(763-699.1)},{name:'浴廁門淨寬',w:.67},{name:'客廳 茶几—沙發',w:L(600-572.7)},{name:'餐椅—收納高櫃',w:L(565-(DINE_X+42+15.2))},{name:'沙發扶手—餐椅',w:L((DINE_X-42-15.2)-403)}];
+function renderBodyUI(){
+  const P=editing(), k=P.obj.userData;
+  bodyUI.title.textContent=`身形設定 · ${P.name}`;
+  if(document.activeElement!==bodyUI.h) bodyUI.h.value=P.body.h;
+  if(document.activeElement!==bodyUI.w) bodyUI.w.value=P.body.kg;
+  bodyUI.stats.textContent=`BMI ${k.bmi.toFixed(1)} · 眼高 ${cm(k.eye)} cm · 伸手可及 ${cm(k.reach)} cm · 肩寬 ${cm(k.width)} cm · 身體厚度 ${cm(k.depth)} cm`;
+  for(const [el,key] of [[bodyUI.top,'top'],[bodyUI.bottom,'bottom']]) el.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.c===P.body[key])));
+  const rows=['<li class="sub">櫃子最上層（站姿伸手）</li>'];
+  for(const sh of SHELVES){ const gap=sh.top-.1-k.reach;
+    rows.push(`<li><span>${sh.name} ${cm(sh.top)} cm</span>${gap<=0?'<b class="ok">拿得到</b>':gap<=.12?`<b class="warn">差 ${cm(gap)} cm・踮腳</b>`:`<b class="bad">差 ${cm(gap)} cm・需踏凳</b>`}</li>`); }
+  rows.push('<li class="sub">走道寬度</li>');
+  for(const a of AISLES) rows.push(`<li><span>${a.name} ${cm(a.w)} cm</span>${a.w>=k.width+.05?'<b class="ok">正面通過</b>':a.w>=k.depth+.05?'<b class="warn">需側身</b>':'<b class="bad">過不去</b>'}</li>`);
+  bodyUI.checks.innerHTML=rows.join('');
+  bodyUI.fps.setAttribute('aria-pressed',String(state.body===P));
+  bodyUI.fps.textContent=state.body===P?`第一人稱使用${P.name}身形中（點此取消）`:`用${P.name}身形走第一人稱`;
+}
+for(const [el,key,list] of [[bodyUI.top,'top',TOP_COLORS],[bodyUI.bottom,'bottom',BOTTOM_COLORS]]) list.forEach(([c,n],i)=>{
+  const b=document.createElement('button'); b.className='sw'; b.id=`sw-${key}-${i}`; b.style.background=c; b.dataset.c=c; b.title=n; b.setAttribute('aria-label',n);
+  b.addEventListener('click',()=>{ const P=editing(); P.body[key]=c; rebuildPerson(P); if(state.body===P&&state.mode==='fps') P.obj.visible=false; renderBodyUI(); });
+  el.appendChild(b);
+});
+let bodyTimer=0;
+function onBodyInput(){
+  clearTimeout(bodyTimer);
+  bodyTimer=setTimeout(()=>{
+    const P=editing(), h=Math.round(Number(bodyUI.h.value)), kg=Math.round(Number(bodyUI.w.value));
+    if(!(h>=140&&h<=200)||!(kg>=35&&kg<=150)){ bodyUI.stats.textContent='身高請輸入 140–200 cm，體重請輸入 35–150 kg'; return; }
+    if(h===P.body.h&&kg===P.body.kg) return;
+    P.body.h=h; P.body.kg=kg; rebuildPerson(P);
+    if(!P.seat){ const p={x:P.obj.position.x,z:P.obj.position.z}; if(fitStanding(P,p)) standPerson(P,p.x,p.z,P.obj.rotation.y); }
+    if(state.body===P){ setFPSBody(P); if(state.mode==='fps') P.obj.visible=false; }
+    renderBodyUI(); refreshPeopleChips();
+  },350);
+}
+bodyUI.h.addEventListener('input',onBodyInput); bodyUI.w.addEventListener('input',onBodyInput);
+
+// 第一人稱套用住戶身形：眼高、身體寬度（碰撞）跟著人物
+function setFPSBody(P){
+  state.body=P; const k=P?P.obj.userData:null;
+  PR=k?Math.max(.15,k.radius):.2; EYE=k?k.eye:1.6; HEAD=k?P.body.h/100+.02:1.75; lastRoom=undefined;
+}
+function applyBodyFPS(){
+  if(!state.body) return;
+  const o=state.body.obj; o.visible=false;
+  if(state.bodySpawn){ state.bodySpawn=false; spawn([o.position.x/S+OX,o.position.z/S+OY],[Math.sin(o.rotation.y),Math.cos(o.rotation.y)]); collide(player.pos,player.feet); player.spawned=true; }
+}
+function restoreBodyFPS(){
+  if(!state.body) return;
+  const P=state.body, o=P.obj, p={x:player.pos.x,z:player.pos.z};
+  fpsCam.getWorldDirection(fwd);
+  if(fitStanding(P,p)) standPerson(P,p.x,p.z,Math.atan2(fwd.x,fwd.z));
+  o.visible=true; refreshPeopleChips();
+}
+bodyUI.fps.addEventListener('click',()=>{
+  const P=editing();
+  if(state.body===P){ if(state.mode==='fps') restoreBodyFPS(); setFPSBody(null); renderBodyUI(); toast('第一人稱改回預設視角（眼高 160 cm）'); return; }
+  if(state.body&&state.mode==='fps') restoreBodyFPS();
+  setFPSBody(P); state.bodySpawn=true; renderBodyUI();
+  toast(`第一人稱改用${P.name}身形：眼高 ${cm(P.obj.userData.eye)} cm、肩寬 ${cm(P.obj.userData.width)} cm`);
+  if(state.mode==='fps') applyBodyFPS(); else setMode('fps');
+});
+renderBodyUI();
+
+/* =========================================================
+   12c. 風格切換（北歐奶油／現代風／日式無印）與燈具色溫
+   ========================================================= */
+const TEX_SLOTS=[['floorWood','floor'],['oak','oak'],['oakV','oakV'],['walnut','walnut'],['walnutTop','walnut'],['marble','marble'],['sill','marble'],
+  ['bathFloor','bathFloor'],['bathWall','bathWall'],['kitchenFloor','kitchenFloor'],['subway','subway'],['balconyTile','balcony'],
+  ['sofa','fabric'],['bedBase','fabricBeige'],['curtain','fabricLinen'],['rug','rug'],['art','art']];
+// 門片與櫃體一律掛貼圖（無木紋的風格用純白貼圖），切換風格時不必重新編譯 shader
+const PLAIN_TEX=(()=>{ const [c,g]=cv(4,4); g.fillStyle='#fff'; g.fillRect(0,0,4,4); return tex(c); })();
+for(const m of [M.doorWood,M.lacquer]) if(!m.map){ m.map=PLAIN_TEX; m.needsUpdate=true; }
+let styleKey='nordic';
+function styleMats(key){
+  const th=THEMES[key];
+  if(!THEME_TEX[key]) THEME_TEX[key]=makeThemeTextures(th);
+  const tx=THEME_TEX[key];
+  for(const [m,t] of TEX_SLOTS) M[m].map=tx[t];
+  M.doorWood.map=th.doorMap?tx.oakDoor:PLAIN_TEX;
+  M.lacquer.map=th.lacquerMap?tx.oakV:PLAIN_TEX;
+  for(const [k,v] of Object.entries(th.mat)) M[k].color.setHex(v);
+  M.handle.color.setHex(th.handle.color); M.handle.metalness=th.handle.metalness; M.handle.roughness=th.handle.roughness;
+  BOOK_MATS.forEach((m,i)=>m.color.setHex(th.books[i]));
+}
+function applyStyle(key){
+  styleMats(key); styleKey=key; state.exposure=THEMES[key].exposure;
+  document.querySelectorAll('[data-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.style===key)));
+  applyEnv(); renderSlots();
+}
+document.querySelectorAll('[data-style]').forEach(b=>b.addEventListener('click',()=>{
+  const key=b.dataset.style; if(key===styleKey) return;
+  const first=!THEME_TEX[key];
+  if(first) toast(`正在產生「${THEMES[key].name}」材質…`);
+  setTimeout(()=>{ applyStyle(key); toast(`已切換為「${THEMES[key].name}」風格`); },first?60:0);
+}));
+
+// 色溫（K）→ RGB：Tanner Helland 近似式
+function kelvinColor(k){
+  const t=k/100; let r,g,b;
+  if(t<=66){ r=255; g=99.4708025861*Math.log(t)-161.1195681661; b=t<=19?0:138.5177312231*Math.log(t-10)-305.0447927307; }
+  else { r=329.698727446*Math.pow(t-60,-.1332047592); g=288.1221695283*Math.pow(t-60,-.0755148492); b=255; }
+  const c=v=>Math.min(255,Math.max(0,v))/255;
+  return new THREE.Color().setRGB(c(r),c(g),c(b),THREE.SRGBColorSpace);
+}
+const ctUI={input:$('#in-ct'),out:$('#ct-out'),rooms:$('#ct-rooms'),plan:$('#ct-plan')};
+const ctName=k=>k<=2900?'暖黃光':k<=3500?'暖白光':k<=4500?'自然光':k<=5500?'晝白光':'晝光';
+const WHITE=new THREE.Color(1,1,1);
+// 燈具迴路：主燈與間接燈可分開設定（short 用於方案摘要）
+const LIGHT_CH=[
+  {k:'living',room:'客廳',name:'主燈',short:'客廳'},{k:'livingInd',room:'客廳',name:'電視牆間接燈',short:'電視牆'},
+  {k:'dining',room:'餐廳',name:'吊燈',short:'餐廳'},
+  {k:'master',room:'主臥',name:'主燈',short:'主臥'},{k:'masterInd',room:'主臥',name:'床頭間接燈',short:'床頭'},
+  {k:'guest',room:'客房',name:'主燈',short:'客房'},
+  {k:'kitchen',room:'廚房',name:'主燈',short:'廚房'},{k:'kitchenInd',room:'廚房',name:'吊櫃下燈',short:'櫃下'},
+  {k:'bath',room:'浴廁',name:'主燈',short:'浴廁'},{k:'bathInd',room:'浴廁',name:'鏡燈',short:'鏡燈'},
+  {k:'entry',room:'玄關',name:'嵌燈',short:'玄關'},
+];
+const CT_PLAN={living:3000,livingInd:2700,dining:3000,master:2700,masterInd:2700,guest:2700,kitchen:4000,kitchenInd:4000,bath:4000,bathInd:4000,entry:3000};   // 建議配置
+state.ct=Object.fromEntries(LIGHT_CH.map(c=>[c.k,3000]));
+let ctTarget='all';
+function lightColors(ct){
+  for(const {k} of LIGHT_CH){
+    const col=kelvinColor(ct[k]).lerp(WHITE,.35), lum=.2126*col.r+.7152*col.g+.0722*col.b;   // 混入白色，模擬人眼白平衡
+    const gain=Math.min(1.4,Math.max(.75,.793/lum));                                           // 暖色光補償亮度，換色溫時明暗接近
+    for(const l of interior) if(l.userData.room===k){ l.color.copy(col); l.userData.gain=gain; }
+    if(LP[k]) LP[k].emissive.copy(col).lerp(WHITE,.35);
+    if(k==='dining') M.bulb.emissive.copy(col);
+    if(k==='master') M.lampShade.emissive.copy(col).lerp(WHITE,.2);
+  }
+}
+function applyLighting(){ lightColors(state.ct); renderCtUI(); applyEnv(); renderSlots(); }
+function renderCtUI(){
+  const vals=LIGHT_CH.map(c=>state.ct[c.k]), mixed=vals.some(v=>v!==vals[0]);
+  ctUI.rooms.querySelectorAll('[data-ct]').forEach(b=>{
+    const k=b.dataset.ct; b.setAttribute('aria-current',String(k===ctTarget));
+    b.querySelector('small').textContent=k==='all'?(mixed?'各燈不同':`${vals[0]}K`):`${state.ct[k]}K`;
+  });
+  const ch=LIGHT_CH.find(c=>c.k===ctTarget), k=ch?state.ct[ch.k]:(mixed?null:vals[0]), label=ch?`${ch.room}${ch.name}`:'全室';
+  if(document.activeElement!==ctUI.input&&k) ctUI.input.value=k;
+  ctUI.out.textContent=k?`${label} ${k}K ${ctName(k)}`:`${label}：拖曳滑桿可統一設定`;
+}
+{ // 色溫面板：依房間分列，主燈／間接燈各一顆
+  const mkChip=(k,label)=>{ const b=document.createElement('button'); b.className='chip'; b.id='ct-'+k; b.dataset.ct=k; b.innerHTML=`${label}<small></small>`;
+    b.addEventListener('click',()=>{ ctTarget=k; renderCtUI(); }); return b; };
+  const row=(label,chips)=>{ const r=document.createElement('div'); r.className='ct-row'; const s=document.createElement('span'); s.textContent=label; r.append(s,...chips); ctUI.rooms.appendChild(r); };
+  row('',[mkChip('all','全室')]);
+  for(const room of [...new Set(LIGHT_CH.map(c=>c.room))]) row(room,LIGHT_CH.filter(c=>c.room===room).map(c=>mkChip(c.k,c.name)));
+}
+ctUI.input.addEventListener('input',()=>{
+  const k=+ctUI.input.value;
+  if(ctTarget==='all') LIGHT_CH.forEach(c=>state.ct[c.k]=k); else state.ct[ctTarget]=k;
+  applyLighting();
+});
+ctUI.plan.addEventListener('click',()=>{ Object.assign(state.ct,CT_PLAN); applyLighting(); toast('已套用建議色溫：臥室 2700K、客廳主燈 3000K＋電視牆 2700K、廚浴 4000K'); });
+
+/* =========================================================
+   12d. 我的方案：最多 5 組「名稱＋風格＋各燈色溫」，點一下即切換
+   儲存位置：連結雲端硬碟裡的方案檔（.json），並另存一份在瀏覽器當快取
+   ========================================================= */
+const SLOT_KEY='home3d-slots-v1', MAX_SLOTS=5, NAME_MAX=24, FILE_NAME='A01_3D方案.json';
+// 補齊缺少的間接燈：沿用同房主燈色溫
+const fillCt=ct=>{ const o={}; for(const c of LIGHT_CH) o[c.k]=ct[c.k]??ct[c.k.replace('Ind','')]??3000; return o; };
+const cleanName=(n,i)=>(typeof n==='string'&&n.trim()?n.trim().slice(0,NAME_MAX):`方案 ${i+1}`);
+const validSlot=(s,i)=>s&&THEMES[s.style]?{name:cleanName(s.name,i),style:s.style,ct:fillCt(s.ct||{})}:null;
+const normSlots=arr=>Array.from({length:MAX_SLOTS},(_,i)=>validSlot(Array.isArray(arr)?arr[i]:null,i));
+function loadLocal(){
+  try{ const s=JSON.parse(localStorage.getItem(SLOT_KEY)||'null'); if(Array.isArray(s)) return normSlots(s); }catch(e){}
+  try{ const old=JSON.parse(localStorage.getItem('home3d-schemes-v1')||'null');            // 舊版方案 A／B 轉成方案 1、2
+    if(old&&old.A&&old.B) return normSlots([old.A,old.B]); }catch(e){}
+  return normSlots([]);
+}
+const BAKED_SLOTS=null;                               // 展示版預載的方案（null = 用下面的範例方案）
+const PRESET_SLOTS=[
+  {name:'北歐奶油・溫暖居家',style:'nordic',ct:{...CT_PLAN}},
+  {name:'日式無印・自然原木',style:'muji',ct:{...CT_PLAN,kitchen:3500,kitchenInd:3500,bath:3500,bathInd:3500}},
+  {name:'現代風・明亮俐落',style:'modern',ct:Object.fromEntries(LIGHT_CH.map(c=>[c.k,4000]))},
+];
+let slots=VIEWER?normSlots(BAKED_SLOTS||PRESET_SLOTS):loadLocal();
+const slotsJSON=()=>JSON.stringify(slots);
+const slotUI={list:$('#slots'),next:$('#save-next'),out:$('#out-code'),inp:$('#in-code'),status:$('#store-status'),actions:$('#store-actions')};
+const current=()=>({style:styleKey,ct:{...state.ct}});
+const same=(a,b)=>!!a&&!!b&&a.style===b.style&&LIGHT_CH.every(c=>a.ct[c.k]===b.ct[c.k]);
+function ctSummary(s){
+  const g={}; for(const c of LIGHT_CH) (g[s.ct[c.k]]=g[s.ct[c.k]]||[]).push(c.short);
+  const ks=Object.keys(g).sort((a,b)=>a-b);
+  return ks.length===1?`全室 ${ks[0]}K`:ks.map(k=>`${k}K ${g[k].join('、')}`).join('・');
+}
+const slotLabel=(s,i)=>`方案 ${i+1}「${s.name}」：${THEMES[s.style].name}｜${ctSummary(s)}`;
+
+/* ---------- 方案列表 ---------- */
+let namingSlot=null;                                     // 正在命名的方案格
+function refreshPressed(){
+  const cur=current(), stored=slots.findIndex(s=>same(cur,s));
+  slotUI.list.querySelectorAll('button.slot-main').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.i===stored)));
+  slotUI.next.textContent=stored>=0?`目前設定就是方案 ${stored+1}「${slots[stored].name}」`:'＋ 儲存目前設定';
+  slotUI.next.disabled=stored>=0;
+  slotUI.out.value=encodeSlots();
+}
+function renderSlots(force){
+  if(!slotUI.list) return;
+  if(namingSlot!==null&&!force){ refreshPressed(); return; }
+  if(VIEWER){                                          // 展示版：只列出有內容的方案，點一下切換
+    slotUI.list.replaceChildren(...slots.map((s,i)=>{ if(!s) return null;
+      const li=document.createElement('li'); li.className='slot view';
+      const main=document.createElement('button'); main.className='slot-main'; main.id=`slot-${i+1}`; main.dataset.i=i;
+      const num=document.createElement('b'); num.textContent=i+1;
+      const nm=document.createElement('span'); nm.className='slot-name'; nm.textContent=s.name;
+      const sm=document.createElement('span'); sm.className='slot-sum'; sm.textContent=`${THEMES[s.style].name}｜${ctSummary(s)}`;
+      main.append(num,nm,sm); main.addEventListener('click',()=>loadSlot(i)); li.appendChild(main); return li;
+    }).filter(Boolean));
+    refreshPressed(); return;
+  }
+  slotUI.list.replaceChildren(...slots.map((s,i)=>{
+    const li=document.createElement('li'); li.className='slot'+(s?'':' empty');
+    const act=(label,title,fn)=>{ const b=document.createElement('button'); b.className='slot-act'; b.textContent=label; b.title=title; b.setAttribute('aria-label',title); b.addEventListener('click',fn); return b; };
+    if(namingSlot===i&&s){
+      const box=document.createElement('div'); box.className='slot-main editing';
+      const num=document.createElement('b'); num.textContent=i+1;
+      const inp=document.createElement('input'); inp.id=`slot-name-${i+1}`; inp.maxLength=NAME_MAX; inp.value=s.name; inp.setAttribute('aria-label',`方案 ${i+1} 名稱`);
+      inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); commitName(i,inp.value); } else if(e.key==='Escape'){ namingSlot=null; renderSlots(true); } });
+      inp.addEventListener('blur',()=>{ if(namingSlot===i) commitName(i,inp.value); });
+      box.append(num,inp); li.append(box,act('完成',`完成方案 ${i+1} 命名`,()=>commitName(i,inp.value)));
+      li.classList.add('naming');
+      return li;
+    }
+    const main=document.createElement('button'); main.className='slot-main'; main.id=`slot-${i+1}`; main.dataset.i=i;
+    const num=document.createElement('b'); num.textContent=i+1;
+    const nm=document.createElement('span'); nm.className='slot-name'; nm.textContent=s?s.name:'空白';
+    main.append(num,nm);
+    if(s){ const sm=document.createElement('span'); sm.className='slot-sum'; sm.textContent=`${THEMES[s.style].name}｜${ctSummary(s)}`; main.appendChild(sm); main.addEventListener('click',()=>loadSlot(i)); }
+    else main.disabled=true;
+    li.appendChild(main);
+    if(s) li.append(act('命名',`重新命名方案 ${i+1}`,()=>startRename(i)),act('覆蓋',`用目前設定覆蓋方案 ${i+1}`,()=>storeSlot(i)),act('刪除',`刪除方案 ${i+1}`,()=>clearSlot(i)));
+    else li.append(act('存到這裡',`把目前設定存成方案 ${i+1}`,()=>{ storeSlot(i); startRename(i); }));
+    return li;
+  }));
+  refreshPressed();
+}
+function startRename(i){ namingSlot=i; renderSlots(true); const inp=$(`#slot-name-${i+1}`); if(inp){ inp.focus(); inp.select(); } }
+function commitName(i,v){ if(namingSlot!==i) return; namingSlot=null; if(slots[i]){ slots[i].name=cleanName(v,i); persist(); toast(`已命名方案 ${i+1}「${slots[i].name}」`); } renderSlots(true); }
+function applySettings(s,msg){
+  const go=()=>{ if(s.style!==styleKey) applyStyle(s.style); Object.assign(state.ct,s.ct); applyLighting(); if(msg) toast(msg); };
+  if(!THEME_TEX[s.style]){ toast('正在產生材質…'); setTimeout(go,60); } else go();
+}
+function loadSlot(i){ const s=slots[i]; if(!s){ toast(`方案 ${i+1} 還沒有儲存`); return; } applySettings(s,slotLabel(s,i)); }
+function storeSlot(i){ const name=slots[i]?.name||`方案 ${i+1}`; slots[i]={name,...current()}; persist(); renderSlots(true); toast(`已存成方案 ${i+1}「${name}」`); }
+function clearSlot(i){ const n=slots[i]?.name; slots[i]=null; persist(); renderSlots(true); toast(`已刪除方案 ${i+1}「${n}」`); }
+slotUI.next.addEventListener('click',()=>{
+  const i=slots.findIndex(s=>!s);
+  if(i<0){ toast(`${MAX_SLOTS} 個方案都已存滿，請先刪除或覆蓋其中一個`); return; }
+  storeSlot(i); startRename(i);
+});
+addEventListener('keydown',e=>{                        // 鍵盤 1–5 切換方案（第一人稱鎖定滑鼠時也能用）
+  const m=/^(?:Digit|Numpad)([1-5])$/.exec(e.code);
+  if(!m||e.repeat||e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,textarea'))) return;
+  loadSlot(+m[1]-1);
+});
+
+/* ---------- 儲存位置 ---------- */
+const store={file:null,needPerm:false,writing:false,pending:false};
+const IN_FRAME=window.top!==window;
+const FS=!!window.showSaveFilePicker&&!IN_FRAME;
+const fileBody=()=>JSON.stringify({app:'A01 住宅 3D 漫遊',v:3,savedAt:new Date().toISOString(),slots},null,2);
+function persist(){
+  if(VIEWER){ slotUI.out.value=encodeSlots(); return; }
+  try{ localStorage.setItem(SLOT_KEY,slotsJSON()); }catch(e){}
+  if(store.file&&!store.needPerm) fileWrite();
+  slotUI.out.value=encodeSlots();
+}
+function setStatus(){
+  let t;
+  if(store.file) t=store.needPerm?`已連結方案檔「${store.file.name}」，需要重新授權才能讀寫。`:`已連結方案檔「${store.file.name}」：每次變更自動存檔，並自動載入其他電腦的修改。把這個雲端硬碟資料夾共用給其他 Google 帳號，就能一起編輯。`;
+  else if(FS) t='方案目前只存在這台電腦的瀏覽器。要換電腦、換帳號或和別人一起編輯，請「存成方案檔」放進共用的雲端硬碟資料夾（建議和這個 HTML 同一個資料夾）。';
+  else if(IN_FRAME) t='方案只存在這台電腦的瀏覽器，可用「分享方案」的代碼備份。';
+  else t='方案只存在這台電腦的瀏覽器。可下載方案檔放到雲端硬碟，換電腦時再匯入。';
+  slotUI.status.textContent=t; slotUI.status.dataset.mode=store.file&&!store.needPerm?'file':'local';
+}
+function renderStoreActions(){
+  const btn=(label,id,fn)=>{ const b=document.createElement('button'); b.className='chip'; b.id=id; b.textContent=label; b.addEventListener('click',fn); return b; };
+  const list=[];
+  if(FS){
+    if(store.file){ if(store.needPerm) list.push(btn('重新連結','store-relink',relinkFile)); list.push(btn('改開其他方案檔…','store-open',openFile),btn('取消連結','store-unlink',unlinkFile)); }
+    else list.push(btn('存成方案檔…','store-link',linkNewFile),btn('開啟方案檔…','store-open',openFile));
+  } else {
+    if(!IN_FRAME) list.push(btn('下載方案檔','store-download',downloadFile));
+    list.push(btn('匯入方案檔','store-import',importFileInput));
+  }
+  slotUI.actions.replaceChildren(...list);
+}
+function adoptSlots(arr,applyFirst){
+  slots=normSlots(arr); if(!VIEWER) try{ localStorage.setItem(SLOT_KEY,slotsJSON()); }catch(e){}
+  namingSlot=null; renderSlots(true);
+  if(applyFirst){ const i=slots.findIndex(Boolean); if(i>=0) applySettings(slots[i]); }
+}
+
+// 本機 HTML：連結一個 .json 方案檔（Chrome／Edge），檔案放在雲端硬碟就能跨電腦沿用
+function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open('home3d',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function kv(key,val){
+  const d=await idb();
+  return new Promise((res,rej)=>{ const st=d.transaction('kv',val===undefined?'readonly':'readwrite').objectStore('kv');
+    const q=val===undefined?st.get(key):val===null?st.delete(key):st.put(val,key); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });
+}
+const FILE_TYPES=[{description:'A01 住宅 3D 方案檔',accept:{'application/json':['.json']}}];
+async function readSlotsFile(file){ const data=JSON.parse(await file.text()); if(!data||!Array.isArray(data.slots)) throw new Error('format'); return data.slots; }
+// 共同編輯：記住上次讀寫方案檔時的內容（base），其他電腦改過檔案時逐格三方合併
+const slotKey=s=>JSON.stringify(s||null);
+function markFileBase(stamp){ store.fileBase=slots.map(slotKey); store.fileStamp=stamp; }
+function mergeSlots(remote){
+  const base=store.fileBase||remote.map(slotKey); let conflict=false;
+  const merged=slots.map((l,i)=>{ const bk=base[i], lk=slotKey(l), rk=slotKey(remote[i]);
+    if(lk===bk) return remote[i];                      // 這台沒改 → 用檔案裡的
+    if(rk===bk||rk===lk) return l;                     // 檔案沒改或兩邊相同 → 用這台的
+    conflict=true; return l; });                        // 兩邊都改同一格 → 保留這台剛做的修改
+  return {merged,conflict};
+}
+async function pullRemote(file){
+  const {merged,conflict}=mergeSlots(normSlots(await readSlotsFile(file)));
+  const changed=JSON.stringify(merged)!==slotsJSON();
+  if(changed) adoptSlots(merged,false);
+  return {changed,conflict};
+}
+async function fileWrite(){
+  if(!store.file) return;
+  if(store.writing){ store.pending=true; return; }
+  store.writing=true;
+  try{
+    if(await store.file.queryPermission({mode:'readwrite'})!=='granted'&&await store.file.requestPermission({mode:'readwrite'})!=='granted') throw new Error('perm');
+    const f=await store.file.getFile();
+    if(store.fileStamp&&f.lastModified>store.fileStamp){
+      const r=await pullRemote(f);
+      if(r.changed) toast(r.conflict?'同一格方案兩邊都改過：保留這台的版本，其他方案已合併':'已合併其他電腦對方案檔的修改');
+    }
+    const w=await store.file.createWritable(); await w.write(fileBody()); await w.close();
+    markFileBase((await store.file.getFile()).lastModified);
+  }catch(e){ store.needPerm=true; setStatus(); renderStoreActions(); toast('無法寫入方案檔，請按「重新連結」授權'); }
+  store.writing=false;
+  if(store.pending){ store.pending=false; fileWrite(); }
+}
+async function checkFile(){                            // 每 15 秒及切回視窗時，檢查其他電腦（雲端硬碟同步）的修改
+  if(!store.file||store.needPerm||store.writing||document.visibilityState!=='visible') return;
+  try{
+    const f=await store.file.getFile();
+    if(!store.fileStamp||f.lastModified<=store.fileStamp) return;
+    const dirty=slots.some((x,i)=>slotKey(x)!==(store.fileBase||[])[i]);
+    const r=await pullRemote(f);
+    if(dirty) await fileWrite(); else markFileBase(f.lastModified);
+    if(r.changed) toast('方案檔已被其他電腦更新，已載入最新方案');
+  }catch(e){}
+}
+setInterval(checkFile,15000); addEventListener('focus',checkFile); document.addEventListener('visibilitychange',checkFile);
+async function linkNewFile(){
+  try{ const h=await window.showSaveFilePicker({suggestedName:FILE_NAME,types:FILE_TYPES});
+    store.file=h; store.needPerm=false; store.fileBase=null; store.fileStamp=0; try{ await kv('slotsFile',h); }catch(e){} await fileWrite();
+    if(!store.needPerm) toast(`已存成方案檔「${h.name}」，之後每次變更都會自動存檔`);
+  }catch(e){ if(e&&e.name!=='AbortError') toast('無法建立方案檔'); }
+  setStatus(); renderStoreActions();
+}
+async function adoptFile(h,applyFirst){ const f=await h.getFile(); adoptSlots(await readSlotsFile(f),applyFirst); markFileBase(f.lastModified); }
+async function openFile(){
+  try{ const [h]=await window.showOpenFilePicker({types:FILE_TYPES});
+    await adoptFile(h,true);
+    store.file=h; store.needPerm=false; try{ await kv('slotsFile',h); }catch(e){}
+    toast(`已載入方案檔「${h.name}」：${slots.filter(Boolean).length} 組方案`);
+  }catch(e){ if(e&&e.name==='AbortError') return; toast('這不是有效的方案檔'); }
+  setStatus(); renderStoreActions();
+}
+async function relinkFile(){
+  try{ if(await store.file.requestPermission({mode:'readwrite'})==='granted'){ store.needPerm=false; await adoptFile(store.file,true); toast('已重新連結方案檔'); } }
+  catch(e){ toast('找不到方案檔，請改用「開啟方案檔」'); }
+  setStatus(); renderStoreActions();
+}
+async function unlinkFile(){ store.file=null; store.needPerm=false; store.fileBase=null; store.fileStamp=0; try{ await kv('slotsFile',null); }catch(e){} setStatus(); renderStoreActions(); toast('已取消連結，方案改存在這台電腦的瀏覽器'); }
+async function initFile(){
+  if(!FS) return;
+  try{ const h=await kv('slotsFile');
+    if(h){ store.file=h;
+      if(await h.queryPermission({mode:'readwrite'})==='granted') await adoptFile(h,!bootFromHash);
+      else store.needPerm=true; }
+  }catch(e){ store.needPerm=!!store.file; }
+}
+// 不支援連結檔案的瀏覽器：下載／匯入方案檔
+function downloadFile(){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([fileBody()],{type:'application/json'})); a.download=FILE_NAME;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast(`已下載「${FILE_NAME}」，請放到雲端硬碟資料夾保存`);
+}
+function importFileInput(){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.addEventListener('change',async()=>{ const f=inp.files[0]; if(!f) return;
+    try{ adoptSlots(await readSlotsFile(f),true); persist(); toast(`已匯入「${f.name}」：${slots.filter(Boolean).length} 組方案`); }
+    catch(e){ toast('這不是有效的方案檔'); } });
+  inp.click();
+}
+
+/* ---------- 展示版：唯讀開啟屋主的方案檔（只讀不寫） ---------- */
+const viewUI={status:$('#view-status'),actions:$('#view-actions')};
+const view={file:null,name:'',stamp:0,needPerm:false};
+const PICK_RO=!!window.showOpenFilePicker&&!IN_FRAME;
+function renderViewStore(){
+  if(!VIEWER) return;
+  viewUI.status.textContent=view.file&&!view.needPerm?`已載入方案檔「${view.name}」（唯讀）：屋主更新後會自動顯示最新方案。`
+    :view.needPerm?`上次開啟的方案檔「${view.name}」需要重新允許讀取。`
+    :view.name?`已載入方案檔「${view.name}」（唯讀）。屋主更新後，請再開啟一次取得最新方案。`
+    :'目前顯示範例方案。開啟屋主提供的「A01_3D方案.json」即可看到屋主的方案（只會讀取，不會修改檔案）。';
+  viewUI.status.dataset.mode=view.name&&!view.needPerm?'file':'local';
+  const b=(label,id,fn)=>{ const x=document.createElement('button'); x.className='chip'; x.id=id; x.textContent=label; x.addEventListener('click',fn); return x; };
+  viewUI.actions.replaceChildren(...(view.needPerm?[b('載入最新方案','view-reload',viewReload)]:[]),b(view.name?'改開其他方案檔…':'開啟方案檔…','view-open',viewOpen));
+}
+async function viewAdopt(file,applyFirst){ adoptSlots(await readSlotsFile(file),applyFirst); view.name=file.name; view.stamp=file.lastModified; }
+async function viewOpen(){
+  try{
+    if(PICK_RO){ const [h]=await window.showOpenFilePicker({types:FILE_TYPES}); await viewAdopt(await h.getFile(),true); view.file=h; view.needPerm=false; try{ await kv('viewFile',h); }catch(e){} }
+    else { const f=await new Promise((res,rej)=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.addEventListener('change',()=>inp.files[0]?res(inp.files[0]):rej({name:'AbortError'})); inp.click(); }); await viewAdopt(f,true); view.file=null; }
+    toast(`已載入「${view.name}」：${slots.filter(Boolean).length} 組方案`);
+  }catch(e){ if(!(e&&e.name==='AbortError')) toast('這不是有效的方案檔'); }
+  renderViewStore();
+}
+async function viewReload(){
+  try{ if(await view.file.requestPermission({mode:'read'})==='granted'){ view.needPerm=false; await viewAdopt(await view.file.getFile(),true); toast('已載入最新方案'); } }
+  catch(e){ toast('找不到方案檔，請改用「開啟方案檔」'); }
+  renderViewStore();
+}
+async function viewCheck(){                            // 屋主更新方案檔、雲端硬碟同步後自動換成最新內容
+  if(!view.file||view.needPerm||document.visibilityState!=='visible') return;
+  try{ const f=await view.file.getFile(); if(f.lastModified>view.stamp){ await viewAdopt(f,false); toast('屋主已更新方案，已載入最新內容'); renderViewStore(); } }catch(e){}
+}
+async function initViewFile(){
+  if(!PICK_RO) return;
+  try{ const h=await kv('viewFile'); if(!h) return; view.file=h; view.name=h.name;
+    if(await h.queryPermission({mode:'read'})==='granted') await viewAdopt(await h.getFile(),!bootFromHash); else view.needPerm=true; }
+  catch(e){ view.file=null; view.name=''; }
+}
+if(VIEWER){ setInterval(viewCheck,15000); addEventListener('focus',viewCheck); document.addEventListener('visibilitychange',viewCheck); }
+
+/* ---------- 方案代碼：只用英數、句點、底線、波浪號與連字號，可直接當網址 #錨點 ---------- */
+const STYLE_CODE={nordic:'n',modern:'m',muji:'j'}, CODE_STYLE={n:'nordic',m:'modern',j:'muji'};
+const b64u=s=>{ let t=''; for(const x of new TextEncoder().encode(s)) t+=String.fromCharCode(x); return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); };
+const unb64u=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0)));
+const encOne=s=>STYLE_CODE[s.style]+LIGHT_CH.map(c=>String(Math.round(s.ct[c.k]/100)).padStart(2,'0')).join('')+'~'+b64u(s.name);
+function encodeSlots(){ return 'zh3.'+slots.map(s=>s?encOne(s):'_').join('.'); }
+function decodeOne(p,i){
+  const m=/^([nmj])(\d+)(?:~([A-Za-z0-9_-]+))?$/.exec(p); if(!m||m[2].length!==LIGHT_CH.length*2) return undefined;
+  const ct={}; for(let j=0;j<LIGHT_CH.length;j++){ const k=+m[2].slice(j*2,j*2+2)*100; if(k<2700||k>6500) return undefined; ct[LIGHT_CH[j].k]=k; }
+  let name; try{ name=m[3]?unb64u(m[3]):''; }catch(e){ name=''; }
+  return {name:cleanName(name,i),style:CODE_STYLE[m[1]],ct};
+}
+function decodeSlots(str){
+  const parts=String(str||'').trim().replace(/^.*#/,'').split('.');
+  if(!['zh1','zh2','zh3'].includes(parts[0])) return null;
+  const out=parts.slice(1,1+MAX_SLOTS).map((p,i)=>p==='_'?null:decodeOne(p,i));
+  if(!out.length||out.includes(undefined)||!out.some(Boolean)) return null;
+  return out;
+}
+function shareText(){
+  const lines=slots.map((s,i)=>s?slotLabel(s,i):null).filter(Boolean);
+  return `【A01 住宅 3D 方案】\n${lines.join('\n')}\n方案代碼：${encodeSlots()}\n使用方式：打開A01 住宅 3D 頁面 →「我的方案」→「分享方案」貼上代碼按「匯入」；或在網址最後加上 #代碼 再開啟。`;
+}
+async function copy(text,label){
+  try{ await navigator.clipboard.writeText(text); toast(`已複製${label}`); }
+  catch(e){ slotUI.out.focus(); slotUI.out.select(); toast('瀏覽器不允許自動複製，已選取代碼，請按 Ctrl+C'); }
+}
+$('#copy-code').addEventListener('click',()=>{ if(!slots.some(Boolean)){ toast('還沒有儲存任何方案'); return; } copy(encodeSlots(),'方案代碼'); });
+$('#copy-text').addEventListener('click',()=>{ if(!slots.some(Boolean)){ toast('還沒有儲存任何方案'); return; } copy(shareText(),'說明文字（含代碼）'); });
+function importSlots(str,silent){
+  const s=decodeSlots(str);
+  if(!s){ if(!silent) toast('代碼格式不正確，請貼上完整的 zh3. 開頭代碼'); return false; }
+  adoptSlots(s,true); persist();
+  return true;
+}
+$('#do-import').addEventListener('click',()=>{ if(importSlots(slotUI.inp.value)){ slotUI.inp.value=''; toast(`已匯入 ${slots.filter(Boolean).length} 組方案，目前顯示方案 ${slots.findIndex(Boolean)+1}`); } });
+slotUI.inp.addEventListener('keydown',e=>{ if(e.key==='Enter') $('#do-import').click(); });
+
+/* ---------- 啟動 ---------- */
+// 網址帶 #代碼 就載入分享的方案；否則有方案 1 就顯示方案 1，沒有就用北歐奶油＋建議色溫
+const bootFromHash=location.hash.length>1&&!!decodeSlots(decodeURIComponent(location.hash));
+{ const s=slots[0]||{style:'nordic',ct:{...CT_PLAN}}; if(s.style!==styleKey) applyStyle(s.style); Object.assign(state.ct,s.ct); applyLighting(); }
+setStatus(); renderStoreActions();
+(async()=>{
+  if(VIEWER){ renderViewStore(); await initViewFile(); if(bootFromHash) importSlots(decodeURIComponent(location.hash),true); renderViewStore();
+    const i=slots.findIndex(Boolean); if(i>=0) setTimeout(()=>toast(`目前顯示：${slotLabel(slots[i],i)}`),900); return; }
+  await initFile();
+  if(bootFromHash&&importSlots(decodeURIComponent(location.hash),true)) toast('已載入網址中的方案');
+  setStatus(); renderStoreActions();
+})();
+addEventListener('hashchange',()=>{ if(importSlots(decodeURIComponent(location.hash),true)) toast('已載入網址中的方案'); });
+{ const pending=Object.keys(THEMES).filter(k=>!THEME_TEX[k]);
+  const idle=window.requestIdleCallback||(f=>setTimeout(f,400));
+  const next=()=>{ const k=pending.shift(); if(!k) return; if(!THEME_TEX[k]) THEME_TEX[k]=makeThemeTextures(THEMES[k]); idle(next); };
+  setTimeout(()=>idle(next),2500); }
+
+/* =========================================================
+   13. 主迴圈
+   ========================================================= */
+addEventListener('resize',()=>{
+  const w=innerWidth,h=innerHeight; renderer.setSize(w,h); labelRenderer.setSize(w,h);
+  orbitCam.aspect=fpsCam.aspect=w/h; orbitCam.updateProjectionMatrix(); fpsCam.updateProjectionMatrix(); fitPlan();
+});
+const clock=new THREE.Clock(); let first=true, elapsed=0;
+function frame(){
+  const raw=clock.getDelta(), dt=Math.min(raw,.05); elapsed+=dt; if(!first) watchQuality(raw);
+  if(active()) updatePlayer(dt);
+  updateDoors(dt); updatePeople();
+  if(tween){ tween.t=tween.dur?Math.min(1,tween.t+dt/tween.dur):1; const e=1-Math.pow(1-tween.t,3);
+    tween.cam.position.lerpVectors(tween.p0,tween.p1,e); tween.ctl.target.lerpVectors(tween.t0,tween.t1,e);
+    if(tween.cam.isOrthographicCamera){ tween.cam.zoom=tween.z0+(tween.z1-tween.z0)*e; tween.cam.updateProjectionMatrix(); }
+    if(tween.t>=1) tween=null; }
+  if(state.mode==='orbit') orbit.update(); else if(state.mode==='plan') plan.update();
+  const tank=window.__tank;
+  if(tank) for(const f of tank.userData.fish){ const t=elapsed*f.sp+f.ph; f.m.position.set(Math.sin(t)*f.amp,f.y+Math.sin(t*1.7)*.02,f.z+Math.sin(t*.6)*.04); f.m.rotation.y=Math.cos(t)>0?0:Math.PI; }
+  renderer.render(scene,activeCam);
+  if(state.mode!=='fps') labelRenderer.render(scene,activeCam); else drawMini();
+  if(first){ first=false; ui.loading.hidden=true; }
+}
+applyQuality();
+applyEnv();
+setMode('orbit');
+renderer.setAnimationLoop(frame);
+</script>
+<script>
+setTimeout(function(){
+  if(!window.__ready){ var l=document.getElementById('loading'); if(l){ l.hidden=false; l.textContent='無法載入 Three.js，請確認網路可連線到 cdn.jsdelivr.net 後重新整理。'; } }
+}, 15000);
+</script>
+</body>
+</html>
