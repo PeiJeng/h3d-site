@@ -203,7 +203,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/27 10:07</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/27 10:13</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1477,6 +1477,9 @@ const planCam = new THREE.OrthographicCamera(-1,1,1,-1,.1,300); planCam.up.set(0
 const CENTER = new THREE.Vector3(X(492),0,Z(426));
 
 orbitCam.position.set(CENTER.x-2.4,12.8,CENTER.z+6.2);
+// 手機直向畫面窄，預設視角沿同一方向拉遠，整間才放得進畫面
+const ORBIT_FAR = Math.min(2, Math.max(1, .8/aspect()));    // 目標：畫面寬約 9.5m，整間 + 少許留白
+if(ORBIT_FAR>1) orbitCam.position.sub(new THREE.Vector3(CENTER.x,.4,CENTER.z)).multiplyScalar(ORBIT_FAR).add(new THREE.Vector3(CENTER.x,.4,CENTER.z));
 const orbit = new OrbitControls(orbitCam,renderer.domElement);
 orbit.target.set(CENTER.x,.4,CENTER.z); orbit.enableDamping=true; orbit.maxPolarAngle=1.45; orbit.minDistance=2; orbit.maxDistance=32; orbit.update();
 
