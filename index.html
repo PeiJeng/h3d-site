@@ -189,6 +189,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
   .panel{width:auto;right:16px}
   .tb h1{font-size:16px}
   .sheet dd{font-size:12px}
+  .panel.closed .sheet{display:none}         /* 收合時連圖號那排也藏起來 */
   .hud{top:calc(16px + env(safe-area-inset-top,0px));bottom:auto}
   .mini{width:150px}
   .hint{font-size:11.5px;border-radius:8px}
@@ -202,7 +203,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/27 10:06</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/27 10:07</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1509,6 +1510,12 @@ const HINTS = {
   touch:'左下拖曳移動 · 右半邊拖曳轉向 · 靠近門自動開啟',
 };
 if(VIEWER){ HINTS.plan='拖曳平移 · 滾輪或雙指縮放 · 點選左側方案即可切換'; HINTS.orbit='左鍵拖曳旋轉 · 右鍵拖曳平移 · 滾輪縮放 · 點選左側方案即可切換'; }
+// 手機、平板：改成手指操作的說明
+if(IS_TOUCH){
+  HINTS.plan='拖曳人物可移動 · 單指拖曳平移 · 雙指縮放';
+  HINTS.orbit='拖曳人物可移動 · 單指拖曳旋轉 · 雙指縮放／平移';
+  if(VIEWER){ HINTS.plan='單指拖曳平移 · 雙指縮放 · 按「展開」切換方案'; HINTS.orbit='單指拖曳旋轉 · 雙指縮放／平移 · 按「展開」切換方案'; }
+}
 let toastTimer=0;
 function toast(msg){ ui.toast.textContent=msg; ui.toast.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>ui.toast.hidden=true,3600); }
 
@@ -1518,8 +1525,9 @@ ROOMS.forEach(rm=>{
   b.addEventListener('click',()=>focusRoom(rm)); ui.rooms.appendChild(b);
 });
 
-function setPanelOpen(open){ ui.pbody.hidden=!open; ui.collapse.textContent=open?'收合':'展開'; ui.collapse.setAttribute('aria-expanded',String(open)); }
+function setPanelOpen(open){ ui.pbody.hidden=!open; ui.panel.classList.toggle('closed',!open); ui.collapse.textContent=open?'收合':'展開'; ui.collapse.setAttribute('aria-expanded',String(open)); }
 ui.collapse.addEventListener('click',()=>setPanelOpen(ui.pbody.hidden));
+if(IS_TOUCH) setPanelOpen(false);            // 手機預設收合，只留標題列
 document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
 ui.night.addEventListener('click',()=>{ state.night=!state.night; applyEnv(); });
 ui.lights.addEventListener('click',()=>{ state.lights=!state.lights; applyEnv(); });
