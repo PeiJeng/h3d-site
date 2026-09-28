@@ -204,7 +204,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/27 14:46</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/28 09:55</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1086,9 +1086,7 @@ for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);
 /* ---- 主臥室 ---- */
 R(staticG,[293,261,451,266.6],0,H,M.walnut); colRect([293,261,451,266.6]);         // 床背板 D:8cm
 for(const y of [.95,1.9]) B(staticG,L(158),.006,.004,M.gapDark,X(372),y,Z(266.6)+.002,false);
-R(staticG,[291.6,261,295,304],0,H,M.walnut); colRect([291.6,261,295,304]);         // 造型側落板
 furn(put(bed(1.614,1.93),352.4,340.7,0),'雙人床');                                  // 雙人床 5×6.2
-furn(put(nightstand(),427,280,0),'床頭櫃');
 furn(put(desk(.9,.6),259.5,282.5,0),'化妝桌');                                        // 化妝桌 90×60
 furn(put(chair(),259.5,318,PI),'化妝椅');
 { const m=mk(new THREE.CircleGeometry(.28,40),M.chrome,false,false); m.position.set(X(261),1.45,Z(261)+.012); staticG.add(m);
