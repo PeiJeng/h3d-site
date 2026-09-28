@@ -204,7 +204,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/28 09:55</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/09/28 10:04</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -889,6 +889,39 @@ function cabinet({w,d,h,doors=2,front=M.lacquer,body=M.lacquer,plinth=.08,y0=0,h
   }
   return g;
 }
+// 滑門衣櫃：前後兩道軌，左右門在前軌、中門在後軌；門片沿軌道橫移，不佔前方走道
+function slideWardrobe({w,d,h,doors=3,front=M.oakV,body=M.lacquer,plinth=.08}){
+  const g=new THREE.Group(), t=.018, fh=h-plinth, dz=d/2, bw=w/doors, inD=d-.09, inZ=-.045;
+  B(g,w-.03,plinth,d-.08,M.shadowDark,0,0,-.04);
+  B(g,w,fh,t,body,0,plinth,-dz+t/2);                                            // 背板
+  for(const s of [-1,1]) B(g,t,fh,d-.07,body,s*(w/2-t/2),plinth,-.035);          // 側板
+  for(const y of [plinth,h-t]) B(g,w,t,d-.07,body,0,y,-.035);                    // 頂底板
+  for(let i=1;i<doors;i++) B(g,t,fh,inD,body,-w/2+bw*i,plinth,inZ);              // 隔間板
+  const zc=inZ+.01, rodY=h-.5, cloth=[M.linen,M.duvet,M.throw,M.duvet2,BOOK_MATS[1],BOOK_MATS[7]];
+  for(let b=0;b<doors;b++){
+    const cx=-w/2+bw*(b+.5), iw=bw-t-.01;
+    B(g,iw,t,inD,M.oak,cx,h-.42,inZ);                                             // 上層板
+    if(b<doors-1){                                                                // 吊衣區
+      { const r=C(g,.012,.012,iw,M.chrome,cx,rodY,zc,8); r.rotation.z=HP; r.position.y=rodY; }
+      const n=Math.floor(iw/.075);
+      for(let k=0;k<n;k++){ const len=b===1?.62:.8+((k*37)%5)*.06, x=cx-iw/2+.05+k*(iw-.1)/(n-1||1);
+        B(g,.035,len,.42,cloth[(k+b*2)%cloth.length],x,rodY-len-.02,zc); }
+      if(b===1) for(const y of [plinth+.02,plinth+.3]){ B(g,iw-.01,.26,inD-.02,M.oak,cx,y,inZ); B(g,.14,.012,.015,M.handle,cx,y+.2,inZ+inD/2); } // 下方抽屜
+    } else for(let s=0;s<4;s++){ const y=plinth+.05+s*.42;                        // 層板區
+      B(g,iw,t,inD,M.oak,cx,y,inZ);
+      for(let k=0;k<3;k++) B(g,.26,.06+k%2*.03,.3,cloth[(s+k)%cloth.length],cx-iw/2+.16+k*.29,y+t,zc); }
+  }
+  B(g,w,.03,.06,M.gapDark,0,h-.03,dz-.03,false);                                  // 上軌
+  const list=[];
+  for(let i=0;i<doors;i++){
+    const dg=new THREE.Group(), rear=i%2===1, dw=bw+(rear?.02:.01);
+    B(dg,dw,fh-.03,t,front,0,0,0);
+    B(dg,.012,.9,.006,M.handle,(i===0?1:-1)*(dw/2-.04)*(rear?0:1),.75,t/2+.003);   // 內嵌把手條
+    dg.position.set(-w/2+bw*(i+.5),plinth+.002,dz-(rear?.045:.015)); g.add(dg); list.push(dg);
+  }
+  g.userData.slide={doors:list,bw,home:list.map(o=>o.position.x),off:list.map(()=>0),want:list.map(()=>0)};
+  return g;
+}
 function bed(w,l,single=false){
   const g=new THREE.Group();
   RB(g,w,.26,l,.03,M.bedBase,0,.08,0);
@@ -1092,7 +1125,7 @@ furn(put(chair(),259.5,318,PI),'化妝椅');
 { const m=mk(new THREE.CircleGeometry(.28,40),M.chrome,false,false); m.position.set(X(261),1.45,Z(261)+.012); staticG.add(m);
   const ring=mk(new THREE.TorusGeometry(.285,.012,8,40),M.brass); ring.position.set(X(261),1.45,Z(261)+.012); staticG.add(ring); }
 { const p=plant({h:.36,spread:.14,potR:.06,potH:.1,n:12,leafS:.06,kind:'bush',potMat:M.potTerra}); p.position.set(X(235),.755,Z(270)); staticG.add(p); }
-{ const g=cabinet({w:L(196.7),d:L(45.2),h:2.5,doors:3,front:M.oakV}); B(g,L(196.7),.2,L(45.2),M.lacquer,0,2.5,0); furn(put(g,473.6,359.35,-HP),'主臥衣櫃'); } // 衣櫃
+const WARD_OBJ=(()=>{ const g=slideWardrobe({w:L(196.7),d:L(45.2),h:2.5,doors:3,front:M.oakV}); B(g,L(196.7),.2,L(45.2),M.lacquer,0,2.5,0); return furn(put(g,473.6,359.35,-HP,true,dynG),'主臥衣櫃（滑門）'); })(); // 衣櫃：滑門可開（不合併）
 put(acUnit(),228,351.5,HP,false).position.y=2.31;
 for(let i=0;i<3;i++){ const len=L(431.1-261)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
 { const r=mk(new THREE.BoxGeometry(1.1,.01,.7),M.rug,false,true); r.position.set(X(355),.016,Z(432)); staticG.add(r); }
@@ -2451,7 +2484,7 @@ function showDims(f){
   dimCard.style.bottom=(ui.hint.offsetHeight+28)+'px';
   cardName.textContent=f.name+(f.obj===SOFA_OBJ&&SOFA.t>0?'（坐深拉長）':'');
   cardSize.textContent=`寬 ${W} × 深 ${D} × 高 ${Hh} cm`+seatTxt+(a.y>.05?`・離地 ${cm(a.y)} cm`:'');
-  cardBtn.hidden=f.obj!==SOFA_OBJ; refreshSofaBtn();
+  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ; if(f.obj===WARD_OBJ) refreshWardBtn(); else refreshSofaBtn();
 }
 
 /* ---------- 點選判定：按下後沒拖動才算「點」，拖曳照常轉視角／拖人物 ---------- */
@@ -2501,14 +2534,34 @@ function setSofaSlide(open,quiet){
 }
 function applySofa(){ const e=SOFA.t*SOFA.t*(3-2*SOFA.t); SOFA.deck.visible=SOFA.t>0; SOFA.seat.position.z=SOFA.ext*e; }
 function sofaDone(){ if(dimSel&&dimSel.obj===SOFA_OBJ) showDims(dimSel); }
-cardBtn.addEventListener('click',()=>setSofaSlide(!SOFA.target));
+cardBtn.addEventListener('click',()=>{ if(dimSel&&dimSel.obj===WARD_OBJ) setWard(WARD.pos%3+1); else setSofaSlide(!SOFA.target); });
 poseBtn.addEventListener('click',()=>{
+  if(dimSel&&dimSel.obj===WARD_OBJ){ setWard(0); return; }
   SOFA.pose=SOFA_POSE=SOFA.pose==='cross'?'lie':'cross'; refreshSofaBtn();
   const on=reseatSofa(); toast(on.length?on.map(P=>P.name+'改成'+poseName(P)).join('、'):'沙發上沒有人：把人物拖到沙發上就會用這個姿勢');
 });
 
+/* ---------- 主臥滑門衣櫃：點衣櫃 → 依序打開左段／中段／右段（一次開一段） ---------- */
+const WARD={...WARD_OBJ.userData.slide, pos:0};
+const WARD_NAME=['','左段','中段','右段'];
+function refreshWardBtn(){
+  cardBtn.textContent=WARD.pos?`改開${WARD_NAME[WARD.pos%3+1]}`:'打開滑門（左段）'; cardBtn.setAttribute('aria-pressed',String(!!WARD.pos));
+  poseBtn.hidden=!WARD.pos; poseBtn.textContent='關上滑門';
+}
+// 左門（前軌）往右滑蓋住中門；中門（後軌）往左滑到左門後面；右門（前軌）往左滑
+function setWard(pos){
+  WARD.pos=pos; const b=WARD.bw;
+  WARD.want=[pos===1?b:0, pos===2?-b:0, pos===3?-b:0];
+  if(REDUCED){ WARD.off=[...WARD.want]; applyWard(); }
+  refreshWardBtn();
+  toast(pos?`打開${WARD_NAME[pos]}：滑門沿軌道橫移，不佔床邊走道（約 ${cm(L(451-409.6))} cm）`:'滑門已關上');
+}
+function applyWard(){ WARD.doors.forEach((d,i)=>d.position.x=WARD.home[i]+WARD.off[i]); }
+
 function updateFurn(dt){
   dimG.visible=state.mode!=='fps'; dimCard.hidden=!dimSel||state.mode==='fps';
+  if(WARD.off.some((v,i)=>v!==WARD.want[i])){
+    WARD.off=WARD.off.map((v,i)=>{ const w=WARD.want[i], st=dt*1.1; return Math.abs(w-v)<=st?w:v+Math.sign(w-v)*st; }); applyWard(); }
   if(SOFA.t===SOFA.target) return;
   SOFA.t=SOFA.t<SOFA.target?Math.min(1,SOFA.t+dt*2):Math.max(0,SOFA.t-dt*2);
   applySofa(); if(SOFA.t===SOFA.target) sofaDone();
