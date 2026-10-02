@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/02 20:07</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/02 20:10</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1180,7 +1180,8 @@ const DESK_OBJ=furn(put(liftDesk(1.2,.8),503.2+.406/S,374.3,HP,true,dynG),'升�
   C(g,.1,.1,.012,M.blackMetal,-.08,.755,-.27,20); B(g,.04,.13,.025,M.blackMetal,-.08,.76,-.285);
   B(g,.42,.015,.13,M.whiteMetal,-.08,.755,-.02); B(g,.07,.01,.1,M.whiteMetal,.22,.755,0);
   C(g,.035,.032,.09,M.ceramic,-.52,.755,.1,14);
-  const bk=new THREE.Group(); bk.position.x=.1; g.add(bk); books(bk,.18,.5,.755,.3,.25); }   // 書整排往右 10cm（範圍不變，亂數用量不變）const CHAIR_OBJ=furn(put(officeChair(),572,374,-HP,true,dynG),'辦公椅'), CHAIR_COL=colliders[colliders.length-1];  // 桌子升高時往後推開（不合併）
+  const bk=new THREE.Group(); bk.position.x=.1; g.add(bk); books(bk,.18,.5,.755,.3,.25); }   // 書整排往右 10cm（範圍不變，亂數用量不變）
+const CHAIR_OBJ=furn(put(officeChair(),572,374,-HP,true,dynG),'辦公椅'), CHAIR_COL=colliders[colliders.length-1];  // 桌子升高時往後推開（不合併）
 { const bs=bookshelf(.55,.42,2.0,5,.79); furn(put(bs,503.2+.21/S,457.7-.275/S,HP),'書架');      // 書架 79→55 寬：背靠書桌牆、塞在書桌和房門牆之間，開口朝房門那側
   plant({h:.4,spread:.2,potR:.08,potH:.14,n:16,leafS:.07,kind:'bush',potMat:M.potDark}); }  // 書架頂盆栽已拿掉：照樣生成一次不放進場景，後面的亂數排列才不會跟著變
 for(let i=0;i<2;i++) books(new THREE.Group(),-.45,.35,1.5,.24,.26);   // 書桌上方層板已全部拿掉：原本兩片層板上的書照樣抽一次亂數不放，後面排列才不會跟著變
