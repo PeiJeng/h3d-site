@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/02 20:10</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/14 19:21</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -219,7 +219,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
   <dl class="sheet">
     <div><dt>圖號</dt><dd>AR01</dd></div>
     <div><dt>比例</dt><dd>S 1:40</dd></div>
-    <div><dt>室內</dt><dd>14.2 坪</dd></div>
+    <div><dt>室內</dt><dd>13.8 坪</dd></div>
     <div><dt>樓層</dt><dd>1F 單層</dd></div>
   </dl>
   <div class="pbody" id="pbody">
@@ -285,7 +285,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       </div>
     </div>
     <p class="note" data-view>這是唯讀展示版：可以切換設計方案，並用俯視、鳥瞰或第一人稱觀看；不會修改任何方案或檔案。</p>
-    <p class="note">依 260922 平面配置圖（AR01）1:40 向量尺寸建模。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
+    <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具依 260922 平面配置圖（AR01）配置。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
   </div>
 </aside>
 
@@ -344,9 +344,27 @@ if(VIEWER) document.documentElement.classList.add('viewer');
    A3 圖紙 1pt = 0.3528mm，比例 1:40 → 1pt = 1.411cm
    ========================================================= */
 const S = 0.0141111;
-const OX = 210.9, OY = 250.4;                 // 左上外牆角為原點
-const X = x => (x - OX) * S;                  // 圖面 x → 世界 x
-const Z = y => (y - OY) * S;                  // 圖面 y → 世界 z（往下為 +z）
+// 261014 實測格局尺寸圖（同為 A3 1:40）：家具等仍沿用 260922 配置圖座標，
+// 以兩張圖的同一道牆面為對應點分段線性換算到實測位置；牆體門窗直接用實測圖座標（經 NR 轉回）
+const MAPX = [[115.3,103.8],[210.9,199.4],[221.5,211.5],[285.3,275.2],[496.2,484.3],[503.2,490.7],[580.1,565.8],[637.9,621.4],
+  [643.9,629.6],[651.0,638.1],[654.6,643.7],[668.7,659.0],[675.8,666.1],[687.1,672.8],[694.2,681.3],[701.0,688.4],[704.2,693.7],
+  [736.0,722.4],[743.1,732.0],[764.4,749.3],[775.0,759.3],[806.9,792.6],[817.6,805.7],[860.1,844.3],[885,869]];
+const MAPZ = [[176,185.5],[181,190.5],[250.4,261.4],[261.0,275.5],[277.0,288.3],[287.6,303.2],[393.9,406.0],[401.0,413.0],[431.1,442.1],
+  [457.7,469.7],[464.8,478.2],[470.1,480.4],[541.0,547.7],[549.8,563.3],[571.1,582.4],[578.2,590.9],[628.5,639.1],[634.9,649.0],
+  [665.0,675.3],[675.6,687.3]];
+function pl(t,v,a,b){                         // 分段線性：t 的第 a 欄 → 第 b 欄（兩端外推斜率 1）
+  if(v<=t[0][a]) return t[0][b]+v-t[0][a];
+  for(let i=1;i<t.length;i++) if(v<=t[i][a]){ const p=t[i-1], q=t[i]; return p[b]+(v-p[a])*(q[b]-p[b])/(q[a]-p[a]); }
+  const l=t[t.length-1]; return l[b]+v-l[a];
+}
+const OX = 199.4, OY = 261.4;                 // 實測圖左上外牆角為原點
+const X = x => (pl(MAPX,x,0,1) - OX) * S;     // 圖面 x → 世界 x
+const Z = y => (pl(MAPZ,y,0,1) - OY) * S;     // 圖面 y → 世界 z（往下為 +z）
+const PX = w => pl(MAPX,w/S+OX,1,0);          // 世界 x → 圖面 x
+const PZ = w => pl(MAPZ,w/S+OY,1,0);          // 世界 z → 圖面 y
+const NR = r => [pl(MAPX,r[0],1,0),pl(MAPZ,r[1],1,0),pl(MAPX,r[2],1,0),pl(MAPZ,r[3],1,0)];  // 實測圖矩形 → 圖面座標
+const NP = p => [pl(MAPX,p[0],1,0),pl(MAPZ,p[1],1,0)];
+const LX = (a,b) => X(b)-X(a), LZ = (a,b) => Z(b)-Z(a);   // 圖面兩點間的實際長度
 const L = d => d * S;
 const H = 2.7;                                // 天花板高度
 const DOOR_LAYER = 2;
@@ -681,7 +699,7 @@ function mk(geo, mat, cast=true, recv=true){ const m=new THREE.Mesh(geo,mat); m.
 function B(p,w,h,d,mat,x,y,z,cast=true){ const m=mk(new THREE.BoxGeometry(w,h,d),mat,cast); m.position.set(x,y+h/2,z); p.add(m); return m; }
 function RB(p,w,h,d,r,mat,x,y,z,cast=true){ const rad=Math.min(r,w/2-1e-3,h/2-1e-3,d/2-1e-3); const m=mk(new RoundedBoxGeometry(w,h,d,3,rad),mat,cast); m.position.set(x,y+h/2,z); p.add(m); return m; }
 function C(p,rt,rb,h,mat,x,y,z,seg=20,cast=true){ const m=mk(new THREE.CylinderGeometry(rt,rb,h,seg),mat,cast); m.position.set(x,y+h/2,z); p.add(m); return m; }
-function R(p,r,yb,yt,mat,cast=true){ const [x0,y0,x1,y1]=r; return B(p,L(x1-x0),yt-yb,L(y1-y0),mat,X((x0+x1)/2),yb,Z((y0+y1)/2),cast); }
+function R(p,r,yb,yt,mat,cast=true){ const [x0,y0,x1,y1]=r; return B(p,LX(x0,x1),yt-yb,LZ(y0,y1),mat,(X(x0)+X(x1))/2,yb,(Z(y0)+Z(y1))/2,cast); }
 
 // 碰撞盒（水平面 AABB ＋ 垂直範圍）與地面高度
 const colliders = [], FLOORS = [];
@@ -693,8 +711,8 @@ function put(o,xPt,yPt,rot=0,collide=true,parent=staticG){ o.position.x=X(xPt); 
 const FURN=[];
 function furn(o,name){ const r=o.rotation.y; o.rotation.y=0; o.updateWorldMatrix(true,true); const b=new THREE.Box3().setFromObject(o); o.rotation.y=r; o.updateWorldMatrix(true,true);
   const f={name,obj:o,p:o.position.clone(),rot:r,min:b.min.sub(o.position),max:b.max.sub(o.position)}; FURN.push(f); return o; }
-function furnRect(name,r,yb,yt){ const w=L(r[2]-r[0])/2, d=L(r[3]-r[1])/2;
-  FURN.push({name,p:new THREE.Vector3(X((r[0]+r[2])/2),0,Z((r[1]+r[3])/2)),rot:0,min:new THREE.Vector3(-w,yb,-d),max:new THREE.Vector3(w,yt,d)}); }
+function furnRect(name,r,yb,yt){ const w=LX(r[0],r[2])/2, d=LZ(r[1],r[3])/2;
+  FURN.push({name,p:new THREE.Vector3((X(r[0])+X(r[2]))/2,0,(Z(r[1])+Z(r[3]))/2),rot:0,min:new THREE.Vector3(-w,yb,-d),max:new THREE.Vector3(w,yt,d)}); }
 function groundAt(x,z){ let g=-100; for(const f of FLOORS) if(x>=f.minX&&x<=f.maxX&&z>=f.minZ&&z<=f.maxZ&&f.top>g) g=f.top; return g; }
 
 // 以世界座標重算 UV，讓磁磚／木地板依實際尺寸重複
@@ -708,43 +726,45 @@ function worldUV(geo,size,mode){
 }
 
 /* =========================================================
-   3. 結構：牆、樓板、門窗開口（座標取自 PDF 向量圖）
+   3. 結構：牆、樓板、門窗開口（座標取自 261014 實測格局尺寸圖向量，NR 轉回圖面座標）
    ========================================================= */
 const wm = cap => [M.paint,M.paint,cap,M.paint,M.paint,M.paint];
 const WALL_M = wm(M.capDark), LINTEL_M = wm(M.capLight), SILL_M = wm(M.sill);
 function wall(r,yb=0,yt=H,mats=WALL_M,collide=true){
   const [x0,y0,x1,y1]=r;
-  const m=mk(new THREE.BoxGeometry(L(x1-x0),yt-yb,L(y1-y0)),mats);
-  m.position.set(X((x0+x1)/2),yb+(yt-yb)/2,Z((y0+y1)/2)); staticG.add(m);
+  const m=mk(new THREE.BoxGeometry(LX(x0,x1),yt-yb,LZ(y0,y1)),mats);
+  m.position.set((X(x0)+X(x1))/2,yb+(yt-yb)/2,(Z(y0)+Z(y1))/2); staticG.add(m);
   if(collide) colRect(r,yb,yt);
   return m;
 }
 const WALLS = [
-  [221.5,250.4,503.2,261.0],[637.9,250.4,654.6,261.0],[643.9,261.0,654.6,277.0],[643.9,277.0,700.6,287.6],
-  [764.4,277.0,817.6,287.6],[775.0,261.0,806.9,277.0],[806.9,261.0,817.6,277.0],[806.9,287.6,817.6,470.1],
-  [806.9,541.0,817.6,665.0],[210.9,665.0,817.6,675.6],[210.9,634.9,221.5,665.0],[210.9,431.1,221.5,464.8],
-  [115.3,176.0,221.5,261.0],[775.0,176.0,860.1,261.0],                        // 結構柱
-  [496.2,261.0,503.2,457.7],[285.3,457.7,580.1,464.8],[643.9,457.7,701.0,464.8],[761.2,457.7,806.9,464.8],
-  [643.9,287.6,651.0,393.9],[643.9,393.9,694.2,401.0],[687.1,401.0,694.2,457.7],
-  [597.9,542.7,651.0,549.8],[704.2,542.7,743.1,549.8],[736.0,549.8,743.1,571.1],[736.0,571.1,806.9,578.2],
-  [597.9,549.8,604.9,665.0],[597.9,628.5,675.8,635.6],[668.7,635.6,675.8,665.0],[604.9,635.6,668.7,665.0], // 浴室＋管道間
-  [817.6,425,880,430],[817.6,590,880,595],[880,425,885,595],                 // 門外公共走廊
-];
+  [199.4,261.4,490.7,275.5],[621.4,261.4,643.7,273.4],[629.6,273.4,643.7,288.3],[629.6,288.3,689.1,303.2],     // 上方外牆（客房窗兩側）
+  [749.3,288.3,792.6,303.2],[792.6,288.3,805.7,303.2],[759.3,271.6,805.7,288.3],[792.6,303.2,805.7,469.7],
+  [792.6,469.7,805.7,478.2],[794.3,478.2,805.7,480.4],[794.3,547.7,805.7,582.4],[793.6,582.4,805.7,673.8],     // 右側外牆（大門兩側）
+  [199.4,442.1,211.5,482.5],[199.4,649.0,211.5,675.3],[199.4,675.3,805.7,687.3],[666.1,673.8,793.6,675.3],    // 左側窗間牆、下方外牆
+  [759.3,185.5,844.3,271.6],                                                                                   // 結構柱
+  [484.3,275.5,490.7,469.7],[275.2,469.7,565.8,478.2],[629.6,469.7,688.4,478.2],[748.6,469.7,792.6,478.2],     // 主臥／客房隔間、走道牆
+  [629.6,303.2,638.1,406.0],[629.6,406.0,681.3,413.0],[672.8,413.0,681.3,469.7],                               // 廚房冰箱凹
+  [586.7,554.1,640.6,563.3],[693.7,554.1,732.0,563.3],[722.4,563.3,732.0,582.4],[722.4,582.4,792.6,590.9],
+  [586.7,563.3,595.2,639.1],[586.7,639.1,666.1,646.2],[659.0,646.2,666.1,675.3],[586.7,646.2,593.8,675.3],[593.8,646.2,659.0,675.3], // 浴室＋管道間
+].map(NR).concat([
+  [817.6,425,880,430],[817.6,590,880,595],[880,425,885,595],                 // 門外公共走廊（實測圖未畫，沿用原位置）
+]);
 WALLS.forEach(r=>wall(r));
 
 const DOOR_OPENINGS = [
-  {r:[221.5,457.7,285.3,464.8],h:2.1,axis:'x'},   // 主臥
-  {r:[580.1,457.7,643.9,464.8],h:2.1,axis:'x'},   // 客房
-  {r:[701.0,457.7,761.2,464.8],h:2.1,axis:'x'},   // 廚房
-  {r:[651.0,542.7,704.2,549.8],h:2.1,axis:'x'},   // 浴廁
-  {r:[806.9,470.1,817.6,541.0],h:2.15,axis:'z',trim:'dark'}, // 大門
-  {r:[700.6,277.0,764.4,287.6],h:2.1,axis:'x',trim:'alu'},   // 陽台門
-];
+  {r:[211.5,469.7,275.2,478.2],h:2.1,axis:'x'},   // 主臥
+  {r:[565.8,469.7,629.6,478.2],h:2.1,axis:'x'},   // 客房
+  {r:[688.4,469.7,748.6,478.2],h:2.1,axis:'x'},   // 廚房
+  {r:[640.6,554.1,693.7,563.3],h:2.1,axis:'x'},   // 浴廁
+  {r:[792.6,480.4,805.7,547.7],h:2.15,axis:'z',trim:'dark'}, // 大門
+  {r:[689.1,288.3,749.3,303.2],h:2.1,axis:'x',trim:'alu'},   // 陽台門
+].map(o=>({...o,r:NR(o.r)}));
 DOOR_OPENINGS.forEach(o=>{
   wall(o.r,o.h,H,LINTEL_M);
   const [x0,y0,x1,y1]=o.r, g=new THREE.Group();
-  g.position.set(X((x0+x1)/2),0,Z((y0+y1)/2)); if(o.axis==='z') g.rotation.y=Math.PI/2;
-  const w=o.axis==='x'?L(x1-x0):L(y1-y0), t=o.axis==='x'?L(y1-y0):L(x1-x0);
+  g.position.set((X(x0)+X(x1))/2,0,(Z(y0)+Z(y1))/2); if(o.axis==='z') g.rotation.y=Math.PI/2;
+  const w=o.axis==='x'?LX(x0,x1):LZ(y0,y1), t=o.axis==='x'?LZ(y0,y1):LX(x0,x1);
   const tm=o.trim==='dark'?M.entryDoor:o.trim==='alu'?M.alu:M.lacquer, jt=.02, cw=.06, ct=.012, h=o.h;
   B(g,jt,h,t,tm,-w/2+jt/2,0,0); B(g,jt,h,t,tm,w/2-jt/2,0,0); B(g,w,jt,t,tm,0,h-jt,0);
   for(const s of [-1,1]){ const z=s*(t/2+ct/2);
@@ -752,15 +772,16 @@ DOOR_OPENINGS.forEach(o=>{
   staticG.add(g);
 });
 
+// 窗：實測 W1 客廳 235×171、W2 主臥 235×170（窗台 69）、W3 客房 181×117（窗台 122）
 const WINDOWS = [
-  {r:[210.9,261.0,221.5,431.1],sill:.9, head:2.2,axis:'z',panes:3},  // 主臥（風琴簾）
-  {r:[210.9,464.8,221.5,634.9],sill:.45,head:2.3,axis:'z',panes:3},  // 客廳（一紗一布簾）
-  {r:[503.2,250.4,637.9,261.0],sill:.9, head:2.2,axis:'x',panes:2},  // 客房（調光簾）
-];
+  {r:[199.4,275.5,211.5,442.1],sill:.69,head:2.39,axis:'z',panes:3},  // 主臥 W2（風琴簾）
+  {r:[199.4,482.5,211.5,649.0],sill:.69,head:2.40,axis:'z',panes:3},  // 客廳 W1（一紗一布簾）
+  {r:[490.7,261.4,621.4,275.5],sill:1.22,head:2.39,axis:'x',panes:2}, // 客房 W3（調光簾）
+].map(o=>({...o,r:NR(o.r)}));
 WINDOWS.forEach(o=>{
   wall(o.r,0,o.sill,SILL_M,false); wall(o.r,o.head,H,LINTEL_M,false); colRect(o.r,0,H);
-  const [x0,y0,x1,y1]=o.r, len=o.axis==='z'?L(y1-y0):L(x1-x0);
-  const g=new THREE.Group(); g.position.set(X((x0+x1)/2),0,Z((y0+y1)/2)); if(o.axis==='z') g.rotation.y=Math.PI/2;
+  const [x0,y0,x1,y1]=o.r, len=o.axis==='z'?LZ(y0,y1):LX(x0,x1);
+  const g=new THREE.Group(); g.position.set((X(x0)+X(x1))/2,0,(Z(y0)+Z(y1))/2); if(o.axis==='z') g.rotation.y=Math.PI/2;
   const fh=o.head-o.sill, fd=.07, fw=.05;
   B(g,len,fw,fd,M.alu,0,o.sill,0); B(g,len,fw,fd,M.alu,0,o.head-fw,0);
   B(g,fw,fh,fd,M.alu,-len/2+fw/2,o.sill,0); B(g,fw,fh,fd,M.alu,len/2-fw/2,o.sill,0);
@@ -771,33 +792,36 @@ WINDOWS.forEach(o=>{
 
 // 樓板與地坪（上表面高度不同的面材分區；同時作為地面偵測）
 function floorRect(r,top,mat,size){
-  const [x0,y0,x1,y1]=r, geo=new THREE.BoxGeometry(L(x1-x0),top+.05,L(y1-y0));
-  geo.translate(X((x0+x1)/2),(top-.05)/2,Z((y0+y1)/2)); worldUV(geo,size,'xz');
+  const [x0,y0,x1,y1]=r, geo=new THREE.BoxGeometry(LX(x0,x1),top+.05,LZ(y0,y1));
+  geo.translate((X(x0)+X(x1))/2,(top-.05)/2,(Z(y0)+Z(y1))/2); worldUV(geo,size,'xz');
   staticG.add(mk(geo,mat,false,true));
   FLOORS.push({minX:X(x0),maxX:X(x1),minZ:Z(y0),maxZ:Z(y1),top});
 }
 R(staticG,[115,176,885,675.6],-.3,-.05,M.concrete);                 // 結構樓板
-floorRect([221.5,261,643.9,287.6],.01,M.floorWood,2);
-floorRect([221.5,287.6,806.9,665],.01,M.floorWood,2);         // 木地板：客餐廳、臥室、玄關
-floorRect([694.2,287.6,806.9,457.7],.013,M.kitchenFloor,1.2);       // 廚房磁磚
-floorRect([700.6,277,764.4,287.6],.013,M.sill,1);                   // 陽台門檻
-floorRect([806.9,470.1,817.6,541],.013,M.sill,1);                   // 大門門檻
-floorRect([604.9,549.8,806.9,665],.016,M.bathFloor,1.2);            // 浴廁
-floorRect([654.6,181,775,277],-.04,M.balconyTile,1.2);              // 陽台（低 5cm）
+floorRect(NR([211.5,275.5,629.6,303.2]),.01,M.floorWood,2);
+floorRect(NR([211.5,303.2,792.6,675.3]),.01,M.floorWood,2);         // 木地板：客餐廳、臥室、玄關
+floorRect(NR([681.3,303.2,792.6,469.7]),.013,M.kitchenFloor,1.2);   // 廚房磁磚
+floorRect(NR([689.1,288.3,749.3,303.2]),.013,M.sill,1);             // 陽台門檻
+floorRect(NR([792.6,480.4,805.7,547.7]),.013,M.sill,1);             // 大門門檻
+floorRect(NR([595.2,563.3,793.6,673.8]),.016,M.bathFloor,1.2);      // 浴廁
+floorRect(NR([643.7,190.5,759.3,288.3]),-.04,M.balconyTile,1.2);    // 陽台（低 5cm）
 floorRect([817.6,430,880,590],.005,M.corridor,1.2);                 // 公共走廊
 
-// 牆面貼磚（浴室、廚房壁磚）
+// 牆面貼磚（浴室、廚房壁磚）；at／a0／a1 為實測圖座標
 function clad(axis,at,a0,a1,yb,yt,dir,mat,size){
   const t=.008; let g;
-  if(axis==='x'){ g=new THREE.BoxGeometry(t,yt-yb,L(a1-a0)); g.translate(X(at)+dir*t/2,yb+(yt-yb)/2,Z((a0+a1)/2)); worldUV(g,size,'zy'); }
-  else { g=new THREE.BoxGeometry(L(a1-a0),yt-yb,t); g.translate(X((a0+a1)/2),yb+(yt-yb)/2,Z(at)+dir*t/2); worldUV(g,size,'xy'); }
+  if(axis==='x'){ const xa=(at-OX)*S, za=(a0-OY)*S, zb=(a1-OY)*S; g=new THREE.BoxGeometry(t,yt-yb,zb-za); g.translate(xa+dir*t/2,yb+(yt-yb)/2,(za+zb)/2); worldUV(g,size,'zy'); }
+  else { const za=(at-OY)*S, xa=(a0-OX)*S, xb=(a1-OX)*S; g=new THREE.BoxGeometry(xb-xa,yt-yb,t); g.translate((xa+xb)/2,yb+(yt-yb)/2,za+dir*t/2); worldUV(g,size,'xy'); }
   staticG.add(mk(g,mat,false,true));
 }
 [
-  ['x',604.9,549.8,628.5,1],['z',549.8,604.9,651,1],['z',549.8,704.2,736,1],['x',736,549.8,578.2,-1],
-  ['z',578.2,736,806.9,1],['x',806.9,578.2,665,-1],['z',665,675.8,806.9,-1],['z',628.5,604.9,675.8,-1],['x',675.8,635.6,665,1],
+  ['x',595.2,563.3,639.1,1],['z',563.3,595.2,640.6,1],['z',563.3,693.7,722.4,1],['x',722.4,563.3,590.9,-1],
+  ['z',590.9,722.4,793.6,1],['x',793.6,590.9,673.8,-1],['z',673.8,666.1,793.6,-1],['z',639.1,595.2,666.1,-1],['x',666.1,646.2,673.8,1],
 ].forEach(([a,at,a0,a1,d])=>clad(a,at,a0,a1,0,H,d,M.bathWall,1.2));
-clad('x',806.9,287.6,457.7,.9,1.52,-1,M.subway,.6);
+clad('x',792.6,303.2,469.7,.9,1.52,-1,M.subway,.6);
+
+// 大樑：實測圖標示沿右側外牆（廚房→玄關→浴室）D:34cm、梁底 B.H:240cm
+R(ceilG,NR([768.5,303.2,792.6,673.8]),2.4,H,M.paint);
 
 /* =========================================================
    4. 可動門扇（靠近自動開啟）
@@ -841,18 +865,19 @@ function addDoor(o){
   doors.push({pivot,thc,delta:d,t:1,target:1,width:o.width,thick:o.thick,hx:pivot.position.x,hz:pivot.position.z,
     cx:X(o.center[0]),cz:Z(o.center[1]),openR:o.openR||1.5});
 }
-addDoor({type:'wood', hinge:[223.8,461.25],closed:[1,0], open:[0,-1],width:.86,height:2.08,thick:.04,center:[253.4,461.25]});
-addDoor({type:'wood', hinge:[641.6,461.25],closed:[-1,0],open:[0,-1],width:.86,height:2.08,thick:.04,center:[612,461.25]});
-addDoor({type:'wood', hinge:[703.3,461.25],closed:[1,0], open:[0,-1],width:.81,height:2.08,thick:.04,center:[731,461.25]});
-addDoor({type:'wood', hinge:[701.9,546.25],closed:[-1,0],open:[0,1], width:.71,height:2.08,thick:.04,center:[677.6,546.25]});
-addDoor({type:'entry',hinge:[812.25,538.7],closed:[0,-1],open:[-1,0],width:.96,height:2.13,thick:.055,center:[812.25,505.5]});
-addDoor({type:'glass',hinge:[702.9,282.3],closed:[1,0], open:[0,1], width:.86,height:2.08,thick:.045,center:[732.5,282.3]});
-addDoor({type:'shower',hinge:[738.45,584.5],closed:[0,1],open:[1,0],width:.6,height:1.95,thick:.008,center:[738.45,606],openR:.95});
+// 門扇鉸鏈、中心點用實測圖座標
+addDoor({type:'wood', hinge:NP([213.8,473.95]),closed:[1,0], open:[0,-1],width:.86,height:2.08,thick:.04,center:NP([243.4,473.95])});
+addDoor({type:'wood', hinge:NP([627.3,473.95]),closed:[-1,0],open:[0,-1],width:.86,height:2.08,thick:.04,center:NP([597.7,473.95])});
+addDoor({type:'wood', hinge:NP([690.7,473.95]),closed:[1,0], open:[0,-1],width:.81,height:2.08,thick:.04,center:NP([718.4,473.95])});
+addDoor({type:'wood', hinge:NP([691.4,558.7]), closed:[-1,0],open:[0,1], width:.71,height:2.08,thick:.04,center:NP([667.1,558.7])});
+addDoor({type:'entry',hinge:NP([799.15,545.4]),closed:[0,-1],open:[-1,0],width:.91,height:2.13,thick:.055,center:NP([799.15,514.05])});
+addDoor({type:'glass',hinge:NP([691.4,295.75]),closed:[1,0], open:[0,1], width:.81,height:2.08,thick:.045,center:NP([719.3,295.75])});
+addDoor({type:'shower',hinge:NP([727.2,597.2]),closed:[0,1],open:[1,0],width:.6,height:1.95,thick:.008,center:NP([727.2,618.5]),openR:.95});
 // 淋浴拉門兩側固定玻璃
-[[736.9,578.2,740,584.5],[736.9,628,740,665]].forEach(r=>{
+[[725.6,590.9,728.8,597.2],[725.6,640.4,728.8,673.8]].map(NR).forEach(r=>{
   const g=R(staticG,r,.02,2.02,M.showerGlass,false); g.receiveShadow=false; colRect(r,0,H);
 });
-R(staticG,[736.6,578.2,740.3,665],2.0,2.03,M.chrome);
+R(staticG,NR([725.3,590.9,729.1,673.8]),2.0,2.03,M.chrome);
 
 /* =========================================================
    5. 家具建構函式（區域座標：正面朝 +z，底面 y=0）
@@ -1105,7 +1130,7 @@ B(staticG,1.45,.84,.03,M.tvFrame,X(343.7),.8,Z(465.6)+.075);                    
 B(staticG,.9,.06,.09,M.blackMetal,X(343.7),.5,Z(480));                            // 聲霸
 C(staticG,.06,.045,.22,M.ceramicGreen,X(430),.5,Z(482),18);
 B(staticG,.2,.05,.15,BOOK_MATS[0],X(412),.5,Z(482)); B(staticG,.18,.04,.14,BOOK_MATS[5],X(412),.55,Z(482));
-furn(put(cabinet({w:L(123),d:L(28.7),h:2.45,doors:4}),518.5,479.15,0),'客廳高櫃');   // 高櫃（含吸塵器收納）
+furn(put(cabinet({w:LX(457,580),d:LZ(464.8,493.5),h:2.45,doors:4}),518.5,479.15,0),'客廳高櫃');   // 高櫃（含吸塵器收納）
 R(staticG,[457,464.8,580,493.5],2.45,H,M.lacquer);
 const SOFA_W=2.2, SOFA_Y=631-.05/S;                                               // 沙發深 100 靠牆，中心比原圖往前 5cm
 const SOFA_X=319.4-(2.35-SOFA_W)/2/S+.035/S;                                       // 寬 235→220：靠窗側固定（再往室內移 3.5cm，扶手離窗牆 24cm，窗簾盒深 20），省下的 15cm 讓給餐椅走道
@@ -1129,7 +1154,7 @@ for(const y of [596,640]){ furn(put(chair(),DINE_X-42,y,HP),'餐椅'); furn(put(
 const XCHAIR_Y=596-44;
 const XCHAIRS=[[DINE_X-42,HP],[DINE_X+42,-HP]].map(([x,r])=>{ const obj=furn(put(chair(),x,XCHAIR_Y,r,true,dynG),'餐椅（180 加椅）'), col=colliders[colliders.length-1];
   obj.visible=false; col.onMaxY=col.maxY; col.maxY=-1; return {obj,col}; });
-furn(put(cabinet({w:L(124),d:L(32.9),h:2.45,doors:4}),581.45,603,-HP),'收納高櫃');  // 掃拖機器人收納高櫃
+furn(put(cabinet({w:LZ(541,665),d:LX(565,597.9),h:2.45,doors:4}),581.45,603,-HP),'收納高櫃');  // 掃拖機器人收納高櫃
 R(staticG,[565,541,597.9,665],2.45,H,M.lacquer);
 
 /* ---- 玄關 ---- */
@@ -1159,21 +1184,21 @@ for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);
 
 /* ---- 主臥室 ---- */
 R(staticG,[293,261,451,266.6],0,H,M.walnut); colRect([293,261,451,266.6]);         // 床背板 D:8cm
-for(const y of [.95,1.9]) B(staticG,L(158),.006,.004,M.gapDark,X(372),y,Z(266.6)+.002,false);
+for(const y of [.95,1.9]) B(staticG,LX(293,451),.006,.004,M.gapDark,(X(293)+X(451))/2,y,Z(266.6)+.002,false);
 furn(put(bed(1.614,1.93),352.4,340.7,0),'雙人床');                                  // 雙人床 5×6.2
 const VANITY={d:.6,shelfD:.24,shelfY:[1.35,1.72]};                                  // 化妝桌深 60；上方層板深 24、高 135／172（檢查隔桌拿取用）
 furn(put(desk(.9,VANITY.d),259.5,282.5,0),'化妝桌');                                  // 化妝桌 90×60
 furn(put(chair(),259.5,318,PI),'化妝椅');
 for(const y of VANITY.shelfY) colObj(B(staticG,.8,.025,VANITY.shelfD,M.oak,X(259.5),y,Z(261)+VANITY.shelfD/2)); // 化妝桌上方層板 80×24 兩片
 plant({h:.36,spread:.14,potR:.06,potH:.1,n:12,leafS:.06,kind:'bush',potMat:M.potTerra}); // 桌上盆栽已拿掉：仍生成一次但不放進場景，後面書本、城市的亂數排列才不會跟著變
-const WARD_OBJ=(()=>{ const g=slideWardrobe({w:L(196.7),d:L(45.2),h:2.5,doors:3,front:M.oakV,mirror:2}); B(g,L(196.7),.2,L(45.2),M.lacquer,0,2.5,0); return furn(put(g,473.6,359.35,-HP,true,dynG),'主臥衣櫃（滑門・床尾門全身鏡）'); })(); // 衣櫃：滑門可開（不合併）
+const WARD_OBJ=(()=>{ const g=slideWardrobe({w:LZ(261,457.7)-.012,d:LX(451,496.2),h:2.5,doors:3,front:M.oakV,mirror:2}); B(g,LZ(261,457.7)-.012,.2,LX(451,496.2),M.lacquer,0,2.5,0); return furn(put(g,473.6,359.35,-HP,true,dynG),'主臥衣櫃（滑門・床尾門全身鏡）'); })(); // 衣櫃：滑門可開（不合併）
 put(acUnit(),228,351.5,HP,false).position.y=2.31;
-for(let i=0;i<3;i++){ const len=L(431.1-261)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
+for(let i=0;i<3;i++){ const len=LZ(261,431.1)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
 { const r=mk(new THREE.BoxGeometry(1.1,.01,.7),M.rug,false,true); r.position.set(X(355),.016,Z(432)); staticG.add(r); }
 
 /* ---- 客房／書房 ---- */
 furn(put(bed(.97,1.9,true),576.5,296.5,HP),'單人床');                               // 單人床 3×6.2
-const DESK_OBJ=furn(put(liftDesk(1.2,.8),503.2+.406/S,374.3,HP,true,dynG),'升降書桌');  // 升降書桌 120×80，高 73↔110（背面離牆 0.6cm，不合併）
+const DESK_OBJ=furn(put(liftDesk(1.2,.8),PX(X(503.2)+.406),374.3,HP,true,dynG),'升降書桌');  // 升降書桌 120×80，高 73↔110（背面離牆 0.6cm，不合併）
 { const g=new THREE.Group(); g.position.y=-.025; DESK_OBJ.userData.lift.top.add(g);  // 桌上物品跟著桌面升降（原本照 75.5 桌面擺，現在桌面 73）
   // 32 吋 16:9 螢幕（面板 70×39.5、含框 71.5×42），下緣離桌面 11.5cm；往左挪 8cm 讓出右側書本位置
   B(g,.715,.42,.02,M.tvFrame,-.08,.87,-.26); B(g,.7,.395,.002,M.blackGlass,-.08,.8825,-.249);
@@ -1182,12 +1207,12 @@ const DESK_OBJ=furn(put(liftDesk(1.2,.8),503.2+.406/S,374.3,HP,true,dynG),'升�
   C(g,.035,.032,.09,M.ceramic,-.52,.755,.1,14);
   const bk=new THREE.Group(); bk.position.x=.1; g.add(bk); books(bk,.18,.5,.755,.3,.25); }   // 書整排往右 10cm（範圍不變，亂數用量不變）
 const CHAIR_OBJ=furn(put(officeChair(),572,374,-HP,true,dynG),'辦公椅'), CHAIR_COL=colliders[colliders.length-1];  // 桌子升高時往後推開（不合併）
-{ const bs=bookshelf(.55,.42,2.0,5,.79); furn(put(bs,503.2+.21/S,457.7-.275/S,HP),'書架');      // 書架 79→55 寬：背靠書桌牆、塞在書桌和房門牆之間，開口朝房門那側
+{ const bs=bookshelf(.55,.42,2.0,5,.79); furn(put(bs,PX(X(503.2)+.21),PZ(Z(457.7)-.275),HP),'書架');      // 書架 79→55 寬：背靠書桌牆、塞在書桌和房門牆之間，開口朝房門那側
   plant({h:.4,spread:.2,potR:.08,potH:.14,n:16,leafS:.07,kind:'bush',potMat:M.potDark}); }  // 書架頂盆栽已拿掉：照樣生成一次不放進場景，後面的亂數排列才不會跟著變
 for(let i=0;i<2;i++) books(new THREE.Group(),-.45,.35,1.5,.24,.26);   // 書桌上方層板已全部拿掉：原本兩片層板上的書照樣抽一次亂數不放，後面排列才不會跟著變
-furn(put(cabinet({w:L(56.7),d:L(36.1),h:2.5,doors:2}),669.05,429.35,-HP),'客房衣櫃');  // 客房衣櫃
+furn(put(cabinet({w:LZ(401,457.7),d:LX(651,687.1),h:2.5,doors:2}),669.05,429.35,-HP),'客房衣櫃');  // 客房衣櫃
 put(acUnit(),609,457.7-7.3,PI,false).position.y=2.3;
-{ const b=B(staticG,L(637.9-503.2)-.04,.5,.012,M.zebra,X(570.55),1.7,Z(261)+.03,false); }  // 調光簾
+{ const b=B(staticG,LX(503.2,637.9)-.04,.5,.012,M.zebra,(X(503.2)+X(637.9))/2,1.7,Z(261)+.03,false); }  // 調光簾
 
 /* ---- 廚房 ---- */
 furn(put(cabinet({w:.71,d:.6,h:2.5,doors:1}),672.3,312.8,HP),'電器高櫃');           // 電器高櫃
@@ -1197,8 +1222,8 @@ R(staticG,[651,338.5,694.2,393.9],2.5,H,M.lacquer);
 R(staticG,[770,289,806.9,457.7],0,.1,M.shadowDark);                                // 踢腳
 R(staticG,[766,287.6,806.9,457.7],.1,.86,M.lacquer);                                 // 下櫃
 for(const y of [346,391,426]) B(staticG,.004,.74,.004,M.gapDark,X(766)-.002,.11,Z(y),false);
-B(staticG,.004,.004,L(58),M.gapDark,X(766)-.002,.55,Z(317),false);
-for(const [a,b] of [[290,344],[393,424],[428,455]]) B(staticG,.02,.012,L(b-a)-.1,M.blackMetal,X(766)-.012,.78,Z((a+b)/2));
+B(staticG,.004,.004,LZ(288,346),M.gapDark,X(766)-.002,.55,Z(317),false);
+for(const [a,b] of [[290,344],[393,424],[428,455]]) B(staticG,.02,.012,LZ(a,b)-.1,M.blackMetal,X(766)-.012,.78,(Z(a)+Z(b))/2);
 R(staticG,[765,348,766.2,390],.1,.85,M.steel);                                      // 洗碗機 W60
 for(const r of [[763,287.6,806.9,404],[763,448,806.9,457.7],[763,404,769,448],[801,404,806.9,448]]) R(staticG,r,.86,.9,M.marble); // 檯面
 R(staticG,[769,404,801,448],.66,.67,M.steel);                                        // 不鏽鋼水槽
@@ -1212,7 +1237,7 @@ C(staticG,.1,.1,.12,M.steel,X(784.5),.906,Z(331),24); C(staticG,.105,.105,.01,M.
 B(staticG,.3,.015,.2,M.oak,X(785),.9,Z(372));
 R(staticG,[779,292,806.9,343],1.62,1.7,M.steel); R(staticG,[791,305,806.9,330],1.7,H,M.steel); // 抽油煙機
 R(staticG,[779.5,295,780.5,340],1.6,1.62,M.blackGlass,false);
-put(cabinet({w:L(112.7),d:.31,h:.85,doors:3,plinth:0,y0:1.5}),795.95,401.35,-HP,false); // 吊櫃
+put(cabinet({w:LZ(345,457.7),d:.31,h:.85,doors:3,plinth:0,y0:1.5}),795.95,401.35,-HP,false); // 吊櫃
 R(staticG,[785,345,806.9,457.7],2.35,H,M.lacquer);
 colRect([763,287.6,806.9,457.7],0,.9); furnRect('廚房檯面',[763,287.6,806.9,457.7],0,.9);
 
@@ -1411,13 +1436,13 @@ mergeGroup(staticG); mergeGroup(ceilG);
 
 /* ---------- 房間資料（標籤、聚焦、傳送、小地圖） ---------- */
 const ROOMS = [
-  {id:'living', zh:'客廳',     en:'LIVING',         ping:'5.7P', r:[221.5,464.8,430,665],   lab:[335,522], spot:[420,522], face:[-1,.55]},
+  {id:'living', zh:'客廳',     en:'LIVING',         ping:'5.6P', r:[221.5,464.8,430,665],   lab:[335,522], spot:[420,522], face:[-1,.55]},
   {id:'dining', zh:'餐廳',     en:'DINING',         ping:'',     r:[430,493.5,597.9,665],   lab:[485,556], spot:[485,527], face:[0,1]},
   {id:'master', zh:'主臥室',   en:'MASTER BEDROOM', ping:'3.3P', r:[221.5,261,496.2,457.7], lab:[352,432], spot:[340,433], face:[.15,-1]},
-  {id:'guest',  zh:'客房・書房', en:'GUEST · STUDY',  ping:'1.9P', r:[503.2,261,643.9,457.7], lab:[603,374], spot:[612,392], face:[-1,-.1]},
-  {id:'kitchen',zh:'廚房',     en:'KITCHEN',        ping:'1.5P', r:[694.2,287.6,806.9,457.7],lab:[731,372], spot:[731,430], face:[.2,-1]},
+  {id:'guest',  zh:'客房・書房', en:'GUEST · STUDY',  ping:'1.8P', r:[503.2,261,643.9,457.7], lab:[603,374], spot:[612,392], face:[-1,-.1]},
+  {id:'kitchen',zh:'廚房',     en:'KITCHEN',        ping:'1.4P', r:[694.2,287.6,806.9,457.7],lab:[731,372], spot:[731,430], face:[.2,-1]},
   {id:'bath',   zh:'浴廁',     en:'BATHROOM',       ping:'1.1P', r:[604.9,549.8,806.9,665], lab:[700,594], spot:[678,592], face:[.3,1]},
-  {id:'balcony',zh:'陽台',     en:'BALCONY',        ping:'0.7P', r:[654.6,181,775,277],     lab:[722,250], spot:[722,258], face:[0,-1]},
+  {id:'balcony',zh:'陽台',     en:'BALCONY',        ping:'0.6P', r:[654.6,181,775,277],     lab:[722,250], spot:[722,258], face:[0,-1]},
   {id:'entry',  zh:'玄關',     en:'ENTRY',          ping:'',     r:[597.9,464.8,806.9,542.7],lab:[690,506], spot:[775,505], face:[-1,0]},
 ];
 for(const rm of ROOMS){
@@ -1711,7 +1736,7 @@ function getCss(v){ return getComputedStyle(document.documentElement).getPropert
 
 function focusRoom(rm){
   document.querySelectorAll('#rooms .chip').forEach(c=>c.setAttribute('aria-current',String(c.dataset.room===rm.id)));
-  const cx=X((rm.r[0]+rm.r[2])/2), cz=Z((rm.r[1]+rm.r[3])/2), w=L(rm.r[2]-rm.r[0]), d=L(rm.r[3]-rm.r[1]);
+  const cx=(X(rm.r[0])+X(rm.r[2]))/2, cz=(Z(rm.r[1])+Z(rm.r[3]))/2, w=LX(rm.r[0],rm.r[2]), d=LZ(rm.r[1],rm.r[3]);
   const dur=REDUCED?0:.8;
   if(state.mode==='fps'){ spawn(rm.spot,rm.face); toast(`已傳送到 ${rm.zh}`); return; }
   if(state.mode==='plan'){
@@ -1870,7 +1895,7 @@ let miniCol={};
 function readMiniColors(){ miniCol={wall:getCss('--poche')||'#7e807d',room:getCss('--room')||'rgba(0,0,0,.06)',accent:getCss('--accent')||'#2c75a0',soft:getCss('--accent-soft')||'rgba(44,117,160,.14)',ink:getCss('--ink')||'#1b2320'}; }
 readMiniColors();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ readMiniColors(); if(state.mode==='plan') scene.background=new THREE.Color(getCss('--ground')); });
-function currentRoom(){ const xp=player.pos.x/S+OX, yp=player.pos.z/S+OY; return ROOMS.find(r=>xp>=r.r[0]&&xp<=r.r[2]&&yp>=r.r[1]&&yp<=r.r[3]); }
+function currentRoom(){ const xp=PX(player.pos.x), yp=PZ(player.pos.z); return ROOMS.find(r=>xp>=r.r[0]&&xp<=r.r[2]&&yp>=r.r[1]&&yp<=r.r[3]); }
 let lastRoom=null;
 function drawMini(){
   const c=ui.mini, g=mctx, s=c.width/(MB.x1-MB.x0), P=(x,y)=>[(x-MB.x0)*s,(y-MB.y0)*s];
@@ -1880,9 +1905,9 @@ function drawMini(){
   g.fillStyle=miniCol.wall; for(const w of WALLS){ const [a,b]=P(w[0],w[1]); g.fillRect(a,b,(w[2]-w[0])*s,(w[3]-w[1])*s); }
   g.fillStyle=miniCol.accent; for(const w of WINDOWS){ const [a,b]=P(w.r[0],w.r[1]); g.globalAlpha=.45; g.fillRect(a,b,(w.r[2]-w.r[0])*s,(w.r[3]-w.r[1])*s); g.globalAlpha=1; }
   g.strokeStyle=miniCol.ink; g.lineWidth=1.6;
-  for(const d of doors){ const th=d.pivot.rotation.y; const [a,b]=P(d.hx/S+OX,d.hz/S+OY); const [e,f]=P((d.hx+Math.cos(th)*d.width)/S+OX,(d.hz-Math.sin(th)*d.width)/S+OY); g.beginPath(); g.moveTo(a,b); g.lineTo(e,f); g.stroke(); }
-  for(const o of PEOPLE){ if(!o.obj.visible) continue; const [a,b]=P(o.obj.position.x/S+OX,o.obj.position.z/S+OY); g.fillStyle=o.body.top; g.beginPath(); g.arc(a,b,4.5,0,7); g.fill(); }
-  const [px,py]=P(player.pos.x/S+OX,player.pos.z/S+OY);
+  for(const d of doors){ const th=d.pivot.rotation.y; const [a,b]=P(PX(d.hx),PZ(d.hz)); const [e,f]=P(PX((d.hx+Math.cos(th)*d.width)),PZ((d.hz-Math.sin(th)*d.width))); g.beginPath(); g.moveTo(a,b); g.lineTo(e,f); g.stroke(); }
+  for(const o of PEOPLE){ if(!o.obj.visible) continue; const [a,b]=P(PX(o.obj.position.x),PZ(o.obj.position.z)); g.fillStyle=o.body.top; g.beginPath(); g.arc(a,b,4.5,0,7); g.fill(); }
+  const [px,py]=P(PX(player.pos.x),PZ(player.pos.z));
   fpsCam.getWorldDirection(fwd); const ang=Math.atan2(fwd.z,fwd.x);
   g.fillStyle=miniCol.soft; g.beginPath(); g.moveTo(px,py); g.arc(px,py,34,ang-.55,ang+.55); g.closePath(); g.fill();
   g.fillStyle=miniCol.accent; g.beginPath(); g.arc(px,py,5,0,7); g.fill();
@@ -1906,7 +1931,7 @@ ui.people=$('#people');
 function toNDC(e){ const r=renderer.domElement.getBoundingClientRect(); ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); ray.setFromCamera(ndc,activeCam); }
 function pickPerson(e){ toNDC(e); PEOPLE.forEach(p=>p.obj.updateMatrixWorld(true)); const h=ray.intersectObjects(PEOPLE.map(p=>p.obj),true)[0]; return h?{P:h.object.userData.person.userData.entry,y:h.point.y}:null; }
 function planeHit(e,y){ toNDC(e); dragPlane.constant=-y; return ray.ray.intersectPlane(dragPlane,tmpV)?tmpV.clone():null; }
-function roomNameAt(x,z){ const xp=x/S+OX, yp=z/S+OY, r=ROOMS.find(r=>xp>=r.r[0]&&xp<=r.r[2]&&yp>=r.r[1]&&yp<=r.r[3]); return r?r.zh:'室內'; }
+function roomNameAt(x,z){ const xp=PX(x), yp=PZ(z), r=ROOMS.find(r=>xp>=r.r[0]&&xp<=r.r[2]&&yp>=r.r[1]&&yp<=r.r[3]); return r?r.zh:'室內'; }
 function placeName(P){ return P.seat?P.seat.name:roomNameAt(P.obj.position.x,P.obj.position.z); }
 const activeCtl=()=>state.mode==='orbit'?orbit:plan;
 
@@ -1973,7 +1998,7 @@ PEOPLE.forEach((P,i)=>{
   b.innerHTML=`${P.name}<small></small>`;
   b.addEventListener('click',()=>{ select(P);
     if(state.mode==='fps'){ toast('切到「1F 平面俯視」或「3D 鳥瞰」即可拖曳人物'); return; }
-    const xp=P.obj.position.x/S+OX, yp=P.obj.position.z/S+OY;
+    const xp=PX(P.obj.position.x), yp=PZ(P.obj.position.z);
     focusRoom({id:'person',zh:P.name,r:[xp-45,yp-45,xp+45,yp+45]});
   });
   ui.people.appendChild(b);
@@ -2015,11 +2040,11 @@ const FEMALE=()=>PEOPLE.find(P=>P.kind==='f');
 // 肩到層板前緣的水平距離＝桌深－層板深＋身體到桌緣（站 15、坐 25）；回傳還差多少（≤0 拿得到）
 function overDesk(h,top,seated,desk){ const sh=seated?.52+.345*h:.818*h, grasp=.43*h-.07, horiz=desk.d-desk.shelfD+(seated?.25:.15); return Math.hypot(horiz,top-sh)-grasp; }
 const reachRow=(label,r)=>`<li><span>${label}</span>${r<=0?'<b class="ok">拿得到</b>':r<=.12?'<b class="warn">要往前趴</b>':'<b class="bad">拿不到</b>'}</li>`;
-const SOFA_GAP=L(SOFA_Y-493.5)-SOFA_OBJ.userData.slide.depth/2;   // 沙發前緣到懸浮電視櫃正面（493.5pt）
-const AISLES=[{name:'主臥 床—衣櫃',w:L(451-409.6),f:true},{name:'廚房 冰箱—檯面',w:L(763-699.1)},{name:'浴廁門淨寬',w:.67},{name:'客廳 沙發—電視櫃',w:SOFA_GAP},{name:'客廳 沙發拉長後—電視櫃',w:SOFA_GAP-SOFA_OBJ.userData.slide.ext},{name:'餐椅—收納高櫃',w:L(565-(DINE_X+42+15.2))},{name:'沙發扶手—餐椅',w:L((DINE_X-42-15.2)-SOFA_X)-SOFA_W/2},
-  {name:'餐桌拉到 180 後—客廳高櫃',w:L(617.5-493.5)-TABLE_OBJ.userData.slide.len/2-2*TABLE_OBJ.userData.slide.ext}];   // 玄關進客廳的主動線
+const SOFA_GAP=LZ(493.5,SOFA_Y)-SOFA_OBJ.userData.slide.depth/2;   // 沙發前緣到懸浮電視櫃正面（493.5pt）
+const AISLES=[{name:'主臥 床—衣櫃',w:LX(409.6,451),f:true},{name:'廚房 冰箱—檯面',w:LX(699.1,763)},{name:'浴廁門淨寬',w:.67},{name:'客廳 沙發—電視櫃',w:SOFA_GAP},{name:'客廳 沙發拉長後—電視櫃',w:SOFA_GAP-SOFA_OBJ.userData.slide.ext},{name:'餐椅—收納高櫃',w:LX(DINE_X+42+15.2,565)},{name:'沙發扶手—餐椅',w:LX(SOFA_X,DINE_X-42-15.2)-SOFA_W/2},
+  {name:'餐桌拉到 180 後—客廳高櫃',w:LZ(493.5,617.5)-TABLE_OBJ.userData.slide.len/2-2*TABLE_OBJ.userData.slide.ext}];   // 玄關進客廳的主動線
 // 家具離窗簾盒：窗簾垂在盒子正下方，家具要退到盒外緣以外；留 3cm 給家具實品誤差與踢腳板
-const CLEARS=[{name:'沙發扶手—窗簾盒',w:()=>L(SOFA_X-CBOX_X)-SOFA_W/2}];
+const CLEARS=[{name:'沙發扶手—窗簾盒',w:()=>LX(CBOX_X,SOFA_X)-SOFA_W/2}];
 function renderBodyUI(){
   const P=editing(), k=P.obj.userData;
   bodyUI.title.textContent=`櫃高與走道檢查 · ${P.name} ${P.body.h}cm`;
@@ -2046,7 +2071,7 @@ function setFPSBody(P){
 function applyBodyFPS(){
   if(!state.body) return;
   const o=state.body.obj; o.visible=false;
-  if(state.bodySpawn){ state.bodySpawn=false; spawn([o.position.x/S+OX,o.position.z/S+OY],[Math.sin(o.rotation.y),Math.cos(o.rotation.y)]); collide(player.pos,player.feet); player.spawned=true; }
+  if(state.bodySpawn){ state.bodySpawn=false; spawn([PX(o.position.x),PZ(o.position.z)],[Math.sin(o.rotation.y),Math.cos(o.rotation.y)]); collide(player.pos,player.feet); player.spawned=true; }
 }
 function restoreBodyFPS(){
   if(!state.body) return;
@@ -2619,7 +2644,7 @@ function setWard(pos){
   WARD.want=[pos===1?b:0, pos===2?-b:0, pos===3?-b:0];
   if(REDUCED){ WARD.off=[...WARD.want]; applyWard(); }
   refreshWardBtn();
-  toast(pos?`打開${WARD_NAME[pos]}：滑門沿軌道橫移，不佔床邊走道（約 ${cm(L(451-409.6))} cm）`:'滑門已關上');
+  toast(pos?`打開${WARD_NAME[pos]}：滑門沿軌道橫移，不佔床邊走道（約 ${cm(LX(409.6,451))} cm）`:'滑門已關上');
 }
 function applyWard(){ WARD.doors.forEach((d,i)=>d.position.x=WARD.home[i]+WARD.off[i]); }
 
@@ -2629,7 +2654,7 @@ function applyWard(){ WARD.doors.forEach((d,i)=>d.position.x=WARD.home[i]+WARD.o
 const TABLE={...TABLE_OBJ.userData.slide, n:0, t:[0,0], want:[0,0], base:{...TABLE_COL}};
 const TABLE_F=FURN.find(f=>f.obj===TABLE_OBJ), TABLE_NAME=['','（走道側拉長）','（兩側全開・6 人座）'];
 const tableLen=n=>cm(TABLE.len+TABLE.ext*n);
-const tableGap=n=>cm(L(617.5-493.5)-TABLE.len/2-TABLE.ext*n);   // 走道側桌端到客廳高櫃正面（493.5pt）：玄關進客廳的主動線
+const tableGap=n=>cm(LZ(493.5,617.5)-TABLE.len/2-TABLE.ext*n);   // 走道側桌端到客廳高櫃正面（493.5pt）：玄關進客廳的主動線
 function refreshTableBtn(){
   const n=TABLE.n, x=cm(TABLE.ext);
   cardBtn.textContent=n===0?`拉長到 ${tableLen(1)} cm（走道側 +${x}）`:n===1?`再拉長到 ${tableLen(2)} cm（靠牆側 +${x}）`:`收回 ${tableLen(0)} cm`;
