@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/16 23:40</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/16 23:53</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1387,12 +1387,18 @@ R(ceilG,[701,464.8,806.9,542.7],2.38,H,M.ceiling);                              
 if(!PROPOSAL) for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);   // 行李箱收納維修口（討論版改到主臥衣櫃上方）
 
 /* ---- 主臥室（261015：床背護牆板深 8cm 高 100、床 5×6.2 靠板；化妝桌 90×60；衣櫃三片香檳框玻璃滑門；渲染_主臥_01～_03） ---- */
-// 討論版：改成只做床寬（每側多 10cm）的 8cm 厚床頭板，頂面放手機（不預留插座／USB）；化妝桌改成書桌＋上方書櫃
-const WAIN=PROPOSAL?{x0:276.95,x1:405.55,z0:275.5,z1:281.25,h:1.0}:{x0:211.5,x1:439.5,z0:275.5,z1:281.25,h:1.0};
-RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h-.02,M.wainscot); RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,WAIN.h-.02,WAIN.h,M.wainscot);
-if(!PROPOSAL) for(let x=WAIN.x0+7.09; x<WAIN.x1-1; x+=7.09) B(staticG,.004,WAIN.h-.04,.002,M.gapDark,MX(x),.02,MZ(WAIN.z1)+.001,false);   // 直溝縫每 10cm
-else B(staticG,.075,.008,.155,M.blackGlass,MX(WAIN.x0+9),WAIN.h,MZ((WAIN.z0+WAIN.z1)/2));   // 床頭板上的手機（10/16：不預留插座／USB）
-colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,0,WAIN.h); furnM(PROPOSAL?'床頭板（厚 8cm・可放手機）':'床頭護牆板',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
+// 討論版：沿用業主現有床頭板（深 10cm、兩層收納層架，寬高待量，先照床寬每側多 10cm、高 100），頂面放手機（不預留插座／USB）；化妝桌改成書桌＋上方書櫃
+const WAIN=PROPOSAL?{x0:276.95,x1:405.55,z0:275.5,z1:275.5+.1/S,h:1.0}:{x0:211.5,x1:439.5,z0:275.5,z1:281.25,h:1.0};
+if(!PROPOSAL){ RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h-.02,M.wainscot); RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,WAIN.h-.02,WAIN.h,M.wainscot);
+  for(let x=WAIN.x0+7.09; x<WAIN.x1-1; x+=7.09) B(staticG,.004,WAIN.h-.04,.002,M.gapDark,MX(x),.02,MZ(WAIN.z1)+.001,false); }   // 直溝縫每 10cm
+else { const W0=WAIN.x0, W1=WAIN.x1, z0=WAIN.z0, z1=WAIN.z1, t=1.26, m=M.wainscot, back=z0+.8, xa=W0+t+18, xb=W1-t-18;   // 現有床頭板：兩側立板＋上下兩層層架、中段面板
+  for(const [a,b] of [[W0,W0+t],[W1-t,W1]]) RM(staticG,a,z0,b,z1,0,WAIN.h+.03,m);  // 兩側立板（略高出頂板）
+  RM(staticG,W0+t,z0,W1-t,back,0,WAIN.h,m);                                         // 背板
+  RM(staticG,W0+t,z0,W1-t,z1,0,.5,m);                                               // 下段實心
+  RM(staticG,xa,z0,xb,z1,.5,.76,m);                                                 // 中段面板（兩側留開放格）
+  RM(staticG,W0+t,z0,W1-t,z1,.76,.78,m); RM(staticG,W0+t,z0,W1-t,z1,WAIN.h-.02,WAIN.h,m);   // 第二層層板、頂板
+  B(staticG,.075,.008,.155,M.blackGlass,MX(W0+9),WAIN.h,MZ((z0+z1)/2)); }           // 頂板上的手機（10/16：不預留插座／USB）
+colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+(PROPOSAL?0:.7),0,WAIN.h); furnM(PROPOSAL?'現有床頭板（沿用・深 10cm）':'床頭護牆板',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
 { const zc=PZ(MZ(WAIN.z1)+1.93/2+.005); furn(put(bed(1.614,1.93,false,false),NPM(341.25,0)[0],zc,0),'雙人床'); }   // 雙人床 5×6.2：不做床頭板，靠護牆板
 { const g=new THREE.Group(); B(g,1.45,.82,.03,M.lacquer,0,0,0); const a=mk(new THREE.PlaneGeometry(1.43,.8),M.art2,false,true); a.position.set(0,.41,.016); g.add(a);
   g.position.set(MX(341.25),1.36,MZ(WAIN.z0)+.02); staticG.add(g); }                 // 床頭藍色抽象畫
