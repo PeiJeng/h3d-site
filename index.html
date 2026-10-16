@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/16 21:54</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/16 23:40</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1078,6 +1078,29 @@ function desk(w,d){
   B(g,.42,.13,d-.12,M.lacquer,w/2-.27,.58,0); B(g,.1,.012,.012,M.blackMetal,w/2-.27,.64,d/2-.055);
   return g;
 }
+// 討論版：書桌＋上方開放書櫃（參考圖_主臥書桌書櫃）：右側三層抽屜、上方 3 欄方格（上兩排）＋右欄往下延伸兩層；背面朝 -z 靠牆
+function deskHutch(w,d,hd=.28,top=1.95){
+  const g=new THREE.Group(), m=M.wainscot, t=.018, zc=-d/2+hd/2, pw=.36, cw=w/3;
+  RB(g,w,.03,d,.006,m,0,.72,0);                                                  // 桌面
+  B(g,t,.72,d-.02,m,-w/2+t/2,0,0);                                                // 左側板
+  B(g,pw,.72,d-.02,m,w/2-pw/2,0,-.01);                                            // 右側三層抽屜櫃
+  for(const y of [.24,.48]) B(g,pw-.01,.004,.002,M.gapDark,w/2-pw/2,y,d/2-.009,false);
+  for(const y of [.12,.36,.6]) B(g,.1,.012,.012,M.blackMetal,w/2-pw/2,y,d/2-.004);
+  B(g,w-pw-t,.1,d-.04,m,-w/2+t+(w-pw-t)/2,.6,-.02); B(g,.1,.012,.012,M.blackMetal,-w/2+t+(w-pw-t)/2,.64,d/2-.03);   // 桌下扁抽屜
+  // 上方書櫃
+  B(g,w,top-.75,.015,m,0,.75,-d/2+.008);
+  for(const s of [-1,1]) B(g,t,top-.75,hd,m,s*(w/2-t/2),.75,zc);
+  B(g,w,t,hd,m,0,top-t,zc);
+  for(const y of [1.35,1.65]) B(g,w-2*t,t,hd-.015,m,0,y,zc+.007);                // 上兩排方格的層板
+  for(const k of [1,2]) B(g,t,top-1.35-t,hd-.015,m,-w/2+cw*k,1.35,zc+.007);      // 方格直隔板
+  B(g,t,1.35-.75,hd-.015,m,w/2-cw,.75,zc+.007);                                   // 右欄往下延伸
+  for(const y of [.98,1.17]) B(g,cw-t*1.5,t,hd-.015,m,w/2-cw/2,y,zc+.007);
+  // 擺飾：書、盆栽
+  for(let i=0;i<6;i++) B(g,.022,.2+(i%3)*.025,.16,BOOK_MATS[i%8],-w/2+.05+i*.027,1.35+t,zc);
+  for(let i=0;i<4;i++) B(g,.022,.18+(i%2)*.03,.16,BOOK_MATS[(i+3)%8],w/2-cw+.06+i*.027,1.65+t,zc);
+  C(g,.035,.03,.07,M.ceramic,0,1.65+t,zc,12); C(g,.012,.012,.12,M.leaf2,0,1.72+t,zc,6);
+  return g;
+}
 // 電動升降桌：桌面（連下方抽屜、桌上物品）在 top 群組裡整組升降；兩側 T 型腳＝外管固定、內管跟著桌面上下
 function liftDesk(w,d,h0=.73,ext=.37){
   const g=new THREE.Group(), top=new THREE.Group(); g.add(top);
@@ -1364,24 +1387,23 @@ R(ceilG,[701,464.8,806.9,542.7],2.38,H,M.ceiling);                              
 if(!PROPOSAL) for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);   // 行李箱收納維修口（討論版改到主臥衣櫃上方）
 
 /* ---- 主臥室（261015：床背護牆板深 8cm 高 100、床 5×6.2 靠板；化妝桌 90×60；衣櫃三片香檳框玻璃滑門；渲染_主臥_01～_03） ---- */
-// 討論版：改成只做床寬（每側多 10cm）的 8cm 厚床頭板，頂面放手機，兩側預留插座／USB；化妝桌改直接靠牆
+// 討論版：改成只做床寬（每側多 10cm）的 8cm 厚床頭板，頂面放手機（不預留插座／USB）；化妝桌改成書桌＋上方書櫃
 const WAIN=PROPOSAL?{x0:276.95,x1:405.55,z0:275.5,z1:281.25,h:1.0}:{x0:211.5,x1:439.5,z0:275.5,z1:281.25,h:1.0};
 RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h-.02,M.wainscot); RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,WAIN.h-.02,WAIN.h,M.wainscot);
 if(!PROPOSAL) for(let x=WAIN.x0+7.09; x<WAIN.x1-1; x+=7.09) B(staticG,.004,WAIN.h-.04,.002,M.gapDark,MX(x),.02,MZ(WAIN.z1)+.001,false);   // 直溝縫每 10cm
-else { for(const x of [WAIN.x0+5,WAIN.x1-5]){ B(staticG,.11,.07,.008,M.whiteApp,MX(x),.82,MZ(WAIN.z1)+.004); B(staticG,.02,.008,.003,M.gapDark,MX(x)-.025,.85,MZ(WAIN.z1)+.009,false); B(staticG,.012,.006,.003,M.gapDark,MX(x)+.025,.85,MZ(WAIN.z1)+.009,false); }   // 插座＋USB
-  B(staticG,.075,.008,.155,M.blackGlass,MX(WAIN.x0+9),WAIN.h,MZ((WAIN.z0+WAIN.z1)/2)); }   // 床頭板上的手機
+else B(staticG,.075,.008,.155,M.blackGlass,MX(WAIN.x0+9),WAIN.h,MZ((WAIN.z0+WAIN.z1)/2));   // 床頭板上的手機（10/16：不預留插座／USB）
 colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,0,WAIN.h); furnM(PROPOSAL?'床頭板（厚 8cm・可放手機）':'床頭護牆板',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
 { const zc=PZ(MZ(WAIN.z1)+1.93/2+.005); furn(put(bed(1.614,1.93,false,false),NPM(341.25,0)[0],zc,0),'雙人床'); }   // 雙人床 5×6.2：不做床頭板，靠護牆板
 { const g=new THREE.Group(); B(g,1.45,.82,.03,M.lacquer,0,0,0); const a=mk(new THREE.PlaneGeometry(1.43,.8),M.art2,false,true); a.position.set(0,.41,.016); g.add(a);
   g.position.set(MX(341.25),1.36,MZ(WAIN.z0)+.02); staticG.add(g); }                 // 床頭藍色抽象畫
 // 化妝桌深 60、離牆 8cm（護牆板）；上方層板 80×24 兩片、高 135／172：渲染_主臥_02 沒有，預設不放，點化妝桌可加上（同時顯示隔桌拿取檢查）
-const VANITY=PROPOSAL?{d:.6,back:0,shelfD:.24,shelfY:[1.2,1.5],on:true}:{d:.6,back:.08,shelfD:.24,shelfY:[1.35,1.72],on:false};   // 討論版：桌子靠牆、層板降到 120／150 並預設放上
+// 討論版 10/16：化妝桌改成書桌＋上方書櫃（參考圖_主臥書桌書櫃）：桌 90×55、右側三層抽屜、書櫃深 28、方格層板 135／165（給「櫃高與走道檢查」算隔桌拿取）
+const VANITY=PROPOSAL?{d:.55,back:0,shelfD:.28,shelfY:[1.35,1.65],on:true}:{d:.6,back:.08,shelfD:.24,shelfY:[1.35,1.72],on:false};
 const POUF_Z=PROPOSAL?324:330;
-const VANITY_OBJ=furn(put(desk(.9,VANITY.d),...NPM(250.6,PROPOSAL?275.6+VANITY.d/2/S:302.5),0),'化妝桌');        // 化妝桌 90×60（白色細腳）
-VANITY.shelves=VANITY.shelfY.map(y=>{ const m=B(dynG,.8,.025,VANITY.shelfD,M.oak,MX(250.6),y,MZ(WAIN.z0)+VANITY.shelfD/2); m.visible=VANITY.on;
+const VANITY_OBJ=furn(put(PROPOSAL?deskHutch(.9,VANITY.d,VANITY.shelfD):desk(.9,VANITY.d),...NPM(250.6,PROPOSAL?275.6+VANITY.d/2/S:302.5),0),PROPOSAL?'書桌＋上方書櫃':'化妝桌');   // 化妝桌 90×60（白色細腳）
+VANITY.shelves=PROPOSAL?[]:VANITY.shelfY.map(y=>{ const m=B(dynG,.8,.025,VANITY.shelfD,M.oak,MX(250.6),y,MZ(WAIN.z0)+VANITY.shelfD/2); m.visible=VANITY.on;
   colObj(m); const col=colliders[colliders.length-1]; col.onMaxY=col.maxY; if(!VANITY.on) col.maxY=-1; return {m,col}; });
-if(PROPOSAL) for(const [k,y] of VANITY.shelfY.entries()) for(let i=0;i<5;i++) B(dynG,.022,.2+((i*3+k)%3)*.025,.16,BOOK_MATS[(i+k*3)%8],MX(250.6)-.3+i*.026,y+.025,MZ(WAIN.z0)+.1);   // 層板上的書
-furn(put(pouf(),...NPM(250.6,POUF_Z),0),'化妝凳');
+furn(put(pouf(),...NPM(250.6,POUF_Z),0),PROPOSAL?'書桌椅凳':'化妝凳');
 plant({h:.36,spread:.14,potR:.06,potH:.1,n:12,leafS:.06,kind:'bush',potMat:M.potTerra}); // 桌上盆栽已拿掉：仍生成一次但不放進場景，後面書本、城市的亂數排列才不會跟著變
 const WARD_H=PROPOSAL?2.28:2.5;                                                   // 討論版：衣櫃做到 228，上方是行李箱櫃
 const WARD_OBJ=(()=>{ const g=slideWardrobe({w:LZ(261,457.7)-.012,d:LX(451,496.2),h:WARD_H,doors:3,front:M.wardFront,frame:M.wardFrame,mirror:PROPOSAL?2:-1}); if(!PROPOSAL) B(g,LZ(261,457.7)-.012,.2,LX(451,496.2),M.lacquer,0,2.5,0); return furn(put(g,473.6,359.35,-HP,true,dynG),PROPOSAL?'主臥衣櫃（滑門・最右門全身鏡）':'主臥衣櫃（滑門）'); })(); // 衣櫃：滑門可開（不合併）
@@ -2288,7 +2310,7 @@ function renderBodyUI(){
   for(const sh of SHELVES){ const F=sh.f?FEMALE():P, gap=sh.top-.1-F.obj.userData.reach;
     rows.push(`<li><span>${sh.name} ${cm(sh.top)} cm${sh.f&&F!==P?`（${F.name} ${F.body.h}cm）`:''}</span>${gap<=0?'<b class="ok">拿得到</b>':gap<=.12?`<b class="warn">差 ${cm(gap)} cm・踮腳</b>`:`<b class="bad">差 ${cm(gap)} cm・需踏凳</b>`}</li>`); }
   const F=FEMALE(), fh=F.body.h/100;
-  if(VANITY.on){ rows.push(`<li class="sub">主臥化妝桌層板（${F.name} ${F.body.h}cm・隔著桌深 ${cm(VANITY.d+VANITY.back)}）</li>`);
+  if(VANITY.on){ rows.push(`<li class="sub">${PROPOSAL?'主臥書桌上方書櫃':'主臥化妝桌層板'}（${F.name} ${F.body.h}cm・隔著桌深 ${cm(VANITY.d+VANITY.back)}）</li>`);
     VANITY.shelfY.forEach((y,i)=>{ for(const seated of [false,true]) rows.push(reachRow(`${i?'上':'下'}層 ${cm(y)} cm・${seated?'坐著':'站著'}`,overDesk(fh,y+.025,seated,VANITY))); }); }
   else rows.push('<li class="sub">主臥化妝桌層板</li><li><span>設計師圖沒有層板・點化妝桌可加上再檢查</span></li>');
   rows.push('<li class="sub">走道寬度</li>');
@@ -2822,7 +2844,7 @@ function showDims(f){
   dimCard.style.bottom=(ui.hint.offsetHeight+28)+'px';
   cardName.textContent=f.name+(f.obj===SOFA_OBJ&&SOFA.t>0?'（坐深拉長）':'')+(f.obj===TABLE_OBJ?TABLE_NAME[TABLE.n]:'')+(f.obj===DESK_OBJ?(DESK.target?'（站立）':'（坐姿）'):'');
   cardSize.textContent=`寬 ${W} × 深 ${D} × 高 ${Hh} cm`+seatTxt+(a.y>.05?`・離地 ${cm(a.y)} cm`:'')+(f.obj===DESK_OBJ?`・可升降 ${cm(DESK.h0)}～${cm(DESK.h0+DESK.ext)}`:'');
-  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&f.obj!==VANITY_OBJ&&!(LUG_OBJ&&f.obj===LUG_OBJ);
+  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&(PROPOSAL||f.obj!==VANITY_OBJ)&&!(LUG_OBJ&&f.obj===LUG_OBJ);
   if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(f.obj===VANITY_OBJ) refreshVanityBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else refreshSofaBtn();
 }
 
