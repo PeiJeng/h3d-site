@@ -217,7 +217,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 17:09</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 22:31</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1257,76 +1257,51 @@ const DINE_X=NPM(473.4,0)[0], DINE_Y=NPM(0,632.65)[1];
 const CHAIR_Y=[PZ(Z(DINE_Y)-.307),PZ(Z(DINE_Y)+.307)];
 
 /* ---- 客廳：電視牆（261015：懸浮櫃 280.75～509.25、深 478.2～505；右段 429.5～509.25 為高櫃＝門｜展示格｜門；渲染_客廳_01、_02、渲染_餐廳_03、_04） ---- */
-// 討論版 10/16：改參考圖樣式，整面做滿到客房門框（280.75～561）：落地矮櫃＋電視＋上方吊櫃（約 200cm）｜高櫃門｜燈光玻璃展示格｜高櫃門（高櫃段坐在矮櫃上）｜汙衣區（外出衣・包包・鞋，落地）
-const TVW={x0:280.75,xt:PROPOSAL?422.5:429.5,xn0:458,xn1:480.75,x1:PROPOSAL?561:509.25,z0:478.2,z1:505,yb:PROPOSAL?.08:.15,yt:.47,top:2.45,sp:1.4};   // sp：木皮側板厚 2cm（pt）；討論版落地：櫃身從 8cm 起，下方內縮踢腳
-const TVP={nA:455.8,nB:478.5,nC:510.4}, LAUNDRY={on:true};                                             // 討論版：門 45｜展示格 32｜吸塵器高櫃 45（落地）｜汙衣區 69cm
+// 討論版 10/17：改參考圖（電視櫃-改.jpg）：右段照原設計（門｜整排展示格｜門），左側新增一欄高櫃（坐在矮櫃上），矮櫃整排落地＋內縮踢腳，電視上方吊櫃；汙衣區取消，寬度回到原設計
+const TVW={x0:280.75,xL:PROPOSAL?310.5:280.75,xt:429.5,xn0:458,xn1:480.75,x1:509.25,z0:478.2,z1:505,yb:PROPOSAL?.08:.15,yt:.47,top:2.45,sp:1.4};   // sp：木皮側板厚 2cm（pt）；xL：討論版左側高櫃右緣
+const LAUNDRY={on:true};                                                            // 汙衣區已取消（變數保留給走道標示判斷）
 const TVW_Y0=PROPOSAL?0:TVW.yb;                                                     // 櫃子最低處（落地＝0）
 const TV_FRONT=NPM(0,TVW.z1)[1];                                                   // 電視櫃正面（260922 座標，動線檢查用）
-const LOW_X1=PROPOSAL?TVP.nB:TVW.x1-TVW.sp;                                         // 矮櫃右端（討論版延伸到門 A、展示格下方；吸塵器高櫃落地）
-RM(staticG,TVW.x0,TVW.z0,LOW_X1,TVW.z1,TVW.yb,TVW.yt-.022,M.lacquer);              // 懸浮抽屜櫃（白）
+const LOW_X1=PROPOSAL?TVW.xn1:TVW.x1-TVW.sp;                                       // 矮櫃右端（討論版：吸塵器那欄落地，矮櫃到展示格為止）
+RM(staticG,TVW.x0,TVW.z0,LOW_X1,TVW.z1,TVW.yb,TVW.yt-.022,M.lacquer);              // 抽屜櫃（白）
 RM(staticG,TVW.x0,TVW.z0,LOW_X1,TVW.z1+.4,TVW.yt-.022,TVW.yt,M.oak);               // 木皮檯面
 if(PROPOSAL) RM(staticG,TVW.x0+1,TVW.z0,LOW_X1,TVW.z1-3.2,0,TVW.yb,M.shadowDark);  // 討論版：內縮 4.5cm 踢腳
-for(const x of PROPOSAL?[316.2,351.6,387.1,TVW.xt,TVP.nA]:[330.5,380,TVW.xt,469.4]) B(staticG,.003,TVW.yt-TVW.yb-.03,.002,M.gapDark,MX(x),TVW.yb+.004,MZ(TVW.z1)+.001,false);   // 抽屜分縫
+for(const x of PROPOSAL?[340.2,384.8,TVW.xt,469.4]:[330.5,380,TVW.xt,469.4]) B(staticG,.003,TVW.yt-TVW.yb-.03,.002,M.gapDark,MX(x),TVW.yb+.004,MZ(TVW.z1)+.001,false);   // 抽屜分縫
 B(staticG,(LOW_X1-TVW.x0)*S,.003,.002,M.gapDark,MX((TVW.x0+LOW_X1)/2),TVW.yt-.026,MZ(TVW.z1)+.001,false);
-if(PROPOSAL){ const T=TVW, {nA,nB,nC}=TVP, a=T.xt+T.sp, hb=T.x1-T.sp, z0=T.z0, z1=T.z1, zb=T.z0+1.2, y0=T.yt, gap=(x,ya,yb)=>B(staticG,.003,yb-ya,.002,M.gapDark,MX(x),ya,MZ(z1)+.001,false),
-    hgap=(xa,xb,y)=>B(staticG,(xb-xa)*S,.003,.002,M.gapDark,MX((xa+xb)/2),y,MZ(z1)+.001,false);
-  RM(staticG,T.xt,z0,a,z1,y0,T.top,M.oakV);                                       // 高櫃左側木皮側板
-  // 高櫃段：門 A（坐在矮櫃上，145 上下分兩段，一般收納）｜展示格｜吸塵器高櫃（落地一大格做到頂、單片門）
-  RM(staticG,a,z0,nA,z1,y0,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1,T.yb,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1-3.2,0,T.yb,M.shadowDark);   // 吸塵器高櫃也做內縮踢腳，底線和矮櫃對齊
-  gap(nA,y0,T.top-.01); gap(nB,T.yb,T.top-.01); gap(nC,T.yb,T.top-.01); hgap(a,nA,1.45);
-  hgap(nB,nC,1.52);                                                                 // 吸塵器高櫃分兩格：下格內高至少 140、寬至少 30（放直立式吸塵器），上格尺寸請設計師建議
-  B(staticG,.012,.14,.006,M.gapDark,MX(nC)-.025,1.0,MZ(z1)+.003,false); B(staticG,.012,.1,.006,M.gapDark,MX(nC)-.025,1.62,MZ(z1)+.003,false);   // 上下門指扣
-  // 燈光玻璃展示格（寬約 32cm、高 95～195）：上下白門，內襯木皮、玻璃層板、頂部燈條
-  RM(staticG,nA,z0,nB,z1,y0,.95,M.lacquer); RM(staticG,nA,z0,nB,z1,1.95,T.top,M.lacquer);
-  RM(staticG,nA,z0,nB,zb,.95,1.95,M.oak); RM(staticG,nA,zb,nA+.8,z1,.95,1.95,M.oakV); RM(staticG,nB-.8,zb,nB,z1,.95,1.95,M.oakV);
-  for(const y of [1.28,1.62]) RM(staticG,nA+.8,zb,nB-.8,z1-.5,y,y+.008,M.shelfGlass,false);
-  RM(staticG,nA+.8,z1-3,nB-.8,z1-1.5,1.935,1.945,M.whiteApp,false);                 // 燈條
-  const nx=(nA+nB)/2;
-  C(staticG,.035,.045,.16,M.ceramic,MX(nx),.95,MZ(490),16); { const s=mk(new THREE.SphereGeometry(.045,16,10),M.ceramic); s.position.set(MX(nx),1.28+.05,MZ(490)); staticG.add(s); }
-  C(staticG,.012,.012,.12,M.blackMetal,MX(nx),1.628,MZ(491),8);
-  // 汙衣區（寬約 69cm，落地）：可點選拿掉（看走道變多寬）；LR＝實體、LGH＝拿掉後的虛線框（仍可點回來）
-  const LG=new THREE.Group(), LR=new THREE.Group(); LG.add(LR); dynG.add(LG);
-  RM(LR,hb,z0,T.x1,z1,0,T.top,M.oakV);                                             // 最右側板（落地到頂，貼客房門框）
-  RM(LR,nC,z0,hb,zb,0,2.02,M.oak); RM(LR,nC,zb,nC+.8,z1,0,2.02,M.oakV);
-  RM(LR,nC,z0,hb,z1,2.02,T.top,M.lacquer); B(LR,(hb-nC)*S,.003,.002,M.gapDark,MX((nC+hb)/2),2.02,MZ(z1)+.001,false); B(LR,.003,T.top-2.04,.002,M.gapDark,MX((nC+hb)/2),2.03,MZ(z1)+.001,false);
-  RM(LR,nC+.8,zb,hb,z1,.3,.5,M.lacquer); RM(LR,nC+.8,zb,hb,z1+.2,.5,.52,M.oak); RM(LR,nC+.8,zb,hb,z1,0,.02,M.oak);   // 抽屜、包包層板、鞋層
-  B(LR,.12,.012,.006,M.gapDark,MX((nC+hb)/2),.44,MZ(z1)+.003,false);          // 抽屜把手溝
-  { const len=(hb-nC-1)*S, r=C(LR,.011,.011,len,M.blackMetal,MX((nC+.8+hb)/2),1.78-len/2,MZ((z0+z1)/2),10); r.rotation.z=HP; }   // 掛衣桿（離地 178）
-  // 外出衣：衣架肩寬約 45cm，正面掛會比櫃深 38cm 凸出（討論重點）
-  [0x7a6a58,0xb8b2a6,0x5d6670,0x9a8670,0x3f4348].forEach((c,i)=>{ const h=.92-(i%2)*.14;
-    B(LR,.07,h,.45,std({color:c,roughness:.95}),MX(nC+6+i*7.5),1.76-h,MZ((z0+z1)/2)); });
-  RB(LR,.28,.22,.12,.02,M.potDark,MX(nC+12),.52,MZ(493)); RB(LR,.22,.2,.1,.02,M.pillowB,MX(nC+34),.52,MZ(494));   // 包包
-  for(const [x,m] of [[nC+9,M.blackMetal],[nC+24,M.duvet],[nC+39,M.potDark]]) for(const dx of [-1.6,1.6]) RB(LR,.09,.08,.3,.03,m,MX(x+dx),.02,MZ(490),true);   // 鞋（33cm 級）
-  { const g=RM(LG,nC,z0,T.x1,z1,0,T.top,new THREE.MeshBasicMaterial({color:0xc62828,transparent:true,opacity:.12,depthWrite:false}),false); g.visible=false; LAUNDRY.ghost=g; }
-  RM(staticG,nC-.8,z0,nC,z1,0,T.top,M.lacquer);                                   // 吸塵器高櫃右側板（汙衣區拿掉時看得到）
-  LAUNDRY.real=LR; LAUNDRY.obj=LG;
-  colM(T.xt,z0,nC,z1,y0,H); colM(nB,z0,nC,z1,0,y0); colM(nC,z0,T.x1,z1,0,H); LAUNDRY.col=colliders[colliders.length-1]; LAUNDRY.col.onMaxY=H;
-  furnM('電視牆高櫃（門｜展示格）',T.xt,z0,nB,z1,y0,T.top); furnM('吸塵器高櫃（落地・預留插座）',nB,z0,nC,z1,0,T.top); furn(LG,'汙衣區（外出衣・包包・鞋・深 38cm）'); }
-else {
-RM(staticG,TVW.xt,TVW.z0,TVW.xt+TVW.sp,TVW.z1,TVW.yt,TVW.top,M.oakV);              // 高櫃兩側木皮側板（東側一路包到懸浮櫃底）
+// 右段高櫃（原設計）：左門｜整排展示格｜右門（預留吸塵器收納）
+RM(staticG,TVW.xt,TVW.z0,TVW.xt+TVW.sp,TVW.z1,TVW.yt,TVW.top,M.oakV);              // 高櫃兩側木皮側板（東側一路包到櫃底）
 RM(staticG,TVW.x1-TVW.sp,TVW.z0,TVW.x1,TVW.z1,TVW_Y0,TVW.top,M.oakV);
 RM(staticG,TVW.xt+TVW.sp,TVW.z0,TVW.xn0,TVW.z1,TVW.yt,TVW.top,M.lacquer);          // 左門
-RM(staticG,TVW.xn1,TVW.z0,TVW.x1-TVW.sp,TVW.z1,TVW.yt,TVW.top,M.lacquer);          // 右門（預留吸塵器收納）
+RM(staticG,TVW.xn1,TVW.z0,TVW.x1-TVW.sp,TVW.z1,PROPOSAL?TVW.yb:TVW.yt,TVW.top,M.lacquer);   // 右門（預留吸塵器收納；討論版落地）
+if(PROPOSAL) RM(staticG,TVW.xn1,TVW.z0,TVW.x1-TVW.sp,TVW.z1-3.2,0,TVW.yb,M.shadowDark);   // 吸塵器那欄也做內縮踢腳，底線和矮櫃對齊
 for(const x of [TVW.xn0,TVW.xn1]) B(staticG,.003,TVW.top-TVW.yt-.01,.002,M.gapDark,MX(x)+(x===TVW.xn0?-.002:.002),TVW.yt+.005,MZ(TVW.z1)+.001,false);
-{ const a=TVW.xn0, b=TVW.xn1;                                                       // 中間展示格：木皮內襯＋玻璃層板
+if(PROPOSAL){ B(staticG,(TVW.x1-TVW.sp-TVW.xn1)*S,.003,.002,M.gapDark,MX((TVW.xn1+TVW.x1-TVW.sp)/2),1.52,MZ(TVW.z1)+.001,false);   // 吸塵器那欄落地分兩格：下格內高約 142（至少 140）、上格請設計師建議
+  B(staticG,.003,1.52-TVW.yb,.002,M.gapDark,MX(TVW.xn1)+.002,TVW.yb,MZ(TVW.z1)+.001,false);
+  for(const y of [.95,1.85]) B(staticG,.012,.12,.006,M.gapDark,MX(TVW.xn1)+.025,y,MZ(TVW.z1)+.003,false); }   // 上下門指扣
+{ const a=TVW.xn0, b=TVW.xn1;                                                       // 中間展示格：木皮內襯＋玻璃層板（整排）
   RM(staticG,a,TVW.z0,b,TVW.z0+1.2,TVW.yt,TVW.top,M.oak);
   RM(staticG,a,TVW.z0+1.2,a+.8,TVW.z1,TVW.yt,TVW.top,M.oakV); RM(staticG,b-.8,TVW.z0+1.2,b,TVW.z1,TVW.yt,TVW.top,M.oakV);
   RM(staticG,a+.8,TVW.z0+1.2,b-.8,TVW.z1,TVW.top-.02,TVW.top,M.oak);
   for(const y of [.87,1.26,1.65,2.03]) RM(staticG,a+.8,TVW.z0+1.2,b-.8,TVW.z1-.5,y,y+.008,M.shelfGlass,false);
   C(staticG,.035,.045,.16,M.ceramic,MX(466),1.26+.008,MZ(490),16); C(staticG,.012,.012,.12,M.blackMetal,MX(472),.87+.008,MZ(491),8);
   { const s=mk(new THREE.SphereGeometry(.045,16,10),M.ceramic); s.position.set(MX(469),1.65+.05,MZ(490)); staticG.add(s); } }
-colM(TVW.xt,TVW.z0,TVW.x1,TVW.z1,TVW.yt,H); furnM('電視牆高櫃（展示格・吸塵器收納）',TVW.xt,TVW.z0,TVW.x1,TVW.z1,TVW_Y0,TVW.top); }
+colM(TVW.xt,TVW.z0,TVW.x1,TVW.z1,TVW.yt,H); if(PROPOSAL) colM(TVW.xn1,TVW.z0,TVW.x1,TVW.z1,0,TVW.yt);
+furnM(PROPOSAL?'電視牆高櫃（門｜展示格｜吸塵器落地高櫃）':'電視牆高櫃（展示格・吸塵器收納）',TVW.xt,TVW.z0,TVW.x1,TVW.z1,TVW_Y0,TVW.top);
+// 討論版：左側新增一欄高櫃（坐在矮櫃上、做到頂、單片門），右側木皮側板當電視區框
+if(PROPOSAL){ RM(staticG,TVW.x0,TVW.z0,TVW.xL,TVW.z1,TVW.yt,TVW.top,M.lacquer); RM(staticG,TVW.xL,TVW.z0,TVW.xL+TVW.sp,TVW.z1,TVW.yt,TVW.top,M.oakV);
+  B(staticG,.012,.14,.006,M.gapDark,MX(TVW.xL)-.025,1.2,MZ(TVW.z1)+.003,false);
+  colM(TVW.x0,TVW.z0,TVW.xL+TVW.sp,TVW.z1,TVW.yt,H); furnM('左側高櫃（新增）',TVW.x0,TVW.z0,TVW.xL+TVW.sp,TVW.z1,TVW.yt,TVW.top); }
 colM(TVW.x0,TVW.z0,LOW_X1,TVW.z1,TVW_Y0,TVW.yt);
 furnM(PROPOSAL?'落地電視櫃':'懸浮電視櫃',TVW.x0,TVW.z0,TVW.xt,TVW.z1,TVW_Y0,TVW.yt);
-// ---- 討論版 2：電視上方吊櫃（10/17 縮小比例：櫃底 205、做到降板 245＝高 40、深 30cm，白色按壓門三片） ----
-if(PROPOSAL){ const z1=TVW.z0+.30/S, y0=2.05;
-  RM(staticG,TVW.x0,TVW.z0,TVW.xt,z1,y0,TVW.top,M.lacquer);
-  for(const k of [1,2]) B(staticG,.003,TVW.top-y0-.01,.002,M.gapDark,MX(TVW.x0+(TVW.xt-TVW.x0)*k/3),y0+.005,MZ(z1)+.001,false);
-  colM(TVW.x0,TVW.z0,TVW.xt,z1,y0,H); furnM('電視上方吊櫃（討論版）',TVW.x0,TVW.z0,TVW.xt,z1,y0,TVW.top); }
-const TV_X=PROPOSAL?(TVW.x0+TVW.xt)/2:332.5;                                   // 討論版：電視對齊加寬後的電視段中心
+// ---- 討論版 2：電視上方吊櫃（櫃底 205、做到降板 245＝高 40、深 30cm，白色按壓門四片；比例請設計師建議） ----
+if(PROPOSAL){ const z1=TVW.z0+.30/S, y0=2.05, a=TVW.xL+TVW.sp;
+  RM(staticG,a,TVW.z0,TVW.xt,z1,y0,TVW.top,M.lacquer);
+  for(const k of [1,2,3]) B(staticG,.003,TVW.top-y0-.01,.002,M.gapDark,MX(a+(TVW.xt-a)*k/4),y0+.005,MZ(z1)+.001,false);
+  colM(a,TVW.z0,TVW.xt,z1,y0,H); furnM('電視上方吊櫃（討論版）',a,TVW.z0,TVW.xt,z1,y0,TVW.top); }
+const TV_X=PROPOSAL?(TVW.xL+TVW.sp+TVW.xt)/2:332.5;                            // 討論版：電視對齊左側高櫃與右段高櫃之間的中心
 B(staticG,1.45,.84,.03,M.tvFrame,MX(TV_X),.57,MZ(TVW.z0)+.035);                 // 壁掛 65 吋電視（中心對 261015 圖 332.5，下緣離地 57cm）
 { const s=mk(new THREE.PlaneGeometry(1.42,.8),M.tvScreen,false,false); s.position.set(MX(TV_X),.99,MZ(TVW.z0)+.051); staticG.add(s); }
-{ const vx=PROPOSAL?410:404;                                                         // 討論版：花瓶放電視段右端、畫框不放
+{ const vx=PROPOSAL?418:404;                                                         // 討論版：花瓶放電視段右端、畫框不放
 C(staticG,.05,.04,.2,M.glass,MX(vx),TVW.yt,MZ(494),16); C(staticG,.004,.004,.16,M.leaf2,MX(vx),TVW.yt+.18,MZ(494),5); }   // 檯面花瓶
 if(!PROPOSAL){ const f=B(staticG,.2,.27,.012,M.blackMetal,MX(414),TVW.yt,MZ(482)); f.rotation.x=-.12; }    // 靠牆小畫框
 R(ceilG,NR([211.5,TVW.z0,629.6,TVW.z1]),TVW.top,H,M.ceiling);                      // 電視牆上方降板（渲染_客廳_02：從主臥門到客房門）
@@ -1547,7 +1522,12 @@ furn(put(washer(),680,213,0),'洗衣機');                                      
   for(const sx of [-1,1]) for(const sz of [-1,1]) B(g,.03,.72,.03,M.steel,sx*.22,0,sz*.26);
   B(g,.5,.2,.58,M.steel,0,.72,0); B(g,.44,.005,.5,M.shadowDark,0,.92,.02,false);
   C(g,.012,.012,.3,M.chrome,0,.92,-.26,10); B(g,.02,.02,.14,M.chrome,0,1.2,-.2);
-  put(g,757,211.5,0); }
+  put(g,757,211.5,0);
+  // 熱水器：裝在洗手槽上方的牆上（找洗手槽右側最近的牆面貼上去）
+  const sx=X(757), sz=Z(211.5); let wx=sx+.6;
+  for(const c of colliders) if(c.maxY>2&&c.minZ<=sz&&sz<=c.maxZ&&c.minX>=sx&&c.minX<wx) wx=c.minX;
+  B(staticG,.18,.6,.36,M.whiteApp,wx-.09,1.45,sz); B(staticG,.004,.08,.12,M.gapDark,wx-.181,1.62,sz,false);   // 熱水器＋面板
+  addCol(wx-.18,wx,sz-.18,sz+.18,1.45,2.05); }
 R(staticG,[650,181,775,184.5],-.05,.3,M.concrete); R(staticG,[650,184.5,654.6,250.4],-.05,.3,M.concrete);
 R(staticG,[650,181,775,184.5],1.05,1.1,M.blackMetal); R(staticG,[650,184.5,654.6,250.4],1.05,1.1,M.blackMetal);
 for(let x=652; x<775; x+=8.5) R(staticG,[x,182,x+.9,183.5],.3,1.05,M.blackMetal);
@@ -1607,7 +1587,7 @@ pLight('kitchen',740,372,2.45,10,6,false); R(ceilG,[722,340,758,404],H-.03,H,lpM
 pLight('bath',688,598,2.4,7,5,false);      panel('bath',688,598,.14); panel('bath',772,620,.09);   // 浴廁
 pLight('entry',758,505,2.28,6,5,false);    panel('entry',740,505,.05,2.38); panel('entry',778,505,.05,2.38); // 玄關嵌燈
 // 間接照明：可與主燈分開設定色溫
-const NICHE_X=PROPOSAL?(TVP.nA+TVP.nB)/2:(TVW.xn0+TVW.xn1)/2, NICHE_TOP=PROPOSAL?1.95:TVW.top;   // 討論版展示格在 TVP.nA～nB、頂 195
+const NICHE_X=(TVW.xn0+TVW.xn1)/2, NICHE_TOP=TVW.top;                              // 展示格（原設計位置，整排到頂）
 pLight('livingInd',...NPM(NICHE_X,495),NICHE_TOP-.2,.8,3,false);                    // 客廳：電視牆高櫃展示格投射燈＋懸浮櫃下燈條
 C(staticG,.025,.025,.006,lpMat('livingInd'),MX(NICHE_X),NICHE_TOP-.026,MZ(493),16,false);
 if(!PROPOSAL) RM(staticG,TVW.x0+1,TVW.z0+2,TVW.x1-2,TVW.z1-2,TVW.yb-.006,TVW.yb-.001,lpMat('livingInd'),false);   // 懸浮櫃下燈條（討論版落地沒有）
@@ -1761,7 +1741,7 @@ if(PROPOSAL){ const walkG=new THREE.Group(); labelG.add(walkG);
     const o=new CSS2DObject(el); o.position.set((ax+bx)/2+ox,.05,(az+bz)/2+oz); walkG.add(o); };
   refreshWalk=()=>{ for(const o of [...walkG.children]){ walkG.remove(o); if(o.element) o.element.remove(); }
   draw(...span(MX(780),MZ(515),'z'),'玄關走道');
-  draw([MX(LAUNDRY.on?TVW.x1:TVP.nC),MZ(TVW.z1)],[MX(SB.x0),MZ(SB.z0)],LAUNDRY.on?'電視牆↔餐邊櫃（搬沙發卡這裡）':'電視牆↔餐邊櫃（汙衣區拿掉後）');
+  draw([MX(TVW.x1),MZ(TVW.z1)],[MX(SB.x0),MZ(SB.z0)],'電視牆↔餐邊櫃（搬家具動線）');
   draw(...span(MX(380),MZ(560),'z'),'電視牆↔餐桌椅');
   draw(...span(MX(243),MZ(490),'x'),'主臥門前');
   const cz=Z(CHAIR_Y[0]); draw(...span(X(DINE_X+42)+.25,cz,'x'),'餐椅↔餐邊櫃');
