@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 10:13</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 12:33</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1426,20 +1426,20 @@ furn(put(pouf(),...NPM(250.6,POUF_Z),0),PROPOSAL?'書桌椅凳':'化妝凳');
 plant({h:.36,spread:.14,potR:.06,potH:.1,n:12,leafS:.06,kind:'bush',potMat:M.potTerra}); // 桌上盆栽已拿掉：仍生成一次但不放進場景，後面書本、城市的亂數排列才不會跟著變
 const WARD_H=PROPOSAL?2.28:2.5;                                                   // 討論版：衣櫃做到 228，上方是行李箱櫃
 const WARD_OBJ=(()=>{ const g=slideWardrobe({w:LZ(261,457.7)-.012,d:LX(451,496.2),h:WARD_H,doors:3,front:M.wardFront,frame:M.wardFrame,mirror:PROPOSAL?2:-1}); if(!PROPOSAL) B(g,LZ(261,457.7)-.012,.2,LX(451,496.2),M.lacquer,0,2.5,0); return furn(put(g,473.6,359.35,-HP,true,dynG),PROPOSAL?'主臥衣櫃（滑門・最右門全身鏡）':'主臥衣櫃（滑門）'); })(); // 衣櫃：滑門可開（不合併）
-// 討論版 3：衣櫃上方行李箱櫃（三格上掀門，各放一只 29 吋行李箱橫放 78×50×30）；點它可開合
+// 討論版 3：衣櫃上方行李箱收納（10/17：一整條上掀門、內部不分格，做法請設計師決定；放三只 29 吋行李箱橫放 78×50×30）；點它可開合
 let LUG_OBJ=null;
 if(PROPOSAL){ const w=LZ(261,457.7)-.012, d=LX(451,496.2), h=H-WARD_H-.02, t=.018, g=new THREE.Group(), doors=[], bw=w/3;
   B(g,w,t,d,M.lacquer,0,0,0); B(g,w,t,d,M.lacquer,0,h-t,0); B(g,w,h,t,M.lacquer,0,0,-d/2+t/2);
   for(const s of [-1,1]) B(g,t,h,d,M.lacquer,s*(w/2-t/2),0,0);
-  for(const k of [1,2]) B(g,t,h,d-t,M.lacquer,-w/2+bw*k,0,t/2);
   const bagCol=[0x6f7f8c,0xb9a58c,0x8d4b45];
   for(let i=0;i<3;i++){ const cx=-w/2+bw*(i+.5), m=std({color:bagCol[i],roughness:.45});
     RB(g,.78,.3,.5,.03,m,cx,t,-.02); B(g,.2,.03,.03,M.blackMetal,cx,t+.3,.15); B(g,.03,.05,.06,M.blackMetal,cx-.36,t+.12,.23);   // 行李箱＋提把
-    const p=new THREE.Group(); p.position.set(cx,h,d/2); g.add(p); B(p,bw-.006,h-.004,.018,M.lacquer,0,-(h-.004),.009);
-    B(p,.14,.012,.006,M.gapDark,0,-(h-.004)+.02,.019,false); doors.push(p); }   // 門片（下緣指扣）
+  }
+  { const p=new THREE.Group(); p.position.set(0,h,d/2); g.add(p); B(p,w-.006,h-.004,.018,M.lacquer,0,-(h-.004),.009);   // 一整條上掀門
+    for(const x of [-w/3,0,w/3]) B(p,.14,.012,.006,M.gapDark,x,-(h-.004)+.02,.019,false); doors.push(p); }   // 下緣指扣
   g.userData.lug={doors,t:0,target:0};
   const o=put(g,473.6,359.35,-HP,false,dynG); o.position.y=WARD_H+.01; colObj(o);
-  LUG_OBJ=furn(o,'行李箱櫃（上掀門・29 吋 ×3）'); }
+  LUG_OBJ=furn(o,'衣櫃上方行李箱收納（一整條上掀門）'); }
 // 主臥房門旁開放掛區（討論版 8）已取消：外出衣、包包改掛客廳電視牆右側的汙衣區
 put(acUnit(),228,NPM(0,399.4)[1],HP,false).position.y=2.31;                         // 冷氣：261015 圖窗牆南段
 for(let i=0;i<3;i++){ const len=LZ(261,431.1)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
