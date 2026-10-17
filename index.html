@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 12:33</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 16:17</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1399,6 +1399,10 @@ R(staticG,[772,480,802,532],.013,.022,M.shadowDark,false);                      
 R(ceilG,[701,464.8,806.9,542.7],2.38,H,M.ceiling);                                  // 玄關天花：行李箱收納
 if(!PROPOSAL) for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);   // 行李箱收納維修口（討論版改到主臥衣櫃上方）
 
+// 討論版：遮光捲簾（窗框外安裝，左右各多蓋 8cm；上方捲軸盒，簾布拉下一半示意）
+function blackout(axis,face,a0,a1){ const w=Math.abs(a1-a0)+.16, c=(a0+a1)/2, top=2.42, drop=.75, m=std({color:0xcfc6b8,roughness:.95});
+  if(axis==='z'){ B(staticG,.09,.1,w,M.lacquer,face+.045,top-.1,c); B(staticG,.012,drop,w-.02,m,face+.03,top-.1-drop,c); }
+  else { B(staticG,w,.1,.09,M.lacquer,c,top-.1,face+.045); B(staticG,w-.02,drop,.012,m,c,top-.1-drop,face+.03); } }
 /* ---- 主臥室（261015：床背護牆板深 8cm 高 100、床 5×6.2 靠板；化妝桌 90×60；衣櫃三片香檳框玻璃滑門；渲染_主臥_01～_03） ---- */
 // 討論版：沿用業主現有床頭板（寬 155、高 110、深 10cm，兩層收納層架，對齊床中心），頂面放手機（不預留插座／USB）；化妝桌改成書桌＋上方書櫃
 const WAIN=PROPOSAL?{x0:341.25-.775/S,x1:341.25+.775/S,z0:275.5,z1:275.5+.1/S,h:1.1}:{x0:211.5,x1:439.5,z0:275.5,z1:281.25,h:1.0};
@@ -1442,7 +1446,8 @@ if(PROPOSAL){ const w=LZ(261,457.7)-.012, d=LX(451,496.2), h=H-WARD_H-.02, t=.01
   LUG_OBJ=furn(o,'衣櫃上方行李箱收納（一整條上掀門）'); }
 // 主臥房門旁開放掛區（討論版 8）已取消：外出衣、包包改掛客廳電視牆右側的汙衣區
 put(acUnit(),228,NPM(0,399.4)[1],HP,false).position.y=2.31;                         // 冷氣：261015 圖窗牆南段
-for(let i=0;i<3;i++){ const len=LZ(261,431.1)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
+if(!PROPOSAL) for(let i=0;i<3;i++){ const len=LZ(261,431.1)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
+else blackout('z',X(221.5)+.05,Z(261),Z(431.1));                                    // 討論版：遮光捲簾、窗框外安裝（四邊多蓋）
 
 /* ---- 客房／書房（261015：單人床靠窗牆、床頭朝隔間牆；升降桌 120×80 靠隔間牆；原有鐵架 148×40×60 靠房門牆；衣櫃平房門旁牆面；渲染_客房_01、_02） ---- */
 const GBED={w:.93,l:1.85};
@@ -1463,7 +1468,8 @@ furn(put(metalShelf(),...NPM((491.25+533.25)/2,469.7-.4/S/2-.3),PI),'鐵架（�
 for(let i=0;i<2;i++) books(new THREE.Group(),-.45,.35,1.5,.24,.26);   // 書桌上方層板已全部拿掉：原本兩片層板上的書照樣抽一次亂數不放，後面排列才不會跟著變
 furn(put(cabinet({w:(469.7-413)*S,d:(672.8-630)*S,h:2.4,doors:2,front:M.closetFront,handle:false}),...NPM((630+672.8)/2,(413+469.7)/2),-HP),'客房衣櫃');  // 門片與客房牆面齊平
 put(acUnit(),590,457.7-7.3,PI,false).position.y=2.3;                               // 冷氣：房門上方偏書桌側（渲染_客房_01、_02）
-{ const b=B(staticG,LX(503.2,637.9)-.04,.5,.012,M.zebra,(X(503.2)+X(637.9))/2,1.7,Z(261)+.03,false); }  // 調光簾
+if(!PROPOSAL){ const b=B(staticG,LX(503.2,637.9)-.04,.5,.012,M.zebra,(X(503.2)+X(637.9))/2,1.7,Z(261)+.03,false); }  // 調光簾
+else blackout('x',Z(261)+.05,X(503.2),X(637.9));                                    // 討論版：遮光捲簾、窗框外安裝
 
 /* ---- 廚房 ---- */
 function applianceCab(w,d,h){                                                      // 電器櫃（渲染_廚房_01）：下門、托盤抽、兩格開放電器格、上門；正面 +z
