@@ -215,7 +215,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 16:38</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 16:53</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -279,6 +279,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <button class="tog" id="t-night" aria-pressed="false">夜晚</button>
         <button class="tog" id="t-lights" aria-pressed="true">室內燈</button>
         <button class="tog" id="t-doors" aria-pressed="true">門全開</button>
+        <button class="tog" id="t-walk" aria-pressed="true" hidden>走道尺寸</button>
         <button class="tog" id="t-quality" aria-pressed="true">畫質：自動</button>
       </div>
       <div class="ctemp" data-edit>
@@ -1742,7 +1743,7 @@ for(const rm of ROOMS){
   const o=new CSS2DObject(el); o.position.set(X(rm.lab[0]),.05,Z(rm.lab[1])); labelG.add(o);
 }
 // 討論版：走道淨寬標示（從碰撞方塊即時量，家具改了數字會跟著變；只算離地 10～200cm 的櫃子家具）
-var refreshWalk=()=>{};
+var refreshWalk=()=>{}, WALK_ON=true;
 if(PROPOSAL){ const walkG=new THREE.Group(); labelG.add(walkG);
   const solid=c=>c.maxY>.1&&c.minY<2;
   const span=(x,z,ax)=>{ let lo=-1e9,hi=1e9;
@@ -1750,20 +1751,29 @@ if(PROPOSAL){ const walkG=new THREE.Group(); labelG.add(walkG);
       if(ax==='z'&&c.minX<=x&&x<=c.maxX){ if(c.maxZ<=z) lo=Math.max(lo,c.maxZ); else if(c.minZ>=z) hi=Math.min(hi,c.minZ); }
       if(ax==='x'&&c.minZ<=z&&z<=c.maxZ){ if(c.maxX<=x) lo=Math.max(lo,c.maxX); else if(c.minX>=x) hi=Math.min(hi,c.minX); } }
     return ax==='z'?[[x,lo],[x,hi]]:[[lo,z],[hi,z]]; };
-  const draw=([ax,az],[bx,bz],name)=>{ const len=Math.hypot(bx-ax,bz-az), cm=Math.round(len*100), warn=cm<80;
+  const draw=([ax,az],[bx,bz],name,[ox,oz]=[0,0])=>{ const len=Math.hypot(bx-ax,bz-az), cm=Math.round(len*100), warn=cm<80;
     const m=new THREE.MeshBasicMaterial({color:warn?0xc62828:0x1565c0,depthTest:false,transparent:true,opacity:.9});
     const bar=new THREE.Mesh(new THREE.BoxGeometry(.025,.004,len),m); bar.position.set((ax+bx)/2,.03,(az+bz)/2); bar.rotation.y=Math.atan2(bx-ax,bz-az); bar.renderOrder=5; walkG.add(bar);
     for(const [x,z] of [[ax,az],[bx,bz]]){ const t=new THREE.Mesh(new THREE.BoxGeometry(.12,.004,.025),m); t.position.set(x,.03,z); t.rotation.y=bar.rotation.y; t.renderOrder=5; walkG.add(t); }
     const el=document.createElement('div'); el.className='walk-dim'+(warn?' warn':''); el.innerHTML=`<b>${cm}</b>cm<span>${name}</span>`;
-    const o=new CSS2DObject(el); o.position.set((ax+bx)/2,.05,(az+bz)/2); walkG.add(o); };
+    const o=new CSS2DObject(el); o.position.set((ax+bx)/2+ox,.05,(az+bz)/2+oz); walkG.add(o); };
   refreshWalk=()=>{ for(const o of [...walkG.children]){ walkG.remove(o); if(o.element) o.element.remove(); }
   draw(...span(MX(780),MZ(515),'z'),'玄關走道');
   draw([MX(LAUNDRY.on?TVW.x1:TVP.nC),MZ(TVW.z1)],[MX(SB.x0),MZ(SB.z0)],LAUNDRY.on?'電視牆↔餐邊櫃（搬沙發卡這裡）':'電視牆↔餐邊櫃（汙衣區拿掉後）');
   draw(...span(MX(380),MZ(560),'z'),'電視牆↔餐桌椅');
   draw(...span(MX(243),MZ(490),'x'),'主臥門前');
   const cz=Z(CHAIR_Y[0]); draw(...span(X(DINE_X+42)+.25,cz,'x'),'餐椅↔餐邊櫃');
-  draw(...span(X(DINE_X-42)-.25,cz,'x'),'沙發↔餐椅'); };
+  draw(...span(X(DINE_X-42)-.25,cz,'x'),'沙發↔餐椅');
+  // 主臥：床左側↔窗牆、床尾↔牆、床右側↔衣櫃；客房：書桌椅拉開後椅背↔牆；廚房門洞（冰箱進出）
+  draw(...span(.6,1.5,'x'),'主臥 床↔窗牆');
+  draw(...span(1.35,2.6,'z'),'主臥 床尾↔牆');
+  draw(...span(3.1,1.2,'x'),'主臥 床↔衣櫃');
+  draw(...span(CHAIR_COL.maxX+.03,(CHAIR_COL.minZ+CHAIR_COL.maxZ)/2,'x'),'客房 椅子拉開後↔牆',[0,-.8]);
+  { const [x0,y0,x1,y1]=DOOR_OPENINGS[2].r, zc=(Z(y0)+Z(y1))/2; draw([X(x0),zc],[X(x1),zc],'廚房門洞（冰箱進出）',[0,.3]); }
+  walkG.traverse(o=>o.visible=WALK_ON); };
   refreshWalk();
+  const wb=document.getElementById('t-walk'); wb.hidden=false;
+  wb.addEventListener('click',()=>{ WALK_ON=!WALK_ON; wb.setAttribute('aria-pressed',String(WALK_ON)); walkG.traverse(o=>o.visible=WALK_ON); toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸'); });
 }
 // 座向（A6 戶，對照標準層索引圖：北鄰梯廳、東鄰 A5）：圖面右＝北、下＝東、左＝南、上＝西 → 坐北朝南
 for(const [x,y,dir,what] of [[905,505,'北 N','大門・公共走廊'],[125,550,'南 S','客廳・主臥窗'],[560,205,'西 W','客房窗・陽台'],[514,710,'東 E','鄰戶 A5']]){
