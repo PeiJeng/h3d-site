@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 09:51</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 09:56</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1265,8 +1265,8 @@ if(PROPOSAL){ const T=TVW, {nA,nB,nC}=TVP, a=T.xt+T.sp, hb=T.x1-T.sp, z0=T.z0, z
     hgap=(xa,xb,y)=>B(staticG,(xb-xa)*S,.003,.002,M.gapDark,MX((xa+xb)/2),y,MZ(z1)+.001,false);
   RM(staticG,T.xt,z0,a,z1,y0,T.top,M.oakV); RM(staticG,hb,z0,T.x1,z1,0,T.top,M.oakV);   // 高櫃左側木皮側板、最右側板（落地到頂，貼客房門框）
   // 高櫃段：門 A（坐在矮櫃上，145 上下分兩段，一般收納）｜展示格｜吸塵器高櫃（落地一大格做到頂、單片門）
-  RM(staticG,a,z0,nA,z1,y0,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1,0,T.top,M.lacquer);
-  gap(nA,y0,T.top-.01); gap(nB,0,T.top-.01); gap(nC,0,T.top-.01); hgap(a,nA,1.45);
+  RM(staticG,a,z0,nA,z1,y0,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1,T.yb,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1-3.2,0,T.yb,M.shadowDark);   // 吸塵器高櫃也做內縮踢腳，底線和矮櫃對齊
+  gap(nA,y0,T.top-.01); gap(nB,T.yb,T.top-.01); gap(nC,T.yb,T.top-.01); hgap(a,nA,1.45);
   B(staticG,.012,.14,.006,M.gapDark,MX(nC)-.025,1.0,MZ(z1)+.003,false);          // 吸塵器高櫃門指扣
   // 燈光玻璃展示格（寬約 32cm、高 95～195）：上下白門，內襯木皮、玻璃層板、頂部燈條
   RM(staticG,nA,z0,nB,z1,y0,.95,M.lacquer); RM(staticG,nA,z0,nB,z1,1.95,T.top,M.lacquer);
