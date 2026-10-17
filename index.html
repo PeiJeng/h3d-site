@@ -184,6 +184,8 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .room-label em{display:inline-block;margin-top:3px;padding:0 4px;border:1px solid #3b3129;font:normal 10px var(--mono);background:rgba(255,252,246,.65)}
 
 /* 座向：屋外四面的方位標籤（3D 場景上）＋俯視模式右下角指北針（俯視不能旋轉，圖面右方＝北） */
+#walk-fab{position:fixed;bottom:96px;right:12px;z-index:30;padding:9px 14px;border-radius:999px;border:1px solid #1565c0;background:rgba(255,255,255,.94);color:#0d47a1;font:600 14px var(--sans);box-shadow:0 2px 8px rgba(0,0,0,.18);cursor:pointer}
+#walk-fab[aria-pressed="false"]{color:#666;border-color:#aaa}
 .walk-dim{text-align:center;color:#0d47a1;background:rgba(255,255,255,.88);border:1px solid #1565c0;border-radius:4px;padding:1px 5px;pointer-events:none;line-height:1.15;white-space:nowrap;font:500 10px var(--sans)}
 .walk-dim b{font:700 14px var(--mono)}
 .walk-dim span{display:block;font-size:9px;color:#555}
@@ -215,7 +217,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 16:53</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 17:01</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1772,8 +1774,13 @@ if(PROPOSAL){ const walkG=new THREE.Group(); labelG.add(walkG);
   { const [x0,y0,x1,y1]=DOOR_OPENINGS[2].r, zc=(Z(y0)+Z(y1))/2; draw([X(x0),zc],[X(x1),zc],'廚房門洞（冰箱進出）',[0,.3]); }
   walkG.traverse(o=>o.visible=WALK_ON); };
   refreshWalk();
+  // 開關：左側「環境」按鈕＋畫面右上角浮動按鈕（手機不用打開選單），兩個同步
   const wb=document.getElementById('t-walk'); wb.hidden=false;
-  wb.addEventListener('click',()=>{ WALK_ON=!WALK_ON; wb.setAttribute('aria-pressed',String(WALK_ON)); walkG.traverse(o=>o.visible=WALK_ON); toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸'); });
+  const fab=document.createElement('button'); fab.id='walk-fab'; document.body.appendChild(fab);
+  const syncWalk=()=>{ for(const b of [wb,fab]) b.setAttribute('aria-pressed',String(WALK_ON)); fab.textContent=WALK_ON?'📏 走道尺寸：開':'📏 走道尺寸：關'; walkG.traverse(o=>o.visible=WALK_ON); };
+  const flipWalk=()=>{ WALK_ON=!WALK_ON; syncWalk(); toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸'); };
+  wb.addEventListener('click',flipWalk); fab.addEventListener('click',flipWalk); syncWalk();
+  setInterval(()=>{ fab.hidden=state.mode==='fps'; },400);   // 第一人稱時尺寸本來就不顯示，按鈕也藏起來
 }
 // 座向（A6 戶，對照標準層索引圖：北鄰梯廳、東鄰 A5）：圖面右＝北、下＝東、左＝南、上＝西 → 坐北朝南
 for(const [x,y,dir,what] of [[905,505,'北 N','大門・公共走廊'],[125,550,'南 S','客廳・主臥窗'],[560,205,'西 W','客房窗・陽台'],[514,710,'東 E','鄰戶 A5']]){
