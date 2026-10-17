@@ -217,7 +217,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 17:01</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 17:09</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1553,8 +1553,8 @@ R(staticG,[650,181,775,184.5],1.05,1.1,M.blackMetal); R(staticG,[650,184.5,654.6
 for(let x=652; x<775; x+=8.5) R(staticG,[x,182,x+.9,183.5],.3,1.05,M.blackMetal);
 for(let y=186; y<250; y+=8.5) R(staticG,[651.6,y,653,y+.9],.3,1.05,M.blackMetal);
 colRect([650,176,775,184.5],-1,1.1); colRect([646,184.5,654.6,250.4],-1,1.1);
-B(staticG,.36,.6,.18,M.whiteApp,X(677),1.45,Z(277)-.09);                             // 熱水器
-put(plant({h:.9,spread:.34,potR:.16,potH:.3,n:30,leafS:.13,kind:'bush',potMat:M.potTerra}),716,206,0);
+wall(NR([643.7,273.4,689.1,288.3]));                                                // 陽台左下凹角＝管道間（寬約 63、深約 21cm，到頂不能用；原本畫的熱水器與盆栽拿掉）
+plant({h:.9,spread:.34,potR:.16,potH:.3,n:30,leafS:.13,kind:'bush',potMat:M.potTerra});   // 陽台盆栽已拿掉：仍生成一次不放進場景，後面的亂數排列才不會跟著變
 
 /* ---- 戶外：花台、冷氣平台 ---- */
 R(staticG,[221.5,197,650,250.4],-.3,-.12,M.concrete); R(staticG,[221.5,194,540,197],-.12,.45,M.concrete);
