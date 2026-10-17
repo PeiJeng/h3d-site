@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 09:56</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 10:13</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1267,7 +1267,8 @@ if(PROPOSAL){ const T=TVW, {nA,nB,nC}=TVP, a=T.xt+T.sp, hb=T.x1-T.sp, z0=T.z0, z
   // 高櫃段：門 A（坐在矮櫃上，145 上下分兩段，一般收納）｜展示格｜吸塵器高櫃（落地一大格做到頂、單片門）
   RM(staticG,a,z0,nA,z1,y0,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1,T.yb,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1-3.2,0,T.yb,M.shadowDark);   // 吸塵器高櫃也做內縮踢腳，底線和矮櫃對齊
   gap(nA,y0,T.top-.01); gap(nB,T.yb,T.top-.01); gap(nC,T.yb,T.top-.01); hgap(a,nA,1.45);
-  B(staticG,.012,.14,.006,M.gapDark,MX(nC)-.025,1.0,MZ(z1)+.003,false);          // 吸塵器高櫃門指扣
+  hgap(nB,nC,1.52);                                                                 // 吸塵器高櫃分兩格：下格內高至少 140、寬至少 30（放直立式吸塵器），上格尺寸請設計師建議
+  B(staticG,.012,.14,.006,M.gapDark,MX(nC)-.025,1.0,MZ(z1)+.003,false); B(staticG,.012,.1,.006,M.gapDark,MX(nC)-.025,1.62,MZ(z1)+.003,false);   // 上下門指扣
   // 燈光玻璃展示格（寬約 32cm、高 95～195）：上下白門，內襯木皮、玻璃層板、頂部燈條
   RM(staticG,nA,z0,nB,z1,y0,.95,M.lacquer); RM(staticG,nA,z0,nB,z1,1.95,T.top,M.lacquer);
   RM(staticG,nA,z0,nB,zb,.95,1.95,M.oak); RM(staticG,nA,zb,nA+.8,z1,.95,1.95,M.oakV); RM(staticG,nB-.8,zb,nB,z1,.95,1.95,M.oakV);
