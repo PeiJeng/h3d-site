@@ -211,7 +211,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 08:33</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 09:11</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1366,9 +1366,13 @@ furnM('餐邊櫃（下櫃・掃拖機器人）',SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top
 RM(staticG,SB.xu,SB.z0,SB.x1,SB.z1,SB.uy1,H,M.lacquer);                            // 吊櫃上方封板
 
 /* ---- 玄關（261015：鞋櫃 732～793 × 547.5～582.4 到頂；展示框 693.75～732 外推到 548.25；茶鏡貼廚房外牆 750～767.5；渲染_走道_01～_03） ---- */
-{ const w=(793-732)*S, d=(582.4-547.5)*S, g=cabinet({w,d,h:2.38,doors:2,plinth:.05,handle:false});
-  for(const s of [-1,1]) B(g,.006,.18,.004,M.gapDark,s*.012,1.05,d/2+.002,false);   // 隱把（門縫指扣）
-  furn(put(g,...NPM((732+793)/2,(547.5+582.4)/2),PI),'鞋櫃（到頂）'); }
+// 討論版：鞋櫃下方懸空 18cm（客人的鞋放下面）、門片上下緣留通風縫
+{ const lift=PROPOSAL?.18:0, w=(793-732)*S, d=(582.4-547.5)*S, h=2.38-lift, g=cabinet({w,d,h,doors:2,plinth:PROPOSAL?0:.05,handle:false});
+  for(const s of [-1,1]) B(g,.006,.18,.004,M.gapDark,s*.012,1.05-lift,d/2+.002,false);   // 隱把（門縫指扣）
+  if(PROPOSAL) for(const y of [.04,h-.06]) B(g,w-.04,.014,.004,M.gapDark,0,y,d/2+.002,false);   // 上下通風縫
+  g.position.y=lift;
+  furn(put(g,...NPM((732+793)/2,(547.5+582.4)/2),PI),PROPOSAL?'鞋櫃（下方懸空 18cm・上下通風縫）':'鞋櫃（到頂）');
+  if(PROPOSAL) for(const [x,m] of [[740,M.blackMetal],[755,M.duvet],[771,M.potDark],[785,M.pillowB]]) for(const dx of [-1.6,1.6]) RB(staticG,.09,.08,.28,.03,m,MX(x+dx),.012,MZ(560),true); }   // 懸空下方的客人鞋
 { const x0=693.75, x1=732, za=548.25, zb=554.1, rr2=2.9, n0=698.7, n1=727.05, top=2.38, m=M.specialPaint;   // 展示框：三格 40×40，特殊漆圓角
   RM(staticG,x0+rr2,za,n0,zb,0,top,m); RM(staticG,x0,za+rr2,x0+rr2,zb,0,top,m);
   C(staticG,rr2*S,rr2*S,top,m,MX(x0+rr2),0,MZ(za+rr2),16);
