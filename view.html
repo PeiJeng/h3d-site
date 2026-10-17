@@ -184,6 +184,10 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .room-label em{display:inline-block;margin-top:3px;padding:0 4px;border:1px solid #3b3129;font:normal 10px var(--mono);background:rgba(255,252,246,.65)}
 
 /* 座向：屋外四面的方位標籤（3D 場景上）＋俯視模式右下角指北針（俯視不能旋轉，圖面右方＝北） */
+.walk-dim{text-align:center;color:#0d47a1;background:rgba(255,255,255,.88);border:1px solid #1565c0;border-radius:4px;padding:1px 5px;pointer-events:none;line-height:1.15;white-space:nowrap;font:500 10px var(--sans)}
+.walk-dim b{font:700 14px var(--mono)}
+.walk-dim span{display:block;font-size:9px;color:#555}
+.walk-dim.warn{color:#b71c1c;border-color:#c62828}
 .compass-label{text-align:center;color:#8a3a1c;text-shadow:0 0 3px #fff,0 0 6px rgba(255,255,255,.9);pointer-events:none;line-height:1.2;white-space:nowrap}
 .compass-label b{display:block;font:700 18px var(--sans)}
 .compass-label span{display:block;font:500 11px var(--sans)}
@@ -211,7 +215,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 16:17</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 16:35</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1252,7 +1256,7 @@ const CHAIR_Y=[PZ(Z(DINE_Y)-.307),PZ(Z(DINE_Y)+.307)];
 /* ---- 客廳：電視牆（261015：懸浮櫃 280.75～509.25、深 478.2～505；右段 429.5～509.25 為高櫃＝門｜展示格｜門；渲染_客廳_01、_02、渲染_餐廳_03、_04） ---- */
 // 討論版 10/16：改參考圖樣式，整面做滿到客房門框（280.75～561）：落地矮櫃＋電視＋上方吊櫃（約 200cm）｜高櫃門｜燈光玻璃展示格｜高櫃門（高櫃段坐在矮櫃上）｜汙衣區（外出衣・包包・鞋，落地）
 const TVW={x0:280.75,xt:PROPOSAL?422.5:429.5,xn0:458,xn1:480.75,x1:PROPOSAL?561:509.25,z0:478.2,z1:505,yb:PROPOSAL?.08:.15,yt:.47,top:2.45,sp:1.4};   // sp：木皮側板厚 2cm（pt）；討論版落地：櫃身從 8cm 起，下方內縮踢腳
-const TVP={nA:455.8,nB:478.5,nC:510.4};                                             // 討論版：門 45｜展示格 32｜吸塵器高櫃 45（落地）｜汙衣區 69cm
+const TVP={nA:455.8,nB:478.5,nC:510.4}, LAUNDRY={on:true};                                             // 討論版：門 45｜展示格 32｜吸塵器高櫃 45（落地）｜汙衣區 69cm
 const TVW_Y0=PROPOSAL?0:TVW.yb;                                                     // 櫃子最低處（落地＝0）
 const TV_FRONT=NPM(0,TVW.z1)[1];                                                   // 電視櫃正面（260922 座標，動線檢查用）
 const LOW_X1=PROPOSAL?TVP.nB:TVW.x1-TVW.sp;                                         // 矮櫃右端（討論版延伸到門 A、展示格下方；吸塵器高櫃落地）
@@ -1263,7 +1267,7 @@ for(const x of PROPOSAL?[316.2,351.6,387.1,TVW.xt,TVP.nA]:[330.5,380,TVW.xt,469.
 B(staticG,(LOW_X1-TVW.x0)*S,.003,.002,M.gapDark,MX((TVW.x0+LOW_X1)/2),TVW.yt-.026,MZ(TVW.z1)+.001,false);
 if(PROPOSAL){ const T=TVW, {nA,nB,nC}=TVP, a=T.xt+T.sp, hb=T.x1-T.sp, z0=T.z0, z1=T.z1, zb=T.z0+1.2, y0=T.yt, gap=(x,ya,yb)=>B(staticG,.003,yb-ya,.002,M.gapDark,MX(x),ya,MZ(z1)+.001,false),
     hgap=(xa,xb,y)=>B(staticG,(xb-xa)*S,.003,.002,M.gapDark,MX((xa+xb)/2),y,MZ(z1)+.001,false);
-  RM(staticG,T.xt,z0,a,z1,y0,T.top,M.oakV); RM(staticG,hb,z0,T.x1,z1,0,T.top,M.oakV);   // 高櫃左側木皮側板、最右側板（落地到頂，貼客房門框）
+  RM(staticG,T.xt,z0,a,z1,y0,T.top,M.oakV);                                       // 高櫃左側木皮側板
   // 高櫃段：門 A（坐在矮櫃上，145 上下分兩段，一般收納）｜展示格｜吸塵器高櫃（落地一大格做到頂、單片門）
   RM(staticG,a,z0,nA,z1,y0,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1,T.yb,T.top,M.lacquer); RM(staticG,nB,z0,nC,z1-3.2,0,T.yb,M.shadowDark);   // 吸塵器高櫃也做內縮踢腳，底線和矮櫃對齊
   gap(nA,y0,T.top-.01); gap(nB,T.yb,T.top-.01); gap(nC,T.yb,T.top-.01); hgap(a,nA,1.45);
@@ -1277,19 +1281,24 @@ if(PROPOSAL){ const T=TVW, {nA,nB,nC}=TVP, a=T.xt+T.sp, hb=T.x1-T.sp, z0=T.z0, z
   const nx=(nA+nB)/2;
   C(staticG,.035,.045,.16,M.ceramic,MX(nx),.95,MZ(490),16); { const s=mk(new THREE.SphereGeometry(.045,16,10),M.ceramic); s.position.set(MX(nx),1.28+.05,MZ(490)); staticG.add(s); }
   C(staticG,.012,.012,.12,M.blackMetal,MX(nx),1.628,MZ(491),8);
-  // 汙衣區（寬約 69cm，落地）：上方白門收納、橫桿掛外出衣、抽屜上放包包、最下層開放放鞋
-  RM(staticG,nC,z0,hb,zb,0,2.02,M.oak); RM(staticG,nC,zb,nC+.8,z1,0,2.02,M.oakV);
-  RM(staticG,nC,z0,hb,z1,2.02,T.top,M.lacquer); hgap(nC,hb,2.02); gap((nC+hb)/2,2.03,T.top-.01);
-  RM(staticG,nC+.8,zb,hb,z1,.3,.5,M.lacquer); RM(staticG,nC+.8,zb,hb,z1+.2,.5,.52,M.oak); RM(staticG,nC+.8,zb,hb,z1,0,.02,M.oak);   // 抽屜、包包層板、鞋層
-  B(staticG,.12,.012,.006,M.gapDark,MX((nC+hb)/2),.44,MZ(z1)+.003,false);          // 抽屜把手溝
-  { const len=(hb-nC-1)*S, r=C(staticG,.011,.011,len,M.blackMetal,MX((nC+.8+hb)/2),1.78-len/2,MZ((z0+z1)/2),10); r.rotation.z=HP; }   // 掛衣桿（離地 178）
+  // 汙衣區（寬約 69cm，落地）：可點選拿掉（看走道變多寬）；LR＝實體、LGH＝拿掉後的虛線框（仍可點回來）
+  const LG=new THREE.Group(), LR=new THREE.Group(); LG.add(LR); dynG.add(LG);
+  RM(LR,hb,z0,T.x1,z1,0,T.top,M.oakV);                                             // 最右側板（落地到頂，貼客房門框）
+  RM(LR,nC,z0,hb,zb,0,2.02,M.oak); RM(LR,nC,zb,nC+.8,z1,0,2.02,M.oakV);
+  RM(LR,nC,z0,hb,z1,2.02,T.top,M.lacquer); B(LR,(hb-nC)*S,.003,.002,M.gapDark,MX((nC+hb)/2),2.02,MZ(z1)+.001,false); B(LR,.003,T.top-2.04,.002,M.gapDark,MX((nC+hb)/2),2.03,MZ(z1)+.001,false);
+  RM(LR,nC+.8,zb,hb,z1,.3,.5,M.lacquer); RM(LR,nC+.8,zb,hb,z1+.2,.5,.52,M.oak); RM(LR,nC+.8,zb,hb,z1,0,.02,M.oak);   // 抽屜、包包層板、鞋層
+  B(LR,.12,.012,.006,M.gapDark,MX((nC+hb)/2),.44,MZ(z1)+.003,false);          // 抽屜把手溝
+  { const len=(hb-nC-1)*S, r=C(LR,.011,.011,len,M.blackMetal,MX((nC+.8+hb)/2),1.78-len/2,MZ((z0+z1)/2),10); r.rotation.z=HP; }   // 掛衣桿（離地 178）
   // 外出衣：衣架肩寬約 45cm，正面掛會比櫃深 38cm 凸出（討論重點）
   [0x7a6a58,0xb8b2a6,0x5d6670,0x9a8670,0x3f4348].forEach((c,i)=>{ const h=.92-(i%2)*.14;
-    B(staticG,.07,h,.45,std({color:c,roughness:.95}),MX(nC+6+i*7.5),1.76-h,MZ((z0+z1)/2)); });
-  RB(staticG,.28,.22,.12,.02,M.potDark,MX(nC+12),.52,MZ(493)); RB(staticG,.22,.2,.1,.02,M.pillowB,MX(nC+34),.52,MZ(494));   // 包包
-  for(const [x,m] of [[nC+9,M.blackMetal],[nC+24,M.duvet],[nC+39,M.potDark]]) for(const dx of [-1.6,1.6]) RB(staticG,.09,.08,.3,.03,m,MX(x+dx),.02,MZ(490),true);   // 鞋（33cm 級）
-  colM(T.xt,z0,T.x1,z1,y0,H); colM(nB,z0,T.x1,z1,0,y0);
-  furnM('電視牆高櫃（門｜展示格）',T.xt,z0,nB,z1,y0,T.top); furnM('吸塵器高櫃（落地・預留插座）',nB,z0,nC,z1,0,T.top); furnM('汙衣區（外出衣・包包・鞋・深 38cm）',nC,z0,T.x1,z1,0,T.top); }
+    B(LR,.07,h,.45,std({color:c,roughness:.95}),MX(nC+6+i*7.5),1.76-h,MZ((z0+z1)/2)); });
+  RB(LR,.28,.22,.12,.02,M.potDark,MX(nC+12),.52,MZ(493)); RB(LR,.22,.2,.1,.02,M.pillowB,MX(nC+34),.52,MZ(494));   // 包包
+  for(const [x,m] of [[nC+9,M.blackMetal],[nC+24,M.duvet],[nC+39,M.potDark]]) for(const dx of [-1.6,1.6]) RB(LR,.09,.08,.3,.03,m,MX(x+dx),.02,MZ(490),true);   // 鞋（33cm 級）
+  { const g=RM(LG,nC,z0,T.x1,z1,0,T.top,new THREE.MeshBasicMaterial({color:0xc62828,transparent:true,opacity:.12,depthWrite:false}),false); g.visible=false; LAUNDRY.ghost=g; }
+  RM(staticG,nC-.8,z0,nC,z1,0,T.top,M.lacquer);                                   // 吸塵器高櫃右側板（汙衣區拿掉時看得到）
+  LAUNDRY.real=LR; LAUNDRY.obj=LG;
+  colM(T.xt,z0,nC,z1,y0,H); colM(nB,z0,nC,z1,0,y0); colM(nC,z0,T.x1,z1,0,H); LAUNDRY.col=colliders[colliders.length-1]; LAUNDRY.col.onMaxY=H;
+  furnM('電視牆高櫃（門｜展示格）',T.xt,z0,nB,z1,y0,T.top); furnM('吸塵器高櫃（落地・預留插座）',nB,z0,nC,z1,0,T.top); furn(LG,'汙衣區（外出衣・包包・鞋・深 38cm）'); }
 else {
 RM(staticG,TVW.xt,TVW.z0,TVW.xt+TVW.sp,TVW.z1,TVW.yt,TVW.top,M.oakV);              // 高櫃兩側木皮側板（東側一路包到懸浮櫃底）
 RM(staticG,TVW.x1-TVW.sp,TVW.z0,TVW.x1,TVW.z1,TVW_Y0,TVW.top,M.oakV);
@@ -1731,6 +1740,30 @@ for(const rm of ROOMS){
   const el=document.createElement('div'); el.className='room-label';
   el.innerHTML=`<b>${rm.zh}</b><span>${rm.en}</span>${rm.ping?`<em>${rm.ping}</em>`:''}`;
   const o=new CSS2DObject(el); o.position.set(X(rm.lab[0]),.05,Z(rm.lab[1])); labelG.add(o);
+}
+// 討論版：走道淨寬標示（從碰撞方塊即時量，家具改了數字會跟著變；只算離地 10～200cm 的櫃子家具）
+var refreshWalk=()=>{};
+if(PROPOSAL){ const walkG=new THREE.Group(); labelG.add(walkG);
+  const solid=c=>c.maxY>.1&&c.minY<2;
+  const span=(x,z,ax)=>{ let lo=-1e9,hi=1e9;
+    for(const c of colliders){ if(!solid(c)) continue;
+      if(ax==='z'&&c.minX<=x&&x<=c.maxX){ if(c.maxZ<=z) lo=Math.max(lo,c.maxZ); else if(c.minZ>=z) hi=Math.min(hi,c.minZ); }
+      if(ax==='x'&&c.minZ<=z&&z<=c.maxZ){ if(c.maxX<=x) lo=Math.max(lo,c.maxX); else if(c.minX>=x) hi=Math.min(hi,c.minX); } }
+    return ax==='z'?[[x,lo],[x,hi]]:[[lo,z],[hi,z]]; };
+  const draw=([ax,az],[bx,bz],name)=>{ const len=Math.hypot(bx-ax,bz-az), cm=Math.round(len*100), warn=cm<80;
+    const m=new THREE.MeshBasicMaterial({color:warn?0xc62828:0x1565c0,depthTest:false,transparent:true,opacity:.9});
+    const bar=new THREE.Mesh(new THREE.BoxGeometry(.025,.004,len),m); bar.position.set((ax+bx)/2,.03,(az+bz)/2); bar.rotation.y=Math.atan2(bx-ax,bz-az); bar.renderOrder=5; walkG.add(bar);
+    for(const [x,z] of [[ax,az],[bx,bz]]){ const t=new THREE.Mesh(new THREE.BoxGeometry(.12,.004,.025),m); t.position.set(x,.03,z); t.rotation.y=bar.rotation.y; t.renderOrder=5; walkG.add(t); }
+    const el=document.createElement('div'); el.className='walk-dim'+(warn?' warn':''); el.innerHTML=`<b>${cm}</b>cm<span>${name}</span>`;
+    const o=new CSS2DObject(el); o.position.set((ax+bx)/2,.05,(az+bz)/2); walkG.add(o); };
+  refreshWalk=()=>{ for(const o of [...walkG.children]){ walkG.remove(o); if(o.element) o.element.remove(); }
+  draw(...span(MX(780),MZ(515),'z'),'玄關走道');
+  draw([MX(LAUNDRY.on?TVW.x1:TVP.nC),MZ(TVW.z1)],[MX(SB.x0),MZ(SB.z0)],LAUNDRY.on?'電視牆↔餐邊櫃（搬沙發卡這裡）':'電視牆↔餐邊櫃（汙衣區拿掉後）');
+  draw(...span(MX(380),MZ(560),'z'),'電視牆↔餐桌椅');
+  draw(...span(MX(243),MZ(490),'x'),'主臥門前');
+  const cz=Z(CHAIR_Y[0]); draw(...span(X(DINE_X+42)+.25,cz,'x'),'餐椅↔餐邊櫃');
+  draw(...span(X(DINE_X-42)-.25,cz,'x'),'沙發↔餐椅'); };
+  refreshWalk();
 }
 // 座向（A6 戶，對照標準層索引圖：北鄰梯廳、東鄰 A5）：圖面右＝北、下＝東、左＝南、上＝西 → 坐北朝南
 for(const [x,y,dir,what] of [[905,505,'北 N','大門・公共走廊'],[125,550,'南 S','客廳・主臥窗'],[560,205,'西 W','客房窗・陽台'],[514,710,'東 E','鄰戶 A5']]){
@@ -2870,8 +2903,8 @@ function showDims(f){
   dimCard.style.bottom=(ui.hint.offsetHeight+28)+'px';
   cardName.textContent=f.name+(f.obj===SOFA_OBJ&&SOFA.t>0?'（坐深拉長）':'')+(f.obj===TABLE_OBJ?TABLE_NAME[TABLE.n]:'')+(f.obj===DESK_OBJ?(DESK.target?'（站立）':'（坐姿）'):'');
   cardSize.textContent=`寬 ${W} × 深 ${D} × 高 ${Hh} cm`+seatTxt+(a.y>.05?`・離地 ${cm(a.y)} cm`:'')+(f.obj===DESK_OBJ?`・可升降 ${cm(DESK.h0)}～${cm(DESK.h0+DESK.ext)}`:'');
-  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&(PROPOSAL||f.obj!==VANITY_OBJ)&&!(LUG_OBJ&&f.obj===LUG_OBJ);
-  if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(f.obj===VANITY_OBJ) refreshVanityBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else refreshSofaBtn();
+  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&(PROPOSAL||f.obj!==VANITY_OBJ)&&!(LUG_OBJ&&f.obj===LUG_OBJ)&&!(LAUNDRY.obj&&f.obj===LAUNDRY.obj);
+  if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(f.obj===VANITY_OBJ) refreshVanityBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else if(LAUNDRY.obj&&f.obj===LAUNDRY.obj) refreshLaundryBtn(); else refreshSofaBtn();
 }
 
 /* ---------- 點選判定：按下後沒拖動才算「點」，拖曳照常轉視角／拖人物 ---------- */
@@ -2922,7 +2955,7 @@ function setSofaSlide(open,quiet){
 }
 function applySofa(){ const e=SOFA.t*SOFA.t*(3-2*SOFA.t); SOFA.deck.visible=SOFA.t>0; SOFA.seat.position.z=SOFA.ext*e; }
 function sofaDone(){ if(dimSel&&dimSel.obj===SOFA_OBJ) showDims(dimSel); }
-cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else setSofaSlide(!SOFA.target); });
+cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else if(LAUNDRY.obj&&o===LAUNDRY.obj) setLaundry(!LAUNDRY.on); else setSofaSlide(!SOFA.target); });
 poseBtn.addEventListener('click',()=>{
   if(dimSel&&dimSel.obj===WARD_OBJ){ setWard(0); return; }
   if(dimSel&&dimSel.obj===TABLE_OBJ){ setTable(0); return; }
@@ -2956,7 +2989,11 @@ function refreshVanityBtn(){
 const LUG=LUG_OBJ?LUG_OBJ.userData.lug:{t:0,target:0,doors:[]};
 function refreshLugBtn(){ cardBtn.textContent=LUG.target?'收起上掀門':'打開上掀門（看行李箱）'; cardBtn.setAttribute('aria-pressed',String(!!LUG.target)); poseBtn.hidden=true; }
 function setLug(open){ LUG.target=open?1:0; refreshLugBtn(); if(REDUCED){ LUG.t=LUG.target; applyLug(); }
-  toast(open?`行李箱櫃打開：衣櫃上方 ${cm(H-WARD_H)} cm，三格各放一只 29 吋行李箱（橫放 78×50×30）`:'行李箱櫃已收起'); }
+  toast(open?`行李箱櫃打開：衣櫃上方 ${cm(H-WARD_H)} cm，放三只 29 吋行李箱（橫放 78×50×30），做法請設計師決定`:'行李箱櫃已收起'); }
+/* ---------- 討論版：汙衣區可拿掉，看電視牆尾端到餐邊櫃的走道變多寬 ---------- */
+function refreshLaundryBtn(){ cardBtn.textContent=LAUNDRY.on?'拿掉汙衣區（看走道寬）':'放回汙衣區'; cardBtn.setAttribute('aria-pressed',String(!LAUNDRY.on)); poseBtn.hidden=true; }
+function setLaundry(on){ LAUNDRY.on=on; LAUNDRY.real.visible=on; LAUNDRY.ghost.visible=!on; LAUNDRY.col.maxY=on?LAUNDRY.col.onMaxY:-1;
+  refreshLaundryBtn(); refreshWalk(); toast(on?'汙衣區已放回':'汙衣區已拿掉（紅框＝原位置，點紅框可放回），看藍／紅色走道尺寸'); }
 function applyLug(){ const e=smooth(LUG.t); LUG.doors.forEach(d=>d.rotation.x=-1.75*e); }
 function setVanityShelves(on){
   VANITY.on=on; VANITY.shelves.forEach(s=>{ s.m.visible=on; s.col.maxY=on?s.col.onMaxY:-1; });
