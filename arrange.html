@@ -217,7 +217,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 16:34</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 16:46</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -353,7 +353,7 @@ if(PROPOSAL){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<spa
 // true = 家具調整版（以討論版為底）：全室家具點選後可拖曳、一次轉 90°，位置存在這台電腦的瀏覽器
 const MOVABLE = true; 
 if(MOVABLE){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">家具調整</span>');
-  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔；給設計師看請對方開「arrange-view.html」再開啟方案檔。<br><button type="button" class="chip" id="furn-snap" style="margin-top:6px">自動貼牆：開</button> <button type="button" class="chip" id="furn-reset" style="margin-top:6px">家具全部回原位</button></p>'); }
+  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。按錯可按「↶ 上一步」或 Ctrl+Z 復原。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔；給設計師看請對方開「arrange-view.html」再開啟方案檔。<br><button type="button" class="chip" id="furn-undo" style="margin-top:6px" disabled>↶ 上一步</button> <button type="button" class="chip" id="furn-snap" style="margin-top:6px">自動貼牆：開</button> <button type="button" class="chip" id="furn-reset" style="margin-top:6px">家具全部回原位</button></p>'); }
 
 /* =========================================================
    0. 基本設定：圖面座標（PDF pt）→ 公尺
@@ -3211,7 +3211,18 @@ function applyFurnLayout(d){
     else if(f.bind){ const h=f.bind.home; placeFurn(f,h.x,h.z,h.rot); } });
   saveLayout(); if(dimSel) showDims(dimSel);
 }
-function saveLayout(){ if(!VIEWER) try{ localStorage.setItem(LAYOUT_KEY,JSON.stringify(furnLayout())); }catch(e){} refreshPressed(); }
+// 復原上一步：每次存檔前，把上一個配置推進歷史（最多 50 步；拖曳一次、轉一次、回原位都算一步）
+const HIST=[]; let lastLay=null, undoing=false;
+function saveLayout(){
+  const now=JSON.stringify(furnLayout());
+  if(lastLay!==null&&!undoing&&now!==lastLay){ HIST.push(lastLay); if(HIST.length>50) HIST.shift(); }
+  lastLay=now; refreshUndo();
+  if(!VIEWER) try{ localStorage.setItem(LAYOUT_KEY,now); }catch(e){} refreshPressed(); }
+function refreshUndo(){ const b=$('#furn-undo'); if(b){ b.disabled=!HIST.length; b.textContent=HIST.length?`↶ 上一步（${HIST.length}）`:'↶ 上一步'; } }
+function undoLayout(){
+  const p=HIST.pop(); if(!p){ toast('沒有可以復原的步驟'); return; }
+  undoing=true; applyFurnLayout(JSON.parse(p)); undoing=false; if(dimSel) showDims(dimSel); toast('已復原上一步');
+}
 if(MOVABLE) FURN.forEach(f=>{ if(movable(f)) bindFurn(f); });   // 先記下全部家具的原位與碰撞盒（碰撞提醒要知道每個盒子是哪件家具）
 // 座位只跟著最小的那件家具走（餐椅的座位在餐桌外框邊上，不能跟著餐桌動）
 if(MOVABLE){ const area=f=>(f.max.x-f.min.x)*(f.max.z-f.min.z);
@@ -3224,6 +3235,8 @@ if(MOVABLE&&!VIEWER){
   homeBtn.addEventListener('click',()=>{ const f=dimSel; if(!canMove(f)) return; const h=bindFurn(f).home; placeFurn(f,h.x,h.z,h.rot); saveLayout(); showDims(f); toast(`${f.name}已回原位`); });
   const snapBtn=$('#furn-snap'), snapTxt=()=>{ if(snapBtn){ snapBtn.textContent=`自動貼牆：${SNAP_ON?'開':'關'}`; snapBtn.setAttribute('aria-pressed',String(SNAP_ON)); } }; snapTxt();
   snapBtn?.addEventListener('click',()=>{ SNAP_ON=!SNAP_ON; try{ localStorage.setItem('home3d-snap',SNAP_ON?'1':'0'); }catch(e){} snapTxt(); toast(SNAP_ON?'自動貼牆已開：轉 90° 或拖曳放開時，30cm 內的牆會自動貼上':'自動貼牆已關：放在哪就在哪'); });
+  $('#furn-undo')?.addEventListener('click',undoLayout);
+  addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'&&!e.shiftKey&&!(e.target.closest&&e.target.closest('input,textarea'))){ e.preventDefault(); undoLayout(); } });
   $('#furn-reset')?.addEventListener('click',()=>{ applyFurnLayout({}); toast('全部家具已回原位'); });
   addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return;
     if(e.code==='KeyR'&&!e.ctrlKey&&!e.metaKey&&!selected&&state.mode!=='fps'&&canMove(dimSel)) rotateFurn(dimSel); });
@@ -3246,7 +3259,7 @@ if(MOVABLE&&!VIEWER){
   addEventListener('pointermove',e=>{ if(!fdrag&&e.pointerType==='mouse'&&e.target===renderer.domElement&&state.mode!=='fps'&&canMove(dimSel)&&!renderer.domElement.style.cursor) renderer.domElement.style.cursor=pickFurn(e)===dimSel?'move':''; });
   // 上次的調整：開頁時套回去
   try{ const d=JSON.parse(localStorage.getItem(LAYOUT_KEY)||'{}'); for(const f of FURN){ const v=d[furnKey(f)]; if(canMove(f)&&Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)) placeFurn(f,...v); } }catch(e){}
-  refreshPressed();
+  lastLay=JSON.stringify(furnLayout()); refreshUndo(); refreshPressed();
 }
 
 /* =========================================================
