@@ -190,6 +190,9 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 #furn-bar button{padding:8px 13px;border-radius:999px;border:1px solid #8a5a32;background:rgba(255,255,255,.96);color:#6b4220;font:600 13px var(--sans);box-shadow:0 2px 8px rgba(0,0,0,.18);cursor:pointer}
 #furn-bar button:disabled{color:#aaa;border-color:#ccc;cursor:default}
 #furn-bar #furn-snap[aria-pressed="false"]{color:#666;border-color:#aaa}
+#furn-bar-tog{display:none}
+/* 手機：平常只顯示一顆「家具工具」，點開才展開其他按鈕 */
+@media (max-width:700px){ #furn-bar button{padding:6px 11px;font-size:12px} #furn-bar-tog{display:block} #furn-bar:not(.open) button:not(#furn-bar-tog){display:none} }
 .walk-dim{text-align:center;color:#0d47a1;background:rgba(255,255,255,.88);border:1px solid #1565c0;border-radius:4px;padding:1px 5px;pointer-events:none;line-height:1.15;white-space:nowrap;font:500 10px var(--sans)}
 .walk-dim b{font:700 14px var(--mono)}
 .walk-dim span{display:block;font-size:9px;color:#555}
@@ -221,7 +224,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 16:49</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 17:01</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -357,9 +360,9 @@ if(PROPOSAL){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<spa
 // true = 家具調整版（以討論版為底）：全室家具點選後可拖曳、一次轉 90°，位置存在這台電腦的瀏覽器
 const MOVABLE = false;
 if(MOVABLE){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">家具調整</span>');
-  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。按錯可按右下角「↶ 上一步」或 Ctrl+Z 復原，「⟲ 家具全部回原位」也在右下角。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔；給設計師看請對方開「arrange-view.html」再開啟方案檔。</p>');
+  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。按錯可按右下角「↶ 上一步」（Ctrl+Z）復原、「↷ 下一步」（Ctrl+Y）重做，「⟲ 家具全部回原位」也在右下角。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔；給設計師看請對方開「arrange-view.html」再開啟方案檔。</p>');
   // 右下角固定工具列（走道尺寸按鈕上方）：上一步、自動貼牆、全部回原位
-  if(!VIEWER) document.body.insertAdjacentHTML('beforeend','<div id="furn-bar"><button type="button" id="furn-undo" disabled>↶ 上一步</button><button type="button" id="furn-snap">自動貼牆：開</button><button type="button" id="furn-reset">⟲ 家具全部回原位</button></div>'); }
+  if(!VIEWER) document.body.insertAdjacentHTML('beforeend','<div id="furn-bar"><button type="button" id="furn-bar-tog" aria-expanded="false">🪑 家具工具</button><button type="button" id="furn-undo" disabled>↶ 上一步</button><button type="button" id="furn-redo" disabled>↷ 下一步</button><button type="button" id="furn-snap">自動貼牆：開</button><button type="button" id="furn-reset">⟲ 家具全部回原位</button></div>'); }
 
 /* =========================================================
    0. 基本設定：圖面座標（PDF pt）→ 公尺
@@ -3218,17 +3221,21 @@ function applyFurnLayout(d){
   saveLayout(); if(dimSel) showDims(dimSel);
 }
 // 復原上一步：每次存檔前，把上一個配置推進歷史（最多 50 步；拖曳一次、轉一次、回原位都算一步）
-const HIST=[]; let lastLay=null, undoing=false;
+const HIST=[], FUT=[]; let lastLay=null, undoing=false;   // FUT：按過「上一步」後可以再走回來的步驟；做了新動作就清空
 function saveLayout(){
   const now=JSON.stringify(furnLayout());
-  if(lastLay!==null&&!undoing&&now!==lastLay){ HIST.push(lastLay); if(HIST.length>50) HIST.shift(); }
+  if(lastLay!==null&&!undoing&&now!==lastLay){ HIST.push(lastLay); if(HIST.length>50) HIST.shift(); FUT.length=0; }
   lastLay=now; refreshUndo();
   if(!VIEWER) try{ localStorage.setItem(LAYOUT_KEY,now); }catch(e){} refreshPressed(); }
-function refreshUndo(){ const b=$('#furn-undo'); if(b){ b.disabled=!HIST.length; b.textContent=HIST.length?`↶ 上一步（${HIST.length}）`:'↶ 上一步'; } }
-function undoLayout(){
-  const p=HIST.pop(); if(!p){ toast('沒有可以復原的步驟'); return; }
-  undoing=true; applyFurnLayout(JSON.parse(p)); undoing=false; if(dimSel) showDims(dimSel); toast('已復原上一步');
+function refreshUndo(){
+  const u=$('#furn-undo'), r=$('#furn-redo');
+  if(u){ u.disabled=!HIST.length; u.textContent=HIST.length?`↶ 上一步（${HIST.length}）`:'↶ 上一步'; }
+  if(r){ r.disabled=!FUT.length; r.textContent=FUT.length?`↷ 下一步（${FUT.length}）`:'↷ 下一步'; } }
+function stepLayout(from,to,msg){
+  const p=from.pop(); if(!p){ toast(from===HIST?'沒有可以復原的步驟':'沒有可以重做的步驟'); return; }
+  to.push(lastLay); undoing=true; applyFurnLayout(JSON.parse(p)); undoing=false; if(dimSel) showDims(dimSel); toast(msg);
 }
+const undoLayout=()=>stepLayout(HIST,FUT,'已復原上一步'), redoLayout=()=>stepLayout(FUT,HIST,'已重做下一步');
 if(MOVABLE) FURN.forEach(f=>{ if(movable(f)) bindFurn(f); });   // 先記下全部家具的原位與碰撞盒（碰撞提醒要知道每個盒子是哪件家具）
 // 座位只跟著最小的那件家具走（餐椅的座位在餐桌外框邊上，不能跟著餐桌動）
 if(MOVABLE){ const area=f=>(f.max.x-f.min.x)*(f.max.z-f.min.z);
@@ -3242,7 +3249,10 @@ if(MOVABLE&&!VIEWER){
   const snapBtn=$('#furn-snap'), snapTxt=()=>{ if(snapBtn){ snapBtn.textContent=`自動貼牆：${SNAP_ON?'開':'關'}`; snapBtn.setAttribute('aria-pressed',String(SNAP_ON)); } }; snapTxt();
   snapBtn?.addEventListener('click',()=>{ SNAP_ON=!SNAP_ON; try{ localStorage.setItem('home3d-snap',SNAP_ON?'1':'0'); }catch(e){} snapTxt(); toast(SNAP_ON?'自動貼牆已開：轉 90° 或拖曳放開時，30cm 內的牆會自動貼上':'自動貼牆已關：放在哪就在哪'); });
   $('#furn-undo')?.addEventListener('click',undoLayout);
-  addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'&&!e.shiftKey&&!(e.target.closest&&e.target.closest('input,textarea'))){ e.preventDefault(); undoLayout(); } });
+  $('#furn-redo')?.addEventListener('click',redoLayout);
+  addEventListener('keydown',e=>{ if(!(e.ctrlKey||e.metaKey)||(e.target.closest&&e.target.closest('input,textarea'))) return;   // Ctrl+Z 上一步；Ctrl+Y 或 Ctrl+Shift+Z 下一步
+    if(e.code==='KeyZ'&&!e.shiftKey){ e.preventDefault(); undoLayout(); } else if(e.code==='KeyY'||(e.code==='KeyZ'&&e.shiftKey)){ e.preventDefault(); redoLayout(); } });
+  $('#furn-bar-tog')?.addEventListener('click',()=>{ const bar=$('#furn-bar'), open=bar.classList.toggle('open'); $('#furn-bar-tog').textContent=open?'✕ 收起':'🪑 家具工具'; $('#furn-bar-tog').setAttribute('aria-expanded',String(open)); });
   $('#furn-reset')?.addEventListener('click',()=>{ applyFurnLayout({}); toast('全部家具已回原位'); });
   addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return;
     if(e.code==='KeyR'&&!e.ctrlKey&&!e.metaKey&&!selected&&state.mode!=='fps'&&canMove(dimSel)) rotateFurn(dimSel); });
