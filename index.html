@@ -217,7 +217,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 16:17</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 16:24</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -1313,7 +1313,8 @@ B(TVSET,1.45,.84,.03,M.tvFrame,MX(TV_X),.57,MZ(TVW.z0)+.035);                 //
 { const vx=PROPOSAL?418:404;                                                         // 討論版：花瓶放電視段右端、畫框不放
 C(TVLOW,.05,.04,.2,M.glass,MX(vx),TVW.yt,MZ(494),16); C(TVLOW,.004,.004,.16,M.leaf2,MX(vx),TVW.yt+.18,MZ(494),5); }   // 檯面花瓶
 if(!PROPOSAL){ const f=B(staticG,.2,.27,.012,M.blackMetal,MX(414),TVW.yt,MZ(482)); f.rotation.x=-.12; }    // 靠牆小畫框
-if(MOVABLE){ furn(TVLOW,PROPOSAL?'落地電視櫃（含右段高櫃下方）':'懸浮電視櫃'); furn(TVSET,'壁掛電視 65 吋'); }
+if(MOVABLE){ furn(TVLOW,PROPOSAL?'落地電視櫃（含右段高櫃下方）':'懸浮電視櫃'); furn(TVSET,'壁掛電視 65 吋');
+  for(const g of [TVLOW,TVSET,TVR,TVLT,TVHANG]) if(g.parent===dynG) g.userData.set='電視牆'; }   // 「整面電視牆一起動」時這幾件一起搬、轉
 R(ceilG,NR([211.5,TVW.z0,629.6,TVW.z1]),TVW.top,H,M.ceiling);                      // 電視牆上方降板（渲染_客廳_02：從主臥門到客房門）
 const SOFA_W=2.2, SOFA_Y=631-.05/S;                                               // 沙發深 100 靠牆，中心比原圖往前 5cm
 const SOFA_X=319.4-(2.35-SOFA_W)/2/S+.035/S;                                       // 寬 235→220：靠窗側固定（再往室內移 3.5cm，扶手離窗牆 24cm，窗簾盒深 20），省下的 15cm 讓給餐椅走道
@@ -2870,7 +2871,7 @@ const dimCard=(()=>{ const el=document.createElement('div'); el.className='dim-c
 const cardName=dimCard.querySelector('b'), cardSize=dimCard.querySelector('span'), [cardBtn,poseBtn]=dimCard.querySelectorAll('button');
 let dimSel=null;
 // 家具調整版：卡片多一排「轉 90°／回原位」
-const moveBtns=MOVABLE?(()=>{ const d=document.createElement('div'); d.className='dim-btns'; d.innerHTML='<button type="button">轉 90°（R）</button><button type="button" class="alt">回原位</button>'; dimCard.appendChild(d); return d; })():null;
+const moveBtns=MOVABLE?(()=>{ const d=document.createElement('div'); d.className='dim-btns'; d.innerHTML='<button type="button">轉 90°（R）</button><button type="button" class="alt">回原位</button><button type="button" class="alt" hidden></button>'; dimCard.appendChild(d); return d; })():null;
 
 // 重新量測會變形的家具（伸縮沙發拉長後深度會變、延伸餐桌拉長後長度會變）
 function measure(f){
@@ -2887,8 +2888,9 @@ function showDims(f){
   const on=!!f;
   dimLines.visible=dimBox.visible=on; dimCard.hidden=!on; dimLabs.forEach(l=>l.visible=on);
   if(!f) return;
-  if(moveBtns) moveBtns.hidden=!canMove(f);
-  const warn=MOVABLE?warnText(markOverlap(f)):'';
+  if(moveBtns){ moveBtns.hidden=!canMove(f); const lb=moveBtns.children[2]; lb.hidden=!f.obj||!f.obj.userData.set;
+    if(!lb.hidden){ lb.textContent=`整面${f.obj.userData.set}一起動：${SET_LINK?'開':'關'}`; lb.setAttribute('aria-pressed',String(SET_LINK)); } }
+  const warn=MOVABLE&&f.bind?warnText(groupOf(f).length>1?groupOverlap(groupOf(f)):markOverlap(f)):MOVABLE?warnText(markOverlap(f)):'';
   measure(f);
   const a=f.min, b=f.max, o=.14, t=.05, y=a.y+.005, mx=(a.x+b.x)/2, mz=(a.z+b.z)/2;
   dimG.position.copy(f.p); dimG.rotation.y=f.rot;
@@ -3153,12 +3155,48 @@ function colName(c,self){
 const DIM_COLOR=0x9a6b45, BAD_COLOR=0xd0453a;
 function markOverlap(f){ const n=canMove(f)?overlapNames(f):[]; dimMat.color.setHex(n.length?BAD_COLOR:DIM_COLOR); dimBoxMat.color.setHex(n.length?BAD_COLOR:DIM_COLOR); return n; }
 function warnText(n){ return n.length?`⚠ 壓到 ${n.join('、')}`:''; }
-// 以家具外框中心為軸轉 90°
-function centerOf(f,rot){ const cx=(f.min.x+f.max.x)/2, cz=(f.min.z+f.max.z)/2, c=Math.cos(rot), s=Math.sin(rot); return [cx*c+cz*s,-cx*s+cz*c]; }
-function rotateFurn(f){
-  const [ax,az]=centerOf(f,f.rot), wx=f.p.x+ax, wz=f.p.z+az, r=(f.rot+HP)%(2*Math.PI), [bx,bz]=centerOf(f,r);
-  placeFurn(f,wx-bx,wz-bz,r); saveLayout(); showDims(f); const n=markOverlap(f); toast(`${f.name}轉 90°`+(n.length?`，${warnText(n)}`:''));
+// 「整面電視牆一起動」開著時，選到其中一件就整組一起搬、轉
+let SET_LINK=false;
+const groupOf=f=>SET_LINK&&f.obj&&f.obj.userData.set?FURN.filter(k=>movable(k)&&k.obj.userData.set===f.obj.userData.set):[f];
+// 一組家具的平面範圍（有碰撞盒用碰撞盒，沒有用外框）與高度範圍
+function footprint(list){
+  const b=new THREE.Box3();
+  for(const f of list){ const o=new THREE.Box3().setFromObject(f.obj);
+    if(f.bind.cols.length){ o.min.x=Math.min(...f.bind.cols.map(c=>c.minX)); o.max.x=Math.max(...f.bind.cols.map(c=>c.maxX)); o.min.z=Math.min(...f.bind.cols.map(c=>c.minZ)); o.max.z=Math.max(...f.bind.cols.map(c=>c.maxZ)); }
+    b.union(o); }
+  return b;
 }
+// 自動貼牆：轉完後，30cm 內最近的那面牆（或固定櫃）直接貼上去；插進牆裡 50cm 內的也推出來
+const SNAP_GAP=.3, SNAP_IN=.5;
+function snapToWall(list){
+  const me=footprint(list), own=new Set(), cx=(me.min.x+me.max.x)/2, cz=(me.min.z+me.max.z)/2, e=.01;
+  for(const k of FURN) if(k.bind) k.bind.cols.forEach(c=>own.add(c));   // 家具的碰撞盒不算牆
+  let best=null;
+  for(const c of colliders){ if(own.has(c)||c.maxY<=.02||c.minY>=me.max.y-e||c.maxY<=me.min.y+e) continue;
+    const ovZ=c.minZ<me.max.z-e&&c.maxZ>me.min.z+e, ovX=c.minX<me.max.x-e&&c.maxX>me.min.x+e;
+    const cand=[];
+    if(ovZ&&(c.minX+c.maxX)/2>cx) cand.push(['x',c.minX-me.max.x]);
+    if(ovZ&&(c.minX+c.maxX)/2<cx) cand.push(['x',c.maxX-me.min.x]);
+    if(ovX&&(c.minZ+c.maxZ)/2>cz) cand.push(['z',c.minZ-me.max.z]);
+    if(ovX&&(c.minZ+c.maxZ)/2<cz) cand.push(['z',c.maxZ-me.min.z]);
+    for(const [ax,g] of cand){ const toward=(ax==='x'?(c.minX+c.maxX)/2>cx:(c.minZ+c.maxZ)/2>cz)?1:-1, gap=g*toward;   // gap>0：離牆多遠；<0：插進牆
+      if(gap<=SNAP_GAP&&gap>=-SNAP_IN&&Math.abs(gap)>.002&&(!best||Math.abs(gap)<Math.abs(best.gap))) best={ax,d:g,gap}; } }
+  if(!best) return 0;
+  for(const f of list) placeFurn(f,f.p.x+(best.ax==='x'?best.d:0),f.p.z+(best.ax==='z'?best.d:0),f.rot);
+  return best.gap;
+}
+// 整組繞共同中心轉 90°（單件就是繞自己的中心）
+function rotateFurn(f){
+  const list=groupOf(f), b=footprint(list), cx=(b.min.x+b.max.x)/2, cz=(b.min.z+b.max.z)/2;
+  for(const k of list){ const dx=k.p.x-cx, dz=k.p.z-cz; placeFurn(k,cx+dz,cz-dx,(k.rot+HP)%(2*Math.PI)); }   // 繞 y 軸轉 90°：(x,z)→(z,-x)
+  const gap=snapToWall(list);
+  saveLayout(); showDims(f); const n=groupOverlap(list);
+  toast(`${list.length>1?`整面${f.obj.userData.set}`:f.name}轉 90°`+(gap?`，已貼齊牆（${gap>0?'移近':'推出'} ${cm(Math.abs(gap))} cm）`:'')+(n.length?`，${warnText(n)}`:''));
+}
+// 整組的壓到提醒（組內彼此不算）
+function groupOverlap(list){ const names=new Set(list.map(k=>k.name)), out=new Set();
+  for(const k of list) for(const n of overlapNames(k)) if(!names.has(n)) out.add(n);
+  const n=[...out]; dimMat.color.setHex(n.length?BAD_COLOR:DIM_COLOR); dimBoxMat.color.setHex(n.length?BAD_COLOR:DIM_COLOR); return n; }
 // 方案裡存的家具位置：只記跟原位不同的（以 FURN 順序為編號）
 // 用「名稱#第幾件」記（同名家具如餐椅依程式順序編號），之後新增別的家具也不會對錯件
 function furnKey(f){ let n=0; for(const k of FURN){ if(k===f) break; if(k.name===f.name) n++; } return f.name+'#'+n; }
@@ -3177,7 +3215,8 @@ if(MOVABLE){ const area=f=>(f.max.x-f.min.x)*(f.max.z-f.min.z);
   for(const st of SEATS){ const own=FURN.filter(f=>f.bind&&f.bind.seats.some(q=>q.st===st)).sort((a,b)=>area(a)-area(b));
     own.slice(1).forEach(f=>f.bind.seats=f.bind.seats.filter(q=>q.st!==st)); } }
 if(MOVABLE&&!VIEWER){
-  const [rotBtn,homeBtn]=moveBtns.querySelectorAll('button');
+  const [rotBtn,homeBtn,linkBtn]=moveBtns.querySelectorAll('button');
+  linkBtn.addEventListener('click',()=>{ SET_LINK=!SET_LINK; if(dimSel) showDims(dimSel); toast(SET_LINK?`整面${dimSel.obj.userData.set}一起動：拖曳、轉 90° 都整組一起`:'改回單件移動'); });
   rotBtn.addEventListener('click',()=>{ if(canMove(dimSel)) rotateFurn(dimSel); });
   homeBtn.addEventListener('click',()=>{ const f=dimSel; if(!canMove(f)) return; const h=bindFurn(f).home; placeFurn(f,h.x,h.z,h.rot); saveLayout(); showDims(f); toast(`${f.name}已回原位`); });
   $('#furn-reset')?.addEventListener('click',()=>{ applyFurnLayout({}); toast('全部家具已回原位'); });
@@ -3188,15 +3227,16 @@ if(MOVABLE&&!VIEWER){
   stage.addEventListener('pointerdown',e=>{
     if(pdrag||state.mode==='fps'||!canMove(dimSel)||(e.pointerType==='mouse'&&e.button!==0)||pickFurn(e)!==dimSel) return;
     const f=dimSel, h=planeHit(e,0); if(!h) return;
-    fdrag={f,id:e.pointerId,off:[f.p.x-h.x,f.p.z-h.z],moved:false};
+    fdrag={f,id:e.pointerId,off:[f.p.x-h.x,f.p.z-h.z],moved:false,list:groupOf(f)};
     activeCtl().enabled=false; renderer.domElement.style.cursor='grabbing';
   },{capture:true});
   addEventListener('pointermove',e=>{ if(!fdrag||e.pointerId!==fdrag.id) return; const h=planeHit(e,0); if(!h) return;
     const f=fdrag.f, x=Math.round((h.x+fdrag.off[0])*100)/100, z=Math.round((h.z+fdrag.off[1])*100)/100;   // 以 1cm 為單位
     if(x===f.p.x&&z===f.p.z) return;
-    placeFurn(f,x,z,f.rot); dimG.position.copy(f.p); fdrag.moved=true; markOverlap(f); });
+    const dx=x-f.p.x, dz=z-f.p.z; for(const k of fdrag.list) placeFurn(k,k.p.x+dx,k.p.z+dz,k.rot);
+    dimG.position.copy(f.p); fdrag.moved=true; if(fdrag.list.length>1) groupOverlap(fdrag.list); else markOverlap(f); });
   const endFurnDrag=e=>{ if(!fdrag||e.pointerId!==fdrag.id) return; const d=fdrag; fdrag=null; activeCtl().enabled=true; renderer.domElement.style.cursor='';
-    if(!d.moved) return; saveLayout(); tap=null; showDims(d.f); const n=markOverlap(d.f); if(n.length) toast(`${d.f.name}${warnText(n)}，現場可能放不下`); };
+    if(!d.moved) return; saveLayout(); tap=null; showDims(d.f); const n=d.list.length>1?groupOverlap(d.list):markOverlap(d.f); if(n.length) toast(`${d.list.length>1?`整面${d.f.obj.userData.set}`:d.f.name}${warnText(n)}，現場可能放不下`); };
   addEventListener('pointerup',endFurnDrag,{capture:true}); addEventListener('pointercancel',endFurnDrag);
   addEventListener('pointermove',e=>{ if(!fdrag&&e.pointerType==='mouse'&&e.target===renderer.domElement&&state.mode!=='fps'&&canMove(dimSel)&&!renderer.domElement.style.cursor) renderer.domElement.style.cursor=pickFurn(e)===dimSel?'move':''; });
   // 上次的調整：開頁時套回去
