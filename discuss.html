@@ -217,7 +217,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/17 22:38</span></div>
+      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 15:54</span></div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
@@ -350,6 +350,10 @@ if(VIEWER) document.documentElement.classList.add('viewer');
 const PROPOSAL = true; 
 if(PROPOSAL){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">討論版</span>');
   [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin','<p class="note"><b>討論版（10/16 業主修改意見）</b>：電視櫃落地＋電視上方吊櫃；取消玄關茶鏡；主臥改 8cm 床頭板（只做床寬）、衣櫃最右門貼全身鏡、衣櫃上方行李箱櫃（點它可開合）、房門旁開放掛區、化妝桌靠牆加層板與崁燈；床頭不設夜燈。</p>'); }
+// true = 家具調整版（以討論版為底）：全室家具點選後可拖曳、一次轉 90°，位置存在這台電腦的瀏覽器
+const MOVABLE = false;
+if(MOVABLE){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">家具調整</span>');
+  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin','<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。調整自動存在這台電腦的瀏覽器，「回原位」還原單件。</p>'); }
 
 /* =========================================================
    0. 基本設定：圖面座標（PDF pt）→ 公尺
@@ -791,7 +795,8 @@ function colObj(o){ o.updateWorldMatrix(true,true); const b=new THREE.Box3().set
 function put(o,xPt,yPt,rot=0,collide=true,parent=staticG){ o.position.x=X(xPt); o.position.z=Z(yPt); o.rotation.y=rot; parent.add(o); if(collide) colObj(o); return o; }
 // 可點選家具（鳥瞰／俯視點一下顯示尺寸）：記下家具位置、朝向與未旋轉時的外框
 const FURN=[];
-function furn(o,name){ const r=o.rotation.y; o.rotation.y=0; o.updateWorldMatrix(true,true); const b=new THREE.Box3().setFromObject(o); o.rotation.y=r; o.updateWorldMatrix(true,true);
+function furn(o,name){ if(MOVABLE&&o.parent===staticG) dynG.add(o);   // 家具調整版：不合併，才能個別移動
+  const r=o.rotation.y; o.rotation.y=0; o.updateWorldMatrix(true,true); const b=new THREE.Box3().setFromObject(o); o.rotation.y=r; o.updateWorldMatrix(true,true);
   const f={name,obj:o,p:o.position.clone(),rot:r,min:b.min.sub(o.position),max:b.max.sub(o.position)}; FURN.push(f); return o; }
 function furnRect(name,r,yb,yt){ const w=LX(r[0],r[2])/2, d=LZ(r[1],r[3])/2;
   FURN.push({name,p:new THREE.Vector3((X(r[0])+X(r[2]))/2,0,(Z(r[1])+Z(r[3]))/2),rot:0,min:new THREE.Vector3(-w,yb,-d),max:new THREE.Vector3(w,yt,d)}); }
@@ -1395,14 +1400,14 @@ function blackout(axis,face,a0,a1){ const w=Math.abs(a1-a0)+.16, c=(a0+a1)/2, to
 const WAIN=PROPOSAL?{x0:341.25-.775/S,x1:341.25+.775/S,z0:275.5,z1:275.5+.1/S,h:1.1}:{x0:211.5,x1:439.5,z0:275.5,z1:281.25,h:1.0};
 if(!PROPOSAL){ RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h-.02,M.wainscot); RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,WAIN.h-.02,WAIN.h,M.wainscot);
   for(let x=WAIN.x0+7.09; x<WAIN.x1-1; x+=7.09) B(staticG,.004,WAIN.h-.04,.002,M.gapDark,MX(x),.02,MZ(WAIN.z1)+.001,false); }   // 直溝縫每 10cm
-else { const W0=WAIN.x0, W1=WAIN.x1, z0=WAIN.z0, z1=WAIN.z1, t=1.26, m=M.wainscot, back=z0+.8, xa=W0+t+18, xb=W1-t-18;   // 現有床頭板：兩側立板＋上下兩層層架、中段面板
-  for(const [a,b] of [[W0,W0+t],[W1-t,W1]]) RM(staticG,a,z0,b,z1,0,WAIN.h+.03,m);  // 兩側立板（略高出頂板）
-  RM(staticG,W0+t,z0,W1-t,back,0,WAIN.h,m);                                         // 背板
-  RM(staticG,W0+t,z0,W1-t,z1,0,.56,m);                                              // 下段實心
-  RM(staticG,xa,z0,xb,z1,.56,.84,m);                                                // 中段面板（兩側留開放格）
-  RM(staticG,W0+t,z0,W1-t,z1,.84,.86,m); RM(staticG,W0+t,z0,W1-t,z1,WAIN.h-.02,WAIN.h,m);   // 第二層層板、頂板
-  B(staticG,.075,.008,.155,M.blackGlass,MX(W0+9),WAIN.h,MZ((z0+z1)/2)); }           // 頂板上的手機（10/16：不預留插座／USB）
-colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+(PROPOSAL?0:.7),0,WAIN.h); furnM(PROPOSAL?'現有床頭板（沿用・深 10cm）':'床頭護牆板',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
+else { const HB=MOVABLE?new THREE.Group():staticG; if(MOVABLE) dynG.add(HB); const W0=WAIN.x0, W1=WAIN.x1, z0=WAIN.z0, z1=WAIN.z1, t=1.26, m=M.wainscot, back=z0+.8, xa=W0+t+18, xb=W1-t-18;   // 現有床頭板：兩側立板＋上下兩層層架、中段面板
+  for(const [a,b] of [[W0,W0+t],[W1-t,W1]]) RM(HB,a,z0,b,z1,0,WAIN.h+.03,m);  // 兩側立板（略高出頂板）
+  RM(HB,W0+t,z0,W1-t,back,0,WAIN.h,m);                                         // 背板
+  RM(HB,W0+t,z0,W1-t,z1,0,.56,m);                                              // 下段實心
+  RM(HB,xa,z0,xb,z1,.56,.84,m);                                                // 中段面板（兩側留開放格）
+  RM(HB,W0+t,z0,W1-t,z1,.84,.86,m); RM(HB,W0+t,z0,W1-t,z1,WAIN.h-.02,WAIN.h,m);   // 第二層層板、頂板
+  B(HB,.075,.008,.155,M.blackGlass,MX(W0+9),WAIN.h,MZ((z0+z1)/2)); }           // 頂板上的手機（10/16：不預留插座／USB）
+colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+(PROPOSAL?0:.7),0,WAIN.h); if(MOVABLE&&PROPOSAL) furn(dynG.children.at(-1),'現有床頭板（沿用・深 10cm）'); else furnM(PROPOSAL?'現有床頭板（沿用・深 10cm）':'床頭護牆板',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
 { const zc=PZ(MZ(WAIN.z1)+1.93/2+.005); furn(put(bed(1.614,1.93,false,false),NPM(341.25,0)[0],zc,0),'雙人床'); }   // 雙人床 5×6.2：不做床頭板，靠護牆板
 { const g=new THREE.Group(); B(g,1.45,.82,.03,M.lacquer,0,0,0); const a=mk(new THREE.PlaneGeometry(1.43,.8),M.art2,false,true); a.position.set(0,.41,.016); g.add(a);
   g.position.set(MX(341.25),1.36,MZ(WAIN.z0)+.02); staticG.add(g); }                 // 床頭藍色抽象畫
@@ -2858,6 +2863,8 @@ const dimLabs=[0,1,2,3].map(()=>{ const el=document.createElement('div'); el.cla
 const dimCard=(()=>{ const el=document.createElement('div'); el.className='dim-card'; el.hidden=true; el.innerHTML='<b></b><span></span><div class="dim-btns"><button type="button" hidden></button><button type="button" class="alt" hidden></button></div>'; document.body.appendChild(el); return el; })();
 const cardName=dimCard.querySelector('b'), cardSize=dimCard.querySelector('span'), [cardBtn,poseBtn]=dimCard.querySelectorAll('button');
 let dimSel=null;
+// 家具調整版：卡片多一排「轉 90°／回原位」
+const moveBtns=MOVABLE?(()=>{ const d=document.createElement('div'); d.className='dim-btns'; d.innerHTML='<button type="button">轉 90°（R）</button><button type="button" class="alt">回原位</button>'; dimCard.appendChild(d); return d; })():null;
 
 // 重新量測會變形的家具（伸縮沙發拉長後深度會變、延伸餐桌拉長後長度會變）
 function measure(f){
@@ -2873,6 +2880,7 @@ function showDims(f){
   const on=!!f;
   dimLines.visible=dimBox.visible=on; dimCard.hidden=!on; dimLabs.forEach(l=>l.visible=on);
   if(!f) return;
+  if(moveBtns) moveBtns.hidden=!canMove(f);
   measure(f);
   const a=f.min, b=f.max, o=.14, t=.05, y=a.y+.005, mx=(a.x+b.x)/2, mz=(a.z+b.z)/2;
   dimG.position.copy(f.p); dimG.rotation.y=f.rot;
@@ -3088,6 +3096,67 @@ function updateFurn(dt){
   if(SOFA.t===SOFA.target) return;
   SOFA.t=SOFA.t<SOFA.target?Math.min(1,SOFA.t+dt*2):Math.max(0,SOFA.t-dt*2);
   applySofa(); if(SOFA.t===SOFA.target) sofaDone();
+}
+
+/* =========================================================
+   12d. 家具調整版：點選家具後拖曳移動、一次轉 90°；位置存在這台瀏覽器
+   ========================================================= */
+// shortcut: 只移動家具本身＋碰撞盒＋上面的座位；伸縮沙發／升降桌推椅子的動畫仍以原位計算，之後要準可改成相對位置
+const canMove=f=>MOVABLE&&!VIEWER&&!!f&&!!f.obj&&f.obj.parent===dynG;
+const LAYOUT_KEY='home3d-furn-layout-v1';
+const _b3=new THREE.Box3();
+// 第一次動某件家具時，記下它的碰撞盒與座位（座位用家具自己的座標記，之後跟著轉）
+function bindFurn(f){
+  if(f.bind) return f.bind;
+  const o=f.obj; o.updateWorldMatrix(true,true); _b3.setFromObject(o);
+  const near=(a,b)=>Math.abs(a-b)<.03;
+  let cols=colliders.filter(c=>near(c.minX,_b3.min.x)&&near(c.maxX,_b3.max.x)&&near(c.minZ,_b3.min.z)&&near(c.maxZ,_b3.max.z));
+  if(!cols.length){ addCol(_b3.min.x,_b3.max.x,_b3.min.z,_b3.max.z,_b3.min.y,_b3.max.y); cols=[colliders.at(-1)]; }
+  const c=Math.cos(f.rot), s=Math.sin(f.rot), seats=[];
+  for(const st of SEATS){ const dx=st.x-f.p.x, dz=st.z-f.p.z, lx=dx*c-dz*s, lz=dx*s+dz*c;
+    if(lx>f.min.x-.1&&lx<f.max.x+.1&&lz>f.min.z-.1&&lz<f.max.z+.1) seats.push({st,lx,lz,dy:st.yaw-f.rot}); }
+  return f.bind={cols,seats,home:{x:o.position.x,z:o.position.z,rot:o.rotation.y}};
+}
+// 把家具放到 (x,z,rot)，碰撞盒、座位、坐在上面的人一起更新
+function placeFurn(f,x,z,rot){
+  const o=f.obj, b=bindFurn(f);
+  o.position.x=x; o.position.z=z; o.rotation.y=rot; o.updateWorldMatrix(true,true);
+  f.p.copy(o.position); f.rot=rot;
+  _b3.setFromObject(o); for(const k of b.cols){ k.minX=_b3.min.x; k.maxX=_b3.max.x; k.minZ=_b3.min.z; k.maxZ=_b3.max.z; }
+  const c=Math.cos(rot), s=Math.sin(rot);
+  for(const q of b.seats){ q.st.x=x+q.lx*c+q.lz*s; q.st.z=z-q.lx*s+q.lz*c; q.st.yaw=rot+q.dy; PEOPLE.filter(P=>P.seat===q.st).forEach(P=>seatPerson(P,q.st)); }
+}
+// 以家具外框中心為軸轉 90°
+function centerOf(f,rot){ const cx=(f.min.x+f.max.x)/2, cz=(f.min.z+f.max.z)/2, c=Math.cos(rot), s=Math.sin(rot); return [cx*c+cz*s,-cx*s+cz*c]; }
+function rotateFurn(f){
+  const [ax,az]=centerOf(f,f.rot), wx=f.p.x+ax, wz=f.p.z+az, r=(f.rot+HP)%(2*Math.PI), [bx,bz]=centerOf(f,r);
+  placeFurn(f,wx-bx,wz-bz,r); saveLayout(); showDims(f); toast(`${f.name}轉 90°`);
+}
+function saveLayout(){ const d={}; FURN.forEach((f,i)=>{ if(f.bind){ const h=f.bind.home; if(Math.hypot(f.p.x-h.x,f.p.z-h.z)>.001||Math.abs(Math.sin((f.rot-h.rot)/2))>.001) d[i]=[f.p.x,f.p.z,f.rot]; } });
+  try{ localStorage.setItem(LAYOUT_KEY,JSON.stringify(d)); }catch(e){} }
+if(MOVABLE&&!VIEWER){
+  const [rotBtn,homeBtn]=moveBtns.querySelectorAll('button');
+  rotBtn.addEventListener('click',()=>{ if(canMove(dimSel)) rotateFurn(dimSel); });
+  homeBtn.addEventListener('click',()=>{ const f=dimSel; if(!canMove(f)) return; const h=bindFurn(f).home; placeFurn(f,h.x,h.z,h.rot); saveLayout(); showDims(f); toast(`${f.name}已回原位`); });
+  addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return;
+    if(e.code==='KeyR'&&!e.ctrlKey&&!e.metaKey&&!selected&&state.mode!=='fps'&&canMove(dimSel)) rotateFurn(dimSel); });
+  // 拖曳：只拖「已選取」的那件，其他地方照常轉視角
+  let fdrag=null;
+  stage.addEventListener('pointerdown',e=>{
+    if(pdrag||state.mode==='fps'||!canMove(dimSel)||(e.pointerType==='mouse'&&e.button!==0)||pickFurn(e)!==dimSel) return;
+    const f=dimSel, h=planeHit(e,0); if(!h) return;
+    bindFurn(f); fdrag={f,id:e.pointerId,off:[f.p.x-h.x,f.p.z-h.z],moved:false};
+    activeCtl().enabled=false; renderer.domElement.style.cursor='grabbing';
+  },{capture:true});
+  addEventListener('pointermove',e=>{ if(!fdrag||e.pointerId!==fdrag.id) return; const h=planeHit(e,0); if(!h) return;
+    const f=fdrag.f, x=Math.round((h.x+fdrag.off[0])*100)/100, z=Math.round((h.z+fdrag.off[1])*100)/100;   // 以 1cm 為單位
+    f.obj.position.x=x; f.obj.position.z=z; f.p.copy(f.obj.position); dimG.position.copy(f.p); fdrag.moved=true; });
+  const endFurnDrag=e=>{ if(!fdrag||e.pointerId!==fdrag.id) return; const d=fdrag; fdrag=null; activeCtl().enabled=true; renderer.domElement.style.cursor='';
+    if(!d.moved) return; placeFurn(d.f,d.f.p.x,d.f.p.z,d.f.rot); saveLayout(); tap=null; showDims(d.f); };
+  addEventListener('pointerup',endFurnDrag,{capture:true}); addEventListener('pointercancel',endFurnDrag);
+  addEventListener('pointermove',e=>{ if(!fdrag&&e.pointerType==='mouse'&&e.target===renderer.domElement&&state.mode!=='fps'&&canMove(dimSel)&&!renderer.domElement.style.cursor) renderer.domElement.style.cursor=pickFurn(e)===dimSel?'move':''; });
+  // 上次的調整：開頁時套回去
+  try{ const d=JSON.parse(localStorage.getItem(LAYOUT_KEY)||'{}'); for(const [i,[x,z,r]] of Object.entries(d)){ const f=FURN[+i]; if(canMove(f)) placeFurn(f,x,z,r); } }catch(e){}
 }
 
 /* =========================================================
