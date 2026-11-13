@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta name="robots" content="noindex, nofollow">
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A01 住宅 3D 漫遊</title>
+<title>A01 住宅 3D 展示</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap">
@@ -197,6 +195,13 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .walk-dim b{font:700 14px var(--mono)}
 .walk-dim span{display:block;font-size:9px;color:#555}
 .walk-dim.warn{color:#b71c1c;border-color:#c62828}
+.cab-dim.ok{color:#1b5e20;border-color:#2e7d32}
+.cab-dim.warn{color:#e65100;border-color:#ef6c00}
+.cab-dim.bad{color:#b71c1c;border-color:#c62828}
+.cab-go{all:unset;cursor:pointer;font-weight:600;text-decoration:underline dotted;text-underline-offset:3px}
+.cab-go[aria-pressed="true"]{color:var(--accent)}
+.cab-go:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.checks li.cab-note{display:block;color:var(--muted);font-size:11px;padding-left:12px}
 .compass-label{text-align:center;color:#8a3a1c;text-shadow:0 0 3px #fff,0 0 6px rgba(255,255,255,.9);pointer-events:none;line-height:1.2;white-space:nowrap}
 .compass-label b{display:block;font:700 18px var(--sans)}
 .compass-label span{display:block;font:500 11px var(--sans)}
@@ -224,13 +229,13 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">Inspace Interior<span id="stamp" style="letter-spacing:.06em"> · 更新 2026/10/18 17:01</span></div>
+      <div class="brand">3D MODEL</div>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
   </header>
   <dl class="sheet">
-    <div><dt>圖號</dt><dd>AR00</dd></div>
+    <div><dt>圖號</dt><dd>AR05</dd></div>
     <div><dt>比例</dt><dd>S 1:40</dd></div>
     <div><dt>室內</dt><dd>13.8 坪</dd></div>
     <div><dt>樓層</dt><dd>1F 單層</dd></div>
@@ -275,7 +280,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
           <label for="out-code">方案代碼（包含全部已存方案）</label>
           <input id="out-code" type="text" readonly>
           <div class="toggles"><button class="chip" id="copy-code">複製代碼</button><button class="chip" id="copy-text">複製說明文字</button></div>
-          <p class="note">給設計師看：把這個雲端硬碟資料夾共用給對方（權限設「檢視者」），請對方用 Chrome 開啟「view.html」，再按「開啟方案檔」選「A01_3D方案.json」。</p>
+          <p class="note">給設計師看：把這個雲端硬碟資料夾共用給對方（權限設「檢視者」），請對方用 Chrome 開啟「A01_3D展示版.html」，再按「開啟方案檔」選「A01_3D方案.json」。</p>
           <label for="in-code">匯入對方的代碼</label>
           <div class="import-row"><input id="in-code" type="text" placeholder="貼上 zh3. 開頭的代碼" autocomplete="off" spellcheck="false"><button class="chip" id="do-import">匯入</button></div>
           <p class="note">也可以把「#代碼」加在網址最後再開啟，頁面會自動載入這些方案。</p>
@@ -283,11 +288,16 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       </details>
     </div>
     <div>
+      <p class="grp-label">櫃門開關 · 開門後的走道（點櫃名開關，第一人稱按 <kbd class="k">E</kbd>）</p>
+      <ul class="checks cab-checks" id="cab-checks" aria-label="櫃門開啟後的走道"></ul>
+    </div>
+    <div>
       <p class="grp-label">環境</p>
       <div class="toggles">
         <button class="tog" id="t-night" aria-pressed="false">夜晚</button>
         <button class="tog" id="t-lights" aria-pressed="true">室內燈</button>
         <button class="tog" id="t-doors" aria-pressed="true">門全開</button>
+        <button class="tog" id="t-cab" aria-pressed="false">櫃門全開</button>
         <button class="tog" id="t-walk" aria-pressed="true" hidden>走道尺寸</button>
         <button class="tog" id="t-quality" aria-pressed="true">畫質：自動</button>
       </div>
@@ -300,7 +310,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       </div>
     </div>
     <p class="note" data-view>這是唯讀展示版：可以切換設計方案，並用俯視、鳥瞰或第一人稱觀看；不會修改任何方案或檔案。</p>
-    <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具與櫃體依 261015 平面配置圖（AR00）與設計師渲染圖（16 張）配置（「設計師提案」風格對照渲染圖材質）。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
+    <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具與櫃體依 261109 平立面工程圖（AR05 平面配置、AR09 天花、AR11～AR20 立面）與 261109 渲染圖（17 張）配置（「設計師提案」風格對照渲染圖材質）。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
   </div>
 </aside>
 
@@ -331,7 +341,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
-<div class="loading" id="loading">依 AR00 平面配置圖建模中…</div>
+<div class="loading" id="loading">依 261109 平立面工程圖建模中…</div>
 
 <script type="importmap">
 {
@@ -351,7 +361,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 window.__ready = true;
-const VIEWER = false;                         // true = 唯讀展示版（只能切換方案）
+const VIEWER = true;                          // true = 唯讀展示版（只能切換方案）
 if(VIEWER) document.documentElement.classList.add('viewer');
 // true = 261016 討論版：業主修改意見（電視櫃落地＋上方吊櫃、主臥床頭板／全身鏡／開放掛區／化妝桌層板與崁燈、衣櫃上方行李箱櫃、取消茶鏡）
 const PROPOSAL = false;
@@ -360,7 +370,7 @@ if(PROPOSAL){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<spa
 // true = 家具調整版（以討論版為底）：全室家具點選後可拖曳、一次轉 90°，位置存在這台電腦的瀏覽器
 const MOVABLE = false;
 if(MOVABLE){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">家具調整</span>');
-  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。按錯可按右下角「↶ 上一步」（Ctrl+Z）復原、「↷ 下一步」（Ctrl+Y）重做，「⟲ 家具全部回原位」也在右下角。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔；給設計師看請對方開「arrange-view.html」再開啟方案檔。</p>');
+  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。按錯可按右下角「↶ 上一步」（Ctrl+Z）復原、「↷ 下一步」（Ctrl+Y）重做，「⟲ 家具全部回原位」也在右下角。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔。</p>');
   // 右下角固定工具列（走道尺寸按鈕上方）：上一步、自動貼牆、全部回原位
   if(!VIEWER) document.body.insertAdjacentHTML('beforeend','<div id="furn-bar"><button type="button" id="furn-bar-tog" aria-expanded="false">🪑 家具工具</button><button type="button" id="furn-undo" disabled>↶ 上一步</button><button type="button" id="furn-redo" disabled>↷ 下一步</button><button type="button" id="furn-snap">自動貼牆：開</button><button type="button" id="furn-reset">⟲ 家具全部回原位</button></div>'); }
 
@@ -391,7 +401,7 @@ const NR = r => [pl(MAPX,r[0],1,0),pl(MAPZ,r[1],1,0),pl(MAPX,r[2],1,0),pl(MAPZ,r
 const NP = p => [pl(MAPX,p[0],1,0),pl(MAPZ,p[1],1,0)];
 const LX = (a,b) => X(b)-X(a), LZ = (a,b) => Z(b)-Z(a);   // 圖面兩點間的實際長度
 const L = d => d * S;
-const H = 2.7;                                // 天花板高度
+const H = 2.9;                                // 天花板高度（261109 AR01：客廳、主臥、客房平頂天花 H:290cm）
 const DOOR_LAYER = 2;
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
 const LOW = IS_TOUCH;
@@ -980,21 +990,22 @@ R(staticG,NR([725.3,590.9,729.1,673.8]),2.0,2.03,M.chrome);
    5. 家具建構函式（區域座標：正面朝 +z，底面 y=0）
    ========================================================= */
 const leafGeo = new THREE.SphereGeometry(1,10,6);
-function sofa(W=2.3){
-  const g=new THREE.Group(), D=1.0, f=M.sofa, EXT=.3;
+function sofa(W=2.3,D=1.0){   // D：總深（261109 AR05：195×90）；寬不到 210 做兩人座（兩塊座墊）
+  const g=new THREE.Group(), f=M.sofa, EXT=.3, N=W<2.1?2:3;
+  console.assert(W>1.2&&D>=.8,'沙發尺寸不合理');
   for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.018,.014,.1,M.blackMetal,sx*(W/2-.1),0,sz*(D/2-.1),10);
   RB(g,W,.22,D,.04,f,0,.1,0);
   for(const sx of [-1,1]) RB(g,.17,.5,D,.06,f,sx*(W/2-.085),.1,0);
   RB(g,W-.34,.5,.2,.06,f,0,.3,-D/2+.1);
-  // 可伸縮坐深：座墊連同下方抽出座板一起往前滑 30cm（沙發深 100 → 130、坐深 60 → 90），靠背不動
+  // 可伸縮坐深：座墊連同下方抽出座板一起往前滑 30cm（總深 D → D+30、坐深 D/2+10 → 再加 30），靠背不動
   const seat=new THREE.Group(), deck=new THREE.Group(); g.add(seat); seat.add(deck); deck.visible=false;
   RB(deck,W-.36,.2,EXT,.03,f,0,.11,D/2-EXT/2);
   for(const sx of [-1,1]) C(deck,.018,.014,.11,M.blackMetal,sx*(W/2-.35),0,D/2-.08,10);
-  const cw=(W-.34)/3;
-  for(let i=0;i<3;i++){ const x=-(W-.34)/2+cw*(i+.5);
+  const cw=(W-.34)/N;
+  for(let i=0;i<N;i++){ const x=-(W-.34)/2+cw*(i+.5);
     RB(seat,cw-.012,.15,D-.2,.06,f,x,.31,.1);
     RB(g,cw-.02,.44,.22,.07,f,x,.44,-D/2+.29).rotation.x=-.12; }   // 靠墊厚 22：坐深 60
-  [[-.9,M.pillowA,.55],[.9,M.pillowB,-.55]].forEach(([x,m,ry])=>{ RB(g,.36,.36,.12,.06,m,x,.46,-D/2+.41).rotation.set(-.22,ry,x>0?-.1:.1); });
+  [[-(W/2-.2),M.pillowA,.55],[W/2-.2,M.pillowB,-.55]].forEach(([x,m,ry])=>{ RB(g,.36,.36,.12,.06,m,x,.46,-D/2+.41).rotation.set(-.22,ry,x>0?-.1:.1); });
   g.userData.slide={seat,deck,ext:EXT,depth:D,seatBack:-.1};   // seatBack：靠墊前緣，量「坐深」的起點
   return g;
 }
@@ -1020,8 +1031,49 @@ function chair(){
   RB(g,.4,.035,.38,.015,M.cushion,0,.485,.01);
   return g;
 }
-function cabinet({w,d,h,doors=2,front=M.lacquer,body=M.lacquer,plinth=.08,y0=0,handle=true}){
-  const g=new THREE.Group(), fh=h-plinth, dw=w/doors;
+/* ---------- 櫃門（可開關）：門片方向照 261109 立面圖（左開／右開＝人面對櫃子時鉸鏈在左／右、上掀、抽屜） ---------- */
+// 每片門＝pivot（定在鉸鏈、上掀軸或抽屜正面，朝向 face）＋sw（負責轉動或拉出）；門片外表面在 sw 的 z=0，往 -z 是門板厚度
+// at＝門片外表面「底邊中點」在 parent 座標的位置；face＝門片朝外方向的 yaw（0＝+z、PI＝-z、-HP＝-x、HP＝+x）
+const CAB_DOORS=[];
+function cabLeaf(parent,o){
+  const {cab,kind='hinge',side='L',w,h,t=.018,at,face=0,mat=M.lacquer,label='',dd=.3}=o;
+  const s=side==='L'?1:-1, c=Math.cos(face), sn=Math.sin(face);
+  const pivot=new THREE.Group(), sw=new THREE.Group(); pivot.add(sw); parent.add(pivot); pivot.rotation.y=face;
+  if(kind==='hinge'){ const lx=-s*w/2; pivot.position.set(at[0]+lx*c,at[1],at[2]-lx*sn); B(sw,w-.003,h,t,mat,s*w/2,0,-t/2); }
+  else if(kind==='flip'){ pivot.position.set(at[0],at[1]+h,at[2]); B(sw,w-.003,h,t,mat,0,-h,-t/2); }
+  else { pivot.position.set(at[0],at[1],at[2]); B(sw,w-.003,h,t,mat,0,0,-t/2);            // 抽屜：面板＋抽屜盒
+    const bw=w-.05, bh=Math.max(.05,h-.07), zc=-t-dd/2;
+    B(sw,bw,.012,dd,M.oak,0,.025,zc); for(const k of [-1,1]) B(sw,.012,bh,dd,M.oak,k*(bw/2-.006),.025,zc); B(sw,bw,bh,.012,M.oak,0,.025,-t-dd+.006); }
+  const d={cab,kind,s,w,h,t,pivot,sw,ang:o.ang??(kind==='flip'?1.45:1.62),ext:o.ext??dd*.85,v:0,want:0,label,col:null};
+  CAB_DOORS.push(d); return d;
+}
+// 中空櫃體（開門後看得到內部）：at＝櫃體正面（門片後方）底邊中點；往 -z（朝 face 的反方向）深 d
+function cabShell(parent,{w,h,d,at,face=0,mat=M.lacquer,shelves=[],bottom=true,top=true,t=.018}){
+  const g=new THREE.Group(); g.position.set(...at); g.rotation.y=face; parent.add(g);
+  B(g,w,h,t,mat,0,0,-d+t/2); for(const k of [-1,1]) B(g,t,h,d,mat,k*(w/2-t/2),0,-d/2);
+  if(top) B(g,w-2*t,t,d-t,mat,0,h-t,-d/2-t/2); if(bottom) B(g,w-2*t,t,d-t,mat,0,0,-d/2-t/2);
+  for(const y of shelves) B(g,w-2*t,t,d-t-.01,mat,0,y,-d/2-t/2+.005);
+  return g;
+}
+// 吊衣桿＋衣服（不用亂數，避免後面亂數排列跟著變）
+function hangRod(g,x0,x1,y,z,len=.8,mats=[M.linen,M.duvet,M.throw,M.duvet2,BOOK_MATS[1],BOOK_MATS[7]]){
+  const w=x1-x0; { const r=C(g,.012,.012,w,M.chrome,(x0+x1)/2,y,z,8); r.rotation.z=HP; r.position.y=y; }
+  const n=Math.max(1,Math.floor(w/.075));
+  for(let k=0;k<n;k++){ const l=len*(.82+((k*37)%5)*.045); B(g,.035,l,.42,mats[k%mats.length],x0+.05+k*(w-.1)/Math.max(1,n-1),y-l-.02,z); }
+}
+function cabinet({w,d,h,doors=2,front=M.lacquer,body=M.lacquer,plinth=.08,y0=0,handle=true,hinges=null,name='',fill=0,shelves=[],rod=0}){
+  const g=new THREE.Group(), fh=h-plinth;
+  if(hinges){   // 可開門版：中空櫃體＋鉸鏈門片（fill＞0：+x 側填縫、＜0：-x 側填縫）
+    const fw=Math.abs(fill), bw=w-fw, bx=fill>0?-fw/2:fw/2, dw=bw/doors, t=.018;
+    if(fw) B(g,fw,h,.02,body,fill>0?w/2-fw/2:-w/2+fw/2,y0,d/2-.01);
+    if(plinth>0) B(g,bw-.03,plinth,d-.06,M.shadowDark,bx,y0,-.03);
+    cabShell(g,{w:bw,h:fh,d:d-t,at:[bx,y0+plinth,d/2-t],mat:body,shelves:shelves.map(y=>y-y0-plinth)});
+    if(rod) hangRod(g,bx-bw/2+.03,bx+bw/2-.03,rod,-.01,.95);
+    for(let i=0;i<doors;i++){ const x=bx-bw/2+dw*(i+.5), dr=cabLeaf(g,{cab:name,side:hinges[i],w:dw,h:fh-.004,at:[x,y0+plinth+.002,d/2],mat:front,label:`${hinges[i]==='L'?'左':'右'}開門`});
+      B(dr.sw,.006,.2,.004,M.gapDark,dr.s*(dw-.015),1.0-plinth,.001,false); }   // 門片指扣（開門側）
+    return g;
+  }
+  const dw=w/doors;
   if(plinth>0) B(g,w-.03,plinth,d-.06,M.shadowDark,0,y0,-.03);
   B(g,w,fh,d-.02,body,0,y0+plinth,-.01);
   for(let i=0;i<doors;i++){
@@ -1041,19 +1093,14 @@ function slideWardrobe({w,d,h,doors=3,front=M.oakV,body=M.lacquer,plinth=.08,mir
   for(const s of [-1,1]) B(g,t,fh,d-.07,body,s*(w/2-t/2),plinth,-.035);          // 側板
   for(const y of [plinth,h-t]) B(g,w,t,d-.07,body,0,y,-.035);                    // 頂底板
   for(let i=1;i<doors;i++) B(g,t,fh,inD,body,-w/2+bw*i,plinth,inZ);              // 隔間板
-  const zc=inZ+.01, rodY=h-.5, cloth=[M.linen,M.duvet,M.throw,M.duvet2,BOOK_MATS[1],BOOK_MATS[7]];
-  for(let b=0;b<doors;b++){
+  const zc=inZ+.01, cloth=[M.linen,M.duvet,M.throw,M.duvet2,BOOK_MATS[1],BOOK_MATS[7]];
+  for(let b=0;b<doors;b++){                                                       // 內部照 261109 AR17
     const cx=-w/2+bw*(b+.5), iw=bw-t-.01;
-    B(g,iw,t,inD,M.oak,cx,h-.42,inZ);                                             // 上層板
-    if(b<doors-1){                                                                // 吊衣區
-      { const r=C(g,.012,.012,iw,M.chrome,cx,rodY,zc,8); r.rotation.z=HP; r.position.y=rodY; }
-      const n=Math.floor(iw/.075);
-      for(let k=0;k<n;k++){ const len=b===1?.62:.8+((k*37)%5)*.06, x=cx-iw/2+.05+k*(iw-.1)/(n-1||1);
-        B(g,.035,len,.42,cloth[(k+b*2)%cloth.length],x,rodY-len-.02,zc); }
-      if(b===1) for(const y of [plinth+.02,plinth+.3]){ B(g,iw-.01,.26,inD-.02,M.oak,cx,y,inZ); B(g,.14,.012,.015,M.handle,cx,y+.2,inZ+inD/2); } // 下方抽屜
-    } else for(let s=0;s<4;s++){ const y=plinth+.05+s*.42;                        // 層板區
-      B(g,iw,t,inD,M.oak,cx,y,inZ);
-      for(let k=0;k<3;k++) B(g,.26,.06+k%2*.03,.3,cloth[(s+k)%cloth.length],cx-iw/2+.16+k*.29,y+t,zc); }
+    B(g,iw,t,inD,M.oak,cx,2.02,inZ);                                              // 頂層板 202
+    hangRod(g,cx-iw/2,cx+iw/2,1.95,zc,b<doors-1?.8:1.05,cloth);                   // 吊衣桿 195
+    if(b<doors-1) hangRod(g,cx-iw/2,cx+iw/2,1.0,zc,.72,[...cloth].reverse());     // 左、中兩格：下層吊衣桿 100（上下兩段吊衣）
+    else for(const y of [.48,.80]){ B(g,iw,t,inD,M.oak,cx,y,inZ);                 // 右格：195 吊衣 120 長、下方層板
+      for(let k=0;k<3;k++) B(g,.26,.06+k%2*.03,.3,cloth[(b+k)%cloth.length],cx-iw/2+.16+k*.29,y+t,zc); }
   }
   B(g,w,.03,.06,M.gapDark,0,h-.03,dz-.03,false);                                  // 上軌
   const list=[];
@@ -1204,10 +1251,11 @@ function toilet(){
   const seat=mk(new THREE.CylinderGeometry(.195,.195,.025,28),c); seat.scale.set(1,1,1.35); seat.position.set(0,.4225,.04); g.add(seat);
   return g;
 }
-function vanity(){
-  const g=new THREE.Group();
-  RB(g,.6,.32,.46,.01,M.oak,0,.5,0); B(g,.56,.004,.004,M.gapDark,0,.66,.231,false);
-  RB(g,.62,.025,.48,.005,M.marble,0,.82,0);
+function vanity(w=.6,name=''){   // 261109 AR18：懸吊櫃體離地 15～80、檯面 80～85、寬 80（鏡櫃 72＋填縫 8），下櫃兩片門左右對開
+  const g=new THREE.Group(), y0=.15, y1=.80, d=.46;
+  cabShell(g,{w,h:y1-y0,d:d-.018,at:[0,y0,d/2-.018],mat:M.oak,shelves:[.3]});
+  for(const [x,sd] of [[-w/4,'L'],[w/4,'R']]) cabLeaf(g,{cab:name,side:sd,w:w/2,h:y1-y0-.004,at:[x,y0+.002,d/2],mat:M.oak,label:sd==='L'?'左門':'右門'});
+  RB(g,w+.02,.05,.48,.005,M.marble,0,y1,0);
   const pts=[]; for(let i=0;i<=12;i++){ const t=i/12; pts.push(new THREE.Vector2(.06+.15*Math.sin(t*Math.PI/2),t*.13)); }
   const basin=mk(new THREE.LatheGeometry(pts,36),M.ceramicDS); basin.scale.set(1,1,.8); basin.position.set(0,.845,.04); g.add(basin);
   const bottom=mk(new THREE.CircleGeometry(.06,24),M.ceramic); bottom.rotation.x=-Math.PI/2; bottom.position.set(0,.847,.04); g.add(bottom);
@@ -1217,10 +1265,10 @@ function vanity(){
 }
 function fridge(){
   const g=new THREE.Group();
-  RB(g,.75,1.85,.68,.02,M.fridge,0,0,0);
-  B(g,.74,.006,.004,M.gapDark,0,1.15,.341,false); B(g,.004,.72,.004,M.gapDark,0,1.13,.341,false);
-  B(g,.02,.5,.03,M.chrome,-.04,1.3,.36); B(g,.02,.5,.03,M.chrome,.04,1.3,.36); B(g,.5,.02,.03,M.chrome,0,1.05,.36);
-  B(g,.12,.16,.004,M.blackGlass,.22,1.45,.341,false);
+  RB(g,.70,1.85,.66,.02,M.fridge,0,0,-.015);                                    // 261109 AR05：冰箱 70×70（本體深 66＋把手）
+  B(g,.69,.006,.004,M.gapDark,0,1.15,.316,false); B(g,.004,.72,.004,M.gapDark,0,1.13,.316,false);
+  B(g,.02,.5,.025,M.chrome,-.04,1.3,.33); B(g,.02,.5,.025,M.chrome,.04,1.3,.33); B(g,.45,.02,.025,M.chrome,0,1.05,.33);
+  B(g,.12,.16,.004,M.blackGlass,.2,1.45,.316,false);
   return g;
 }
 function washer(){
@@ -1242,7 +1290,19 @@ function metalShelf(w=.6,d=.4,h=1.48,levels=4){
   { const s=mk(new THREE.SphereGeometry(.07,18,10,0,Math.PI*2,0,Math.PI/2),M.ceramic); s.position.set(-.14,.06+2*(h-.08)/3+.24,0); g.add(s); }
   return g;
 }
-// 主臥化妝凳（渲染_主臥_01、_02：雙色圓凳）
+// 主臥書桌 85×51（261109 AR05 平面配置＋渲染圖：深灰方管鐵架、白桌面、洞洞板、上方兩層木層板）；背面朝 -z 靠牆
+function frameDesk(w=.85,d=.51,h=1.48){
+  const g=new THREE.Group(), p=.025, m=M.blackMetal, sd=.24;
+  for(const sx of [-1,1]){ const x=sx*(w/2-p/2);
+    B(g,p,h,p,m,x,0,-d/2+p/2); B(g,p,.72,p,m,x,0,d/2-p/2); B(g,p,p,d,m,x,.06,0);      // 後柱到頂、前柱到桌面、側橫桿
+    for(const y of [1.24,h-.02]) B(g,p,p,sd,m,x,y-p,-d/2+sd/2); }                       // 層板托架
+  RB(g,w,.03,d,.006,M.deskTop,0,.72,0);                                               // 桌面
+  B(g,w-2*p,.42,.008,M.whiteMetal,0,.78,-d/2+.014);                                   // 洞洞板
+  for(const y of [1.24,h-.02]) B(g,w,.02,sd,M.oak,0,y,-d/2+sd/2);                     // 上方兩層層板（深 24）
+  B(g,.3,.012,.2,M.whiteMetal,-.12,.75,.04); B(g,.3,.19,.008,M.tvFrame,-.12,.762,-.07);   // 筆電
+  return g;
+}
+// 主臥書桌椅凳（261109 渲染圖：雙色圓凳）
 function pouf(){
   const g=new THREE.Group();
   C(g,.19,.2,.3,M.potDark,0,0,0,28); C(g,.19,.19,.15,M.cushion,0,.3,0,28);
@@ -1270,66 +1330,73 @@ const NPM=(x,y)=>NP([x,y]);                                                     
 const DINE_X=NPM(473.4,0)[0], DINE_Y=NPM(0,632.65)[1];
 const CHAIR_Y=[PZ(Z(DINE_Y)-.307),PZ(Z(DINE_Y)+.307)];
 
-/* ---- 客廳：電視牆（261015：懸浮櫃 280.75～509.25、深 478.2～505；右段 429.5～509.25 為高櫃＝門｜展示格｜門；渲染_客廳_01、_02、渲染_餐廳_03、_04） ---- */
-// 討論版 10/17：改參考圖（電視櫃-改.jpg）：右段照原設計（門｜整排展示格｜門），左側新增一欄高櫃（坐在矮櫃上），矮櫃整排落地＋內縮踢腳，電視上方吊櫃；汙衣區取消，寬度回到原設計
-const TVW={x0:280.75,xL:PROPOSAL?310.5:280.75,xt:429.5,xn0:458,xn1:480.75,x1:509.25,z0:478.2,z1:505,yb:PROPOSAL?.08:.15,yt:.47,top:2.45,sp:1.4};   // sp：木皮側板厚 2cm（pt）；xL：討論版左側高櫃右緣
+/* ---- 客廳：電視牆（261109 AR16 系統立面：全寬 322＝側落板 2＋70×4＋高櫃 40，深 38、高 240；261109 渲染圖） ---- */
+// 由下而上：踢腳 10＋抽屜 24＋檯面 2（＝36）｜電視背封板 210×149（S002 水泥灰）｜上掀吊櫃 55（185～240）
+// 第四個 70 在電視高度分成展示櫃 35（清玻層板、去底板）＋收納櫃 35（杉木門）；最右 40 是落地高櫃（預留吸塵器收納）
+const cmP=c=>c/100/S;                                                               // 公分 → 圖面 pt
+const TVW={x0:280.75,z0:478.2,sp:cmP(2),yb:.10,yt:.36,up:1.85,top:2.40};           // yb 踢腳頂、yt 檯面頂、up 吊櫃底、top 櫃頂
+TVW.z1=TVW.z0+cmP(38); TVW.zd=TVW.z0+cmP(36);                                       // 櫃體正面；展示櫃／收納櫃正面（深 36）
+TVW.xa=TVW.x0+TVW.sp; TVW.xt=TVW.xa+cmP(210); TVW.xn0=TVW.xt; TVW.xn1=TVW.xt+cmP(35); TVW.xh=TVW.xa+cmP(280); TVW.x1=TVW.xh+cmP(40);
+console.assert(Math.abs((TVW.x1-TVW.x0)*S-3.22)<1e-6&&Math.abs((TVW.xn1-TVW.xn0)*S-.35)<1e-6,'電視牆分段加總應為 322');
 const LAUNDRY={on:true};                                                            // 汙衣區已取消（變數保留給走道標示判斷）
-const TVW_Y0=PROPOSAL?0:TVW.yb;                                                     // 櫃子最低處（落地＝0）
 const TV_FRONT=NPM(0,TVW.z1)[1];                                                   // 電視櫃正面（260922 座標，動線檢查用）
-const LOW_X1=PROPOSAL?TVW.xn1:TVW.x1-TVW.sp;                                       // 矮櫃右端（討論版：吸塵器那欄落地，矮櫃到展示格為止）
 const grpM=()=>{ if(!MOVABLE) return staticG; const g=new THREE.Group(); dynG.add(g); return g; };   // 家具調整版：電視牆各段各自成一組，可個別移動
-const TVLOW=grpM(), TVSET=grpM(), TVR=grpM(), TVLT=grpM(), TVHANG=grpM();
-RM(TVLOW,TVW.x0,TVW.z0,LOW_X1,TVW.z1,TVW.yb,TVW.yt-.022,M.lacquer);              // 抽屜櫃（白）
-RM(TVLOW,TVW.x0,TVW.z0,LOW_X1,TVW.z1+.4,TVW.yt-.022,TVW.yt,M.oak);               // 木皮檯面
-if(PROPOSAL) RM(TVLOW,TVW.x0+1,TVW.z0,LOW_X1,TVW.z1-3.2,0,TVW.yb,M.shadowDark);  // 討論版：內縮 4.5cm 踢腳
-for(const x of PROPOSAL?[340.2,384.8,TVW.xt]:[330.5,380,TVW.xt,469.4]) B(TVLOW,.003,TVW.yt-TVW.yb-.03,.002,M.gapDark,MX(x),TVW.yb+.004,MZ(TVW.z1)+.001,false);   // 抽屜分縫
-B(TVLOW,(LOW_X1-TVW.x0)*S,.003,.002,M.gapDark,MX((TVW.x0+LOW_X1)/2),TVW.yt-.026,MZ(TVW.z1)+.001,false);
-// 右段高櫃（原設計）：左門｜整排展示格｜右門（預留吸塵器收納）
-RM(TVR,TVW.xt,TVW.z0,TVW.xt+TVW.sp,TVW.z1,TVW.yt,TVW.top,M.oakV);              // 高櫃兩側木皮側板（東側一路包到櫃底）
-RM(TVR,TVW.x1-TVW.sp,TVW.z0,TVW.x1,TVW.z1,TVW_Y0,TVW.top,M.oakV);
-RM(TVR,TVW.xt+TVW.sp,TVW.z0,TVW.xn0,TVW.z1,TVW.yt,TVW.top,M.lacquer);          // 左門
-RM(TVR,TVW.xn1,TVW.z0,TVW.x1-TVW.sp,TVW.z1,PROPOSAL?TVW.yb:TVW.yt,TVW.top,M.lacquer);   // 右門（預留吸塵器收納；討論版落地）
-if(PROPOSAL) RM(TVR,TVW.xn1,TVW.z0,TVW.x1-TVW.sp,TVW.z1-3.2,0,TVW.yb,M.shadowDark);   // 吸塵器那欄也做內縮踢腳，底線和矮櫃對齊
-for(const x of [TVW.xn0,TVW.xn1]) B(TVR,.003,TVW.top-TVW.yt-.01,.002,M.gapDark,MX(x)+(x===TVW.xn0?-.002:.002),TVW.yt+.005,MZ(TVW.z1)+.001,false);
-if(PROPOSAL){ B(TVR,(TVW.x1-TVW.sp-TVW.xn1)*S,.003,.002,M.gapDark,MX((TVW.xn1+TVW.x1-TVW.sp)/2),1.52,MZ(TVW.z1)+.001,false);   // 吸塵器那欄落地分兩格：下格內高約 142（至少 140）、上格請設計師建議
-  B(TVR,.003,1.52-TVW.yb,.002,M.gapDark,MX(TVW.xn1)+.002,TVW.yb,MZ(TVW.z1)+.001,false);
-  for(const y of [.95,1.85]) B(TVR,.012,.12,.006,M.gapDark,MX(TVW.xn1)+.025,y,MZ(TVW.z1)+.003,false); }   // 上下門指扣
-{ const a=TVW.xn0, b=TVW.xn1;                                                       // 中間展示格：木皮內襯＋玻璃層板（整排）
-  RM(TVR,a,TVW.z0,b,TVW.z0+1.2,TVW.yt,TVW.top,M.oak);
-  RM(TVR,a,TVW.z0+1.2,a+.8,TVW.z1,TVW.yt,TVW.top,M.oakV); RM(TVR,b-.8,TVW.z0+1.2,b,TVW.z1,TVW.yt,TVW.top,M.oakV);
-  RM(TVR,a+.8,TVW.z0+1.2,b-.8,TVW.z1,TVW.top-.02,TVW.top,M.oak);
-  for(const y of [.87,1.26,1.65,2.03]) RM(TVR,a+.8,TVW.z0+1.2,b-.8,TVW.z1-.5,y,y+.008,M.shelfGlass,false);
-  C(TVR,.035,.045,.16,M.ceramic,MX(466),1.26+.008,MZ(490),16); C(TVR,.012,.012,.12,M.blackMetal,MX(472),.87+.008,MZ(491),8);
-  { const s=mk(new THREE.SphereGeometry(.045,16,10),M.ceramic); s.position.set(MX(469),1.65+.05,MZ(490)); TVR.add(s); } }
-colM(TVW.xt,TVW.z0,TVW.x1,TVW.z1,TVW.yt,H); TVR.userData.cols=[colliders.at(-1)]; if(PROPOSAL){ colM(TVW.xn1,TVW.z0,TVW.x1,TVW.z1,0,TVW.yt); TVR.userData.cols.push(colliders.at(-1)); }
-if(MOVABLE) furn(TVR,PROPOSAL?'電視牆高櫃（門｜展示格｜吸塵器落地高櫃）':'電視牆高櫃（展示格・吸塵器收納）'); else furnM(PROPOSAL?'電視牆高櫃（門｜展示格｜吸塵器落地高櫃）':'電視牆高櫃（展示格・吸塵器收納）',TVW.xt,TVW.z0,TVW.x1,TVW.z1,TVW_Y0,TVW.top);
-// 討論版：左側新增一欄高櫃（坐在矮櫃上、做到頂、單片門），右側木皮側板當電視區框
-if(PROPOSAL){ RM(TVLT,TVW.x0,TVW.z0,TVW.xL,TVW.z1,TVW.yt,TVW.top,M.lacquer); RM(TVLT,TVW.xL,TVW.z0,TVW.xL+TVW.sp,TVW.z1,TVW.yt,TVW.top,M.oakV);
-  B(TVLT,.012,.14,.006,M.gapDark,MX(TVW.xL)-.025,1.2,MZ(TVW.z1)+.003,false);
-  colM(TVW.x0,TVW.z0,TVW.xL+TVW.sp,TVW.z1,TVW.yt,H); TVLT.userData.cols=[colliders.at(-1)];
-  if(MOVABLE) furn(TVLT,'左側高櫃（新增）'); else furnM('左側高櫃（新增）',TVW.x0,TVW.z0,TVW.xL+TVW.sp,TVW.z1,TVW.yt,TVW.top); }
-colM(TVW.x0,TVW.z0,LOW_X1,TVW.z1,TVW_Y0,TVW.yt);
-if(!MOVABLE) furnM(PROPOSAL?'落地電視櫃':'懸浮電視櫃',TVW.x0,TVW.z0,TVW.xt,TVW.z1,TVW_Y0,TVW.yt);
-// ---- 討論版 2：電視上方吊櫃（櫃底 205、做到降板 245＝高 40、深 30cm，白色按壓門四片；比例請設計師建議） ----
-if(PROPOSAL){ const z1=TVW.z0+.30/S, y0=2.05, a=TVW.xL+TVW.sp;
-  RM(TVHANG,a,TVW.z0,TVW.xt,z1,y0,TVW.top,M.lacquer);
-  for(const k of [1,2,3]) B(TVHANG,.003,TVW.top-y0-.01,.002,M.gapDark,MX(a+(TVW.xt-a)*k/4),y0+.005,MZ(z1)+.001,false);
-  colM(a,TVW.z0,TVW.xt,z1,y0,H); TVHANG.userData.cols=[colliders.at(-1)];
-  if(MOVABLE) furn(TVHANG,'電視上方吊櫃（討論版）'); else furnM('電視上方吊櫃（討論版）',a,TVW.z0,TVW.xt,z1,y0,TVW.top); }
-const TV_X=PROPOSAL?(TVW.xL+TVW.sp+TVW.xt)/2:332.5;                            // 討論版：電視對齊左側高櫃與右段高櫃之間的中心
-B(TVSET,1.45,.84,.03,M.tvFrame,MX(TV_X),.57,MZ(TVW.z0)+.035);                 // 壁掛 65 吋電視（中心對 261015 圖 332.5，下緣離地 57cm）
+const TVLOW=grpM(), TVSET=grpM(), TVR=grpM(), TVHANG=grpM();
+const cabP=g=>g===staticG?dynG:g;                                                  // 門片要能動：靜態群組最後會合併，門片改放 dynG
+const TV_NAMES=['電視櫃（側落板・抽屜櫃・背封板）','電視上方吊櫃（上掀 70×4）','電視牆高櫃（展示櫃｜收納櫃｜吸塵器高櫃）'];
+const TVF=MZ(TVW.z1), TVFD=MZ(TVW.zd), tvX=k=>MX(TVW.xa+cmP(70*k+35));         // 櫃體正面（世界 z）、第 k 格（70）中心
+// 抽屜櫃：踢腳 10＋24 斜型抽屜朝上 ×4＋檯面 2；左側落板＋背封板
+RM(TVLOW,TVW.xa+1,TVW.z0,TVW.xh,TVW.z1-3.2,0,TVW.yb,M.shadowDark);              // 踢腳 10（內縮 4.5cm）
+RM(TVLOW,TVW.xa,TVW.z0,TVW.xh,TVW.z1-cmP(1.8),TVW.yb,TVW.yt-.02,M.lacquer);      // 櫃體（抽屜面板後方）
+RM(TVLOW,TVW.xa,TVW.z0,TVW.xh,TVW.z1+.4,TVW.yt-.02,TVW.yt,M.oak);               // 檯面 2（321 日本杉木）
+for(let k=0;k<4;k++) cabLeaf(cabP(TVLOW),{cab:TV_NAMES[0],kind:'drawer',w:.70,h:TVW.yt-.02-TVW.yb-.004,at:[tvX(k),TVW.yb+.002,TVF],mat:M.lacquer,dd:.33,label:`抽屜 ${k+1}（24 斜型朝上）`});
+RM(TVLOW,TVW.x0,TVW.z0,TVW.xa,TVW.z1,0,TVW.top,M.oakV);                          // 左側落板 2cm（到 240）
+RM(TVLOW,TVW.xa,TVW.z0,TVW.xt,TVW.z0+.6,TVW.yt,TVW.up,M.specialPaint);           // 背封板 210×149
+colM(TVW.x0,TVW.z0,TVW.xh,TVW.z1,0,TVW.yt); TVLOW.userData.cols=[colliders.at(-1)];
+// 上方吊櫃 55：四格各 70，下斜門板上掀
+RM(TVHANG,TVW.xa,TVW.z0,TVW.xh,TVW.z1-1.4,TVW.up,TVW.up+.02,M.oak);              // 櫃底（杉木）
+cabShell(TVHANG,{w:2.80,h:TVW.top-TVW.up-.02,d:.38-.018,at:[MX((TVW.xa+TVW.xh)/2),TVW.up+.02,TVF-.018],mat:M.lacquer,bottom:false,shelves:[.26]});
+for(const k of [1,2,3]) B(TVHANG,.018,TVW.top-TVW.up-.04,.34,M.lacquer,tvX(k)-.35,TVW.up+.02,TVF-.2,false);   // 格間隔板
+for(let k=0;k<4;k++) cabLeaf(cabP(TVHANG),{cab:TV_NAMES[1],kind:'flip',w:.70,h:TVW.top-TVW.up-.004,at:[tvX(k),TVW.up+.002,TVF],mat:M.lacquer,label:`上掀門 ${k+1}`});
+colM(TVW.xa,TVW.z0,TVW.xh,TVW.z1,TVW.up,H); TVHANG.userData.cols=[colliders.at(-1)];
+// 展示櫃 35（清玻層板三片、去底板）｜收納櫃 35（杉木門・J 型把手右開）｜落地高櫃 40（白門・C 型把手左開，預留吸塵器）
+{ const a=TVW.xn0, b=TVW.xn1, t=cmP(1.8), cx=(a+b)/2;
+  RM(TVR,a,TVW.z0,b,TVW.z0+1.2,TVW.yt,TVW.up,M.oak);
+  RM(TVR,a,TVW.z0+1.2,a+t,TVW.zd,TVW.yt,TVW.up,M.oakV); RM(TVR,b-t,TVW.z0+1.2,b,TVW.zd,TVW.yt,TVW.up,M.oakV);
+  for(const y of [.68,1.05,1.42]) RM(TVR,a+t,TVW.z0+1.2,b-t,TVW.zd-.5,y,y+.008,M.shelfGlass,false);
+  C(TVR,.035,.045,.16,M.ceramic,MX(cx),1.05+.008,MZ(490),16); C(TVR,.012,.012,.12,M.blackMetal,MX(cx+3),.68+.008,MZ(491),8);
+  { const s=mk(new THREE.SphereGeometry(.045,16,10),M.ceramic); s.position.set(MX(cx),1.42+.05,MZ(490)); TVR.add(s); }
+  const sx=MX((b+TVW.xh)/2), sh=TVW.up-TVW.yt;                                    // 收納櫃 35：中空、兩片層板
+  cabShell(TVR,{w:.35,h:sh,d:.36-.018,at:[sx,TVW.yt,TVFD-.018],mat:M.oak,shelves:[.5,1.0]});
+  for(let k=0;k<5;k++) B(TVR,.025,.22+(k%3)*.02,.17,BOOK_MATS[(k+2)%8],sx-.12+k*.03,TVW.yt+.518,TVFD-.2);   // 收納櫃內的書
+  { const d=cabLeaf(cabP(TVR),{cab:TV_NAMES[2],side:'R',w:.35,h:sh-.004,at:[sx,TVW.yt+.002,TVFD],mat:M.oakV,label:'收納櫃門 35（J 型把手・右開）'});
+    B(d.sw,.33,.012,.012,M.gapDark,-.175,sh-.03,.002,false); }                    // J 型把手（上緣）
+  const hx=MX((TVW.xh+TVW.x1-t)/2), hw=.40-.018;                                  // 高櫃 40：層板 150、206（下方淨高 140 放吸塵器）
+  RM(TVR,TVW.xh+1,TVW.z0,TVW.x1,TVW.z1-3.2,0,TVW.yb,M.shadowDark);             // 高櫃踢腳 10
+  RM(TVR,TVW.x1-t,TVW.z0,TVW.x1,TVW.z1,0,TVW.top,M.oakV);                        // 走道端側板（渲染圖為杉木）
+  cabShell(TVR,{w:hw,h:TVW.top-TVW.yb,d:.38-.018,at:[hx,TVW.yb,TVF-.018],mat:M.lacquer,shelves:[1.50-TVW.yb,2.06-TVW.yb]});
+  C(TVR,.014,.014,1.05,M.blackMetal,hx-.04,TVW.yb+.08,TVF-.2,8); B(TVR,.24,.06,.1,M.whiteApp,hx-.04,TVW.yb+.02,TVF-.2); B(TVR,.11,.22,.12,M.whiteApp,hx-.04,TVW.yb+1.1,TVF-.2);   // 直立吸塵器
+  { const d=cabLeaf(cabP(TVR),{cab:TV_NAMES[2],side:'L',w:hw,h:TVW.top-TVW.yb-.004,at:[hx,TVW.yb+.002,TVF],mat:M.lacquer,label:'吸塵器高櫃門 40（C 型把手・左開）'});
+    B(d.sw,.012,.14,.006,M.gapDark,hw-.03,.95,.002,false); } }
+colM(TVW.xn0,TVW.z0,TVW.xh,TVW.z1,TVW.yt,TVW.up); TVR.userData.cols=[colliders.at(-1)]; colM(TVW.xh,TVW.z0,TVW.x1,TVW.z1,0,H); TVR.userData.cols.push(colliders.at(-1));
+// 壁掛 65 吋電視：左緣離背封板左端 10cm、下緣離地 57cm（AR16）
+const TV_X=TVW.xa+cmP(10+72.5);
+B(TVSET,1.45,.84,.03,M.tvFrame,MX(TV_X),.57,MZ(TVW.z0)+.035);
 { const s=mk(new THREE.PlaneGeometry(1.42,.8),M.tvScreen,false,false); s.position.set(MX(TV_X),.99,MZ(TVW.z0)+.051); TVSET.add(s); }
-{ const vx=PROPOSAL?418:404;                                                         // 討論版：花瓶放電視段右端、畫框不放
-C(TVLOW,.05,.04,.2,M.glass,MX(vx),TVW.yt,MZ(494),16); C(TVLOW,.004,.004,.16,M.leaf2,MX(vx),TVW.yt+.18,MZ(494),5); }   // 檯面花瓶
-if(!PROPOSAL){ const f=B(staticG,.2,.27,.012,M.blackMetal,MX(414),TVW.yt,MZ(482)); f.rotation.x=-.12; }    // 靠牆小畫框
-if(MOVABLE){ furn(TVLOW,PROPOSAL?'落地電視櫃（含右段高櫃下方）':'懸浮電視櫃'); furn(TVSET,'壁掛電視 65 吋');
-  for(const g of [TVLOW,TVSET,TVR,TVLT,TVHANG]) if(g.parent===dynG) g.userData.set='電視牆'; }   // 「整面電視牆一起動」時這幾件一起搬、轉
-R(ceilG,NR([211.5,TVW.z0,629.6,TVW.z1]),TVW.top,H,M.ceiling);                      // 電視牆上方降板（渲染_客廳_02：從主臥門到客房門）
-const SOFA_W=2.2, SOFA_Y=631-.05/S;                                               // 沙發深 100 靠牆，中心比原圖往前 5cm
-const SOFA_X=319.4-(2.35-SOFA_W)/2/S+.035/S;                                       // 寬 235→220：靠窗側固定（再往室內移 3.5cm，扶手離窗牆 24cm，窗簾盒深 20），省下的 15cm 讓給餐椅走道
-const SOFA_OBJ=furn(put(sofa(SOFA_W),SOFA_X,SOFA_Y,PI,true,dynG),'沙發'), SOFA_COL=colliders[colliders.length-1]; // 沙發 220×100（坐深可拉長到 130，不合併）
-{ const rug=mk(new THREE.BoxGeometry(2.0,.012,1.4),M.rug,false,true); rug.position.set(X(319.4),.017,Z(566)); staticG.add(rug); }
-{ const f=B(staticG,1.2,.8,.03,M.walnut,X(319.4),1.18,Z(665)-.015); const a=mk(new THREE.PlaneGeometry(1.15,.75),M.art,false,true); a.position.set(X(319.4),1.58,Z(665)-.031); a.rotation.y=PI; staticG.add(a); }   // 沙發上方海景畫
+{ const vx=TVW.xt-14; C(TVLOW,.05,.04,.2,M.glass,MX(vx),TVW.yt,MZ(494),16); C(TVLOW,.004,.004,.16,M.leaf2,MX(vx),TVW.yt+.18,MZ(494),5); }   // 檯面花瓶
+if(MOVABLE){ furn(TVLOW,TV_NAMES[0]); furn(TVHANG,TV_NAMES[1]); furn(TVR,TV_NAMES[2]); furn(TVSET,'壁掛電視 65 吋');
+  for(const g of [TVLOW,TVSET,TVR,TVHANG]) g.userData.set='電視牆'; }                // 「整面電視牆一起動」時這幾件一起搬、轉
+else { furnM(TV_NAMES[0],TVW.x0,TVW.z0,TVW.xh,TVW.z1,0,TVW.yt); furnM(TV_NAMES[1],TVW.xa,TVW.z0,TVW.xh,TVW.z1,TVW.up,TVW.top); furnM(TV_NAMES[2],TVW.xn0,TVW.z0,TVW.x1,TVW.z1,0,TVW.top); }
+// 低天花 240（261109 AR09 木作天花圖）：電視牆上方深 40、走道與玄關整片、餐邊櫃上方寬 32；南牆樑 D11 B.H270＋脫縫天花 D15
+const LOWC=2.40, LOWC_X=586.7-cmP(32);
+for(const r of [[211.5+cmP(20),TVW.z0,LOWC_X,TVW.z0+cmP(40)],[LOWC_X,TVW.z0,768.5,554.1],[LOWC_X,554.1,586.7,675.3],[732,554.1,768.5,582.4]]) R(ceilG,NR(r),LOWC,H,M.ceiling);
+R(ceilG,NR([211.5+cmP(20),675.3-cmP(11),LOWC_X,675.3]),2.70,H,M.paint);            // 南牆樑
+R(ceilG,NR([211.5+cmP(20),675.3-cmP(26),LOWC_X,675.3-cmP(11)]),2.70,H-.08,M.ceiling);   // 脫縫天花（上方留 8cm 出光）
+const SOFA_W=1.95, SOFA_D=.9, SOFA_Y=NPM(0,675.3-(SOFA_D/2+.005)/S)[1];           // 沙發 195×90 靠南牆（261109 AR05 平面配置圖）
+const SOFA_X=NPM(323.7,0)[0];                                                      // AR05 量圖：沙發 254.4～393pt，靠窗側扶手離窗牆約 60cm
+const SOFA_OBJ=furn(put(sofa(SOFA_W,SOFA_D),SOFA_X,SOFA_Y,PI,true,dynG),'沙發'), SOFA_COL=colliders[colliders.length-1]; // 沙發 195×90（坐深可拉長，總深到 120，不合併）
+{ const rug=mk(new THREE.BoxGeometry(2.0,.012,1.4),M.rug,false,true); rug.position.set(X(SOFA_X),.017,Z(566)); staticG.add(rug); }
+{ const f=B(staticG,1.2,.8,.03,M.walnut,X(SOFA_X),1.18,Z(665)-.015); const a=mk(new THREE.PlaneGeometry(1.15,.75),M.art,false,true); a.position.set(X(SOFA_X),1.58,Z(665)-.031); a.rotation.y=PI; staticG.add(a); }   // 沙發上方海景畫
 // 一紗一布簾（收在兩側）＋窗簾盒
 for(const [z0,dir] of [[464.8,1],[634.9,-1]]){
   const zc=Z(z0)+dir*.26;
@@ -1349,110 +1416,124 @@ const XCHAIR_Y=PZ(Z(CHAIR_Y[0])-.6);
 const XCHAIRS=[[DINE_X-42,HP],[DINE_X+42,-HP]].map(([x,r])=>{ const obj=furn(put(chair(),x,XCHAIR_Y,r,true,dynG),'餐椅（180 加椅）'), col=colliders[colliders.length-1]; col.soft=true; obj.userData.set='餐桌組';
   obj.visible=false; col.onMaxY=col.maxY; col.maxY=-1; return {obj,col}; });
 
-/* ---- 餐邊櫃（261015：浴室外牆 555～586.7 × 553.75～675.3；渲染_餐廳_01、_02、渲染_走道_01）：木皮下櫃＋特殊漆背牆＋白色吊櫃（北側兩格下方開放木格） ---- */
-const SB={x0:555,x1:586.7,xu:561.9,z0:553.75,zA:594.5,zB:634.5,z1:675.3,top:.9,uy0:1.42,un:1.74,uy1:2.38};
+/* ---- 餐邊櫃（261109 AR15 系統立面：寬 171；矮櫃高 100 深 45＝踢腳 10＋櫃 88＋檯面 2；背封板 50；吊櫃高 88 深 30，櫃頂 240；261109 渲染圖） ---- */
+// 矮櫃由走道端起：54（朝走道開門、去底板放掃拖機器人）｜76 三抽（32／32／24）｜39 門｜填縫 2；吊櫃 56｜56｜57，前兩格門高 56、下方開放櫃 32
+const SB={x0:555,x1:586.7,xu:586.7-cmP(30),z0:553.75,z1:675.3,top:1.0,uy0:1.52,un:1.84,uy1:2.40};
+SB.zA=SB.z0+cmP(54); SB.zB=SB.z0+cmP(130); SB.zU1=SB.z0+cmP(56); SB.zU2=SB.z0+cmP(112);
 const SIDE_X=NPM(SB.x0,0)[0];                                                      // 餐邊櫃正面（260922 x，動線檢查用）
 const SBL=grpM(), SBU=grpM();   // 家具調整版：餐邊櫃下櫃、吊櫃各自成一組
-RM(SBL,SB.x0+.7,SB.z0,SB.x1,SB.zA,.12,SB.top-.02,M.oakV);                      // 北段：下方留 12cm 給掃拖機器人
-RM(SBL,SB.x0+5,SB.z0,SB.x1,SB.zA,0,.12,M.shadowDark);
-RM(SBL,SB.x0+.7,SB.zA,SB.x1,SB.z1,.06,SB.top-.02,M.oakV);                      // 中段三抽＋南段門
-RM(SBL,SB.x0+3,SB.zA,SB.x1,SB.z1,0,.06,M.shadowDark);
-RM(SBL,SB.x0,SB.z0,SB.x1,SB.z1,SB.top-.02,SB.top,M.oak);                       // 檯面
-for(const z of [SB.zA,SB.zB]) B(SBL,.002,SB.top-.1,.003,M.gapDark,MX(SB.x0+.7)-.001,.07,MZ(z),false);
-for(const y of [.32,.6]) B(SBL,.002,.003,(SB.zB-SB.zA)*S-.01,M.gapDark,MX(SB.x0+.7)-.001,y,MZ((SB.zA+SB.zB)/2),false);
-{ const r=C(dynG,.17,.17,.085,M.whiteApp,MX(570),.012,MZ(572),28); r.userData.noMerge=true;   // 掃拖機器人
-  C(dynG,.035,.035,.012,M.blackGlass,MX(566),.097,MZ(572),16); }
-clad('x',586.7,SB.z0,SB.z1,SB.top,SB.uy0,-1,M.specialPaint,1.2);                   // 特殊漆背牆
-RM(SBU,SB.xu,SB.z0,SB.x1,SB.z0+1.4,SB.uy0,SB.uy1,M.lacquer);                   // 吊櫃：北端側板
-RM(SBU,SB.xu,SB.z0+1.4,SB.x1,SB.zB,SB.un,SB.uy1,M.lacquer);                    // 北、中兩格門片（下方開放木格）
-RM(SBU,SB.xu,SB.zB,SB.x1,SB.z1,SB.uy0,SB.uy1,M.lacquer);                       // 南格整片門
-RM(SBU,SB.xu,SB.z0+1.4,SB.x1,SB.zB,SB.uy0,SB.uy0+.02,M.oak);                   // 開放格：木皮底板、背板
-RM(SBU,SB.x1-1,SB.z0+1.4,SB.x1,SB.zB,SB.uy0+.02,SB.un,M.oak);
-for(const z of [SB.zA,SB.zB]) B(SBU,.002,SB.uy1-SB.un,.003,M.gapDark,MX(SB.xu)-.001,SB.un,MZ(z),false);
+const SB_NAMES=['餐邊櫃（矮櫃 171×45×100）','餐邊櫃吊櫃（171×30×88）'];
+const SBF=MX(SB.x0), sbZ=(a,b)=>MZ((a+b)/2), zF2=SB.z1-cmP(2);
+// 走道端 45×54（AR15 BB'）：門朝北（走道）、上斜門板左開、去底板放掃拖機器人；朝餐桌那面是櫃體側板
+cabShell(SBL,{w:.45,h:SB.top-.02,d:.54-.018,at:[MX((SB.x0+SB.x1)/2),0,MZ(SB.z0)+.018],face:PI,mat:M.oakV,bottom:false,shelves:[.55]});
+cabLeaf(cabP(SBL),{cab:SB_NAMES[0],side:'L',w:.45,h:SB.top-.032,at:[MX((SB.x0+SB.x1)/2),.01,MZ(SB.z0)],face:PI,mat:M.oakV,label:'走道端門 45（上斜門板・左開・掃拖機器人）'});
+// 中段 76：三抽（由下 24／32／32，斜型抽屜朝上）
+RM(SBL,SB.x0+cmP(1.8),SB.zA,SB.x1,SB.zB,.10,SB.top-.02,M.oakV);
+for(const [y,h,k] of [[.10,.24,'下'],[.34,.32,'中'],[.66,.32,'上']]) cabLeaf(cabP(SBL),{cab:SB_NAMES[0],kind:'drawer',w:.76,h:h-.004,at:[SBF,y+.002,sbZ(SB.zA,SB.zB)],face:-HP,mat:M.oakV,dd:.38,label:`${k}抽屜 ${Math.round(h*100)}`});
+// 南段 39：上斜門板右開；最後 2cm 填縫靠南牆
+cabShell(SBL,{w:.39,h:.88,d:.45-.018,at:[SBF+.018,.10,sbZ(SB.zB,zF2)],face:-HP,mat:M.oakV,shelves:[.44]});
+cabLeaf(cabP(SBL),{cab:SB_NAMES[0],side:'R',w:.39,h:.876,at:[SBF,.102,sbZ(SB.zB,zF2)],face:-HP,mat:M.oakV,label:'南段門 39（上斜門板・右開）'});
+RM(SBL,SB.x0,zF2,SB.x1,SB.z1,.10,SB.top-.02,M.oakV);                           // 填縫 2
+RM(SBL,SB.x0+3,SB.zA,SB.x1,SB.z1,0,.10,M.shadowDark);                           // 踢腳 10（走道端去底板不做）
+RM(SBL,SB.x0,SB.z0,SB.x1,SB.z1,SB.top-.02,SB.top,M.oak);                       // 檯面 2
+{ const r=C(dynG,.17,.17,.085,M.whiteApp,MX(570.85),.012,MZ(SB.z0+cmP(28)),28); r.userData.noMerge=true;   // 掃拖機器人（從走道端門進出）
+  C(dynG,.035,.035,.012,M.blackGlass,MX(570.85),.097,MZ(SB.z0+cmP(23)),16); }
+clad('x',586.7,SB.z0,SB.z1,SB.top,SB.uy0,-1,M.specialPaint,1.2);                   // 背封板 50（S002 水泥灰）
+// 吊櫃 88：56｜56｜57＋填縫 2；前兩格門高 56（184～240）、下方開放櫃 32；第三格整片 88
+RM(SBU,SB.xu,SB.z0,SB.x1,SB.z0+1.4,SB.uy0,SB.uy1,M.oakV);                      // 走道端側板（杉木）
+RM(SBU,SB.xu,SB.z0+1.4,SB.x1,SB.zU2,SB.uy0,SB.uy0+.02,M.oak);                  // 開放櫃：杉木底板、背板
+RM(SBU,SB.x1-1,SB.z0+1.4,SB.x1,SB.zU2,SB.uy0+.02,SB.un,M.oak);
+{ const UF=MX(SB.xu), uS=(a,b,y0,sh)=>cabShell(SBU,{w:(b-a)*S,h:SB.uy1-y0,d:.30-.018,at:[UF+.018,y0,sbZ(a,b)],face:-HP,mat:M.lacquer,shelves:sh});
+  uS(SB.z0+1.4,SB.zU2,SB.un,[.27]); uS(SB.zU2,SB.z1-1.4,SB.uy0,[.3,.58]);
+  RM(SBU,SB.xu,SB.z1-1.4,SB.x1,SB.z1,SB.uy0,SB.uy1,M.lacquer);                 // 填縫 2
+  for(const [a,b,y0,sd,lab] of [[SB.z0+1.4,SB.zU1,SB.un,'L','吊櫃門 1（56・左開）'],[SB.zU1,SB.zU2,SB.un,'R','吊櫃門 2（56・右開）'],[SB.zU2,SB.z1-1.4,SB.uy0,'R','吊櫃門 3（57・右開）']])
+    cabLeaf(cabP(SBU),{cab:SB_NAMES[1],side:sd,w:(b-a)*S,h:SB.uy1-y0-.004,at:[UF,y0+.002,sbZ(a,b)],face:-HP,mat:M.lacquer,label:lab}); }
 B(SBL,.14,.25,.3,M.whiteApp,MX(578),SB.top,MZ(650)); C(SBL,.035,.035,.32,M.chrome,MX(580),SB.top,MZ(662),12);   // 咖啡機、膠囊架
-for(let k=0;k<4;k++) B(SBU,.2,.03,.14,BOOK_MATS[k],MX(578),SB.uy0+.02+k*.03,MZ(575));   // 開放格裡的書
+for(let k=0;k<4;k++) B(SBU,.2,.03,.14,BOOK_MATS[k],MX(578),SB.uy0+.02+k*.03,MZ(575));   // 開放櫃裡的書
 colM(SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top); SBL.userData.cols=[colliders.at(-1)]; colM(SB.xu,SB.z0,SB.x1,SB.z1,SB.uy0,H); SBU.userData.cols=[colliders.at(-1)];
-RM(SBU,SB.xu,SB.z0,SB.x1,SB.z1,SB.uy1,H,M.lacquer);
-if(MOVABLE){ furn(SBL,'餐邊櫃（下櫃）'); furn(SBU,'餐邊櫃吊櫃'); SBL.userData.set=SBU.userData.set='餐邊櫃'; }
-else { furnM('餐邊櫃（下櫃・掃拖機器人）',SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top); furnM('餐邊櫃吊櫃',SB.xu,SB.z0,SB.x1,SB.z1,SB.uy0,SB.uy1); }                            // 吊櫃上方封板
-
-/* ---- 玄關（261015：鞋櫃 732～793 × 547.5～582.4 到頂；展示框 693.75～732 外推到 548.25；茶鏡貼廚房外牆 750～767.5；渲染_走道_01～_03） ---- */
-// 討論版：鞋櫃下方懸空 18cm（客人的鞋放下面）、門片上下緣留通風縫
-{ const lift=PROPOSAL?.18:0, w=(793-732)*S, d=(582.4-547.5)*S, h=2.38-lift, g=cabinet({w,d,h,doors:2,plinth:PROPOSAL?0:.05,handle:false});
-  for(const s of [-1,1]) B(g,.006,.18,.004,M.gapDark,s*.012,1.05-lift,d/2+.002,false);   // 隱把（門縫指扣）
-  if(PROPOSAL) for(const y of [.04,h-.06]) B(g,w-.04,.014,.004,M.gapDark,0,y,d/2+.002,false);   // 上下通風縫
-  g.position.y=lift;
-  furn(put(g,...NPM((732+793)/2,(547.5+582.4)/2),PI),PROPOSAL?'鞋櫃（下方懸空 18cm・上下通風縫）':'鞋櫃（到頂）');
+if(MOVABLE){ furn(SBL,SB_NAMES[0]); furn(SBU,SB_NAMES[1]); SBL.userData.set=SBU.userData.set='餐邊櫃'; }
+else { furnM(SB_NAMES[0],SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top); furnM(SB_NAMES[1],SB.xu,SB.z0,SB.x1,SB.z1,SB.uy0,SB.uy1); }
+/* ---- 玄關（261109 AR11／AR14／AR19：鞋櫃寬 88、懸空 20＝下櫃高 180 深 34＋上櫃高 40 深 48；展示櫃寬 54 深 9 高 240、三格 44×40；茶鏡 65×240；261109 渲染圖） ---- */
+{ const x0=732.1, x1=794.4, zf=547.6, W=(x1-x0)*S, fE=.04, fW=.02, bw=W-fE-fW, bx=(fE-fW)/2, lift=.20, hL=1.80, hU=.40, dL=.34, dU=.48, zF=dU/2, g=new THREE.Group(), name='鞋櫃（88 寬・懸空 20・下櫃深 34／上櫃深 48）';
+  // 區域座標正面 +z，轉 180° 後朝北（玄關）；人面對鞋櫃時左手是東：東側填縫 4（區域 -x）、西側填縫 2（區域 +x），櫃體 82（AR14）
+  console.assert(Math.abs(lift+hL+hU-2.40)<1e-9&&Math.abs(bw-.82)<.004,'鞋櫃：懸空＋下櫃＋上櫃＝240、櫃體 82');
+  B(g,fE,hL+hU,.02,M.oakV,-W/2+fE/2,lift,zF-.01); B(g,fW,hL+hU,.02,M.oakV,W/2-fW/2,lift,zF-.01);   // 填縫（321 日本杉木）
+  cabShell(g,{w:bw,h:hL,d:dL-.018,at:[bx,lift,zF-.018],mat:M.oakV,shelves:[.26,.52,.78,1.04,1.30,1.56]});   // 下櫃（AR14 層板斜放，這裡畫成平放）
+  cabShell(g,{w:bw,h:hU,d:dU-.018,at:[bx,lift+hL,zF-.018],mat:M.oakV});           // 上櫃
+  B(g,.52,.36,.012,M.lacquer,bx,lift+.92,zF-dL+.012);                              // 電箱畫框蓋（下櫃背板）
+  for(let s=0;s<6;s++) for(let k=0;k<3;k++) RB(g,.1,.07,.26,.02,[M.blackMetal,M.duvet,M.potDark,M.pillowB][(s+k)%4],bx-.27+k*.27,lift+.26*s+.018,zF-dL/2-.02);   // 鞋
+  for(const [y,h,u] of [[lift,hL,'下櫃'],[lift+hL,hU,'上櫃']]) for(const [sd,x,lab] of [['L',bx-bw/4,'左門（一般門板・左開）'],['R',bx+bw/4,'右門（JL 門板・右開）']]){
+    const d=cabLeaf(g,{cab:name,side:sd,w:bw/2,h:h-.004,at:[x,y+.002,zF],mat:M.lacquer,label:u+lab});
+    if(sd==='R'&&u==='下櫃') B(d.sw,.012,.8,.008,M.gapDark,-(bw/2-.012),.3,.003,false); }   // JL 把手（長 80）
+  furn(put(g,...NPM((x0+x1)/2,zf+dU/2/S),PI,true,dynG),name);
   if(PROPOSAL) for(const [x,m] of [[740,M.blackMetal],[755,M.duvet],[771,M.potDark],[785,M.pillowB]]) for(const dx of [-1.6,1.6]) RB(staticG,.09,.08,.28,.03,m,MX(x+dx),.012,MZ(560),true); }   // 懸空下方的客人鞋
-{ const x0=693.75, x1=732, za=548.25, zb=554.1, rr2=2.9, n0=698.7, n1=727.05, top=2.38, m=M.specialPaint;   // 展示框：三格 40×40，特殊漆圓角
+{ const x0=693.75, x1=732, zb=554.1, za=zb-cmP(9), rr2=cmP(3), n0=x0+cmP(5), n1=n0+cmP(44), top=2.40, m=M.specialPaint;   // 展示櫃：三格 44×40（底 90、間隔 5），特殊漆、倒弧 R3
   RM(staticG,x0+rr2,za,n0,zb,0,top,m); RM(staticG,x0,za+rr2,x0+rr2,zb,0,top,m);
   C(staticG,rr2*S,rr2*S,top,m,MX(x0+rr2),0,MZ(za+rr2),16);
   RM(staticG,n1,za,x1,zb,0,top,m);
-  for(const [a,b] of [[0,.89],[1.29,1.34],[1.74,1.79],[2.19,top]]) RM(staticG,n0,za,n1,zb,a,b,m);
+  for(const [a,b] of [[0,.90],[1.30,1.35],[1.75,1.80],[2.20,top]]) RM(staticG,n0,za,n1,zb,a,b,m);
   clad('z',554.1,693.7,732,0,top,-1,m,1.2);
-  B(staticG,.2,.25,.015,M.blackMetal,MX(712.9),1.79,MZ(552.5)); B(staticG,.17,.21,.004,M.art2,MX(712.9),1.81,MZ(552.5)-.009,false);   // 上格畫框
-  C(staticG,.03,.03,.1,M.potDark,MX(712.9),1.34,MZ(551.5),12); for(const dx of [-.04,.04]) C(staticG,.002,.002,.22,M.trunk,MX(712.9)+dx*.3,1.44,MZ(551.5),4);   // 中格擴香
-  for(const [dx,h2] of [[-.04,.14],[.03,.17]]) C(staticG,.022,.03,h2,M.blackMetal,MX(712.9)+dx,.89,MZ(551.5),12);   // 下格貓擺飾
+  B(staticG,.2,.25,.015,M.blackMetal,MX(712.9),1.80,MZ(zb-1.6)); B(staticG,.17,.21,.004,M.art2,MX(712.9),1.82,MZ(zb-1.6)-.009,false);   // 上格畫框
+  C(staticG,.03,.03,.1,M.potDark,MX(712.9),1.35,MZ(zb-2.6),12); for(const dx of [-.04,.04]) C(staticG,.002,.002,.22,M.trunk,MX(712.9)+dx*.3,1.45,MZ(zb-2.6),4);   // 中格擴香
+  for(const [dx,h2] of [[-.04,.14],[.03,.17]]) C(staticG,.022,.03,h2,M.blackMetal,MX(712.9)+dx,.90,MZ(zb-2.6),12);   // 下格貓擺飾
   colM(x0,za,x1,zb); }
-// 浴室外牆（走廊側、餐邊櫃旁）一律特殊漆：浴室門兩側到頂、門上方
-clad('z',554.1,586.7,640.6,0,H,-1,M.specialPaint,1.2); clad('z',554.1,640.6,693.7,2.1,H,-1,M.specialPaint,1.2);
-RM(staticG,750,478.2,767.5,478.6,.02,2.38,M.bronzeMirror,false);                  // 面貼茶鏡（討論版 10/16 改回保留）
-if(PROPOSAL){ const zf=MZ(478.6);                                                    // 討論版：驗屋現況同一面牆有對講機＋開關（渲染圖沒畫），看鏡面怎麼避開
-  B(staticG,.25,.18,.022,M.blackMetal,MX(758.75),1.42,zf+.011); B(staticG,.215,.145,.002,M.blackGlass,MX(758.75),1.437,zf+.023,false);   // 對講機面板
-  B(staticG,.07,.11,.012,M.whiteApp,MX(763),1.12,zf+.006); }                         // 開關
+// 浴室外牆（走廊側、餐邊櫃旁）一律特殊漆：浴室門兩側、門上方（到低天花 240）
+clad('z',554.1,586.7,640.6,0,2.40,-1,M.specialPaint,1.2); clad('z',554.1,640.6,693.7,2.1,2.40,-1,M.specialPaint,1.2);
+{ const xr=794.3, xl=xr-cmP(65), zf=MZ(478.6), cx=MX((xl+xr)/2);                     // 面貼茶鏡 65×240（AR19；鏡面材質、對講機尺寸位置待確認）
+  RM(staticG,xl,478.2,xr,478.6,0,2.40,M.bronzeMirror,false);
+  B(staticG,.25,.18,.022,M.blackMetal,cx-.1,1.15,zf+.011); B(staticG,.215,.145,.002,M.blackGlass,cx-.1,1.167,zf+.023,false);   // 對講機面板
+  B(staticG,.07,.11,.012,M.whiteApp,cx+.14,1.18,zf+.006); }                          // 開關
 // 原本的鞋櫃中段魚缸改成展示框：仍照樣建一次不放進場景，後面書本、城市的亂數排列才不會跟著變
 { const g=new THREE.Group();
   for(let i=0;i<7;i++){ const k=mk(new THREE.ConeGeometry(.018,rr(.1,.22),5),M.leaf2,false); k.position.set(rr(-.35,.35),1.0+.06,rr(-.1,.1)); g.add(k); }
   for(let i=0;i<7;i++){ ({ph:rr(0,6.3),sp:rr(.4,.9),y:rr(1.03,1.26),z:rr(-.09,.09),amp:rr(.22,.32)}); } }
 R(staticG,[772,480,802,532],.013,.022,M.shadowDark,false);                        // 地墊
-R(ceilG,[701,464.8,806.9,542.7],2.38,H,M.ceiling);                                  // 玄關天花：行李箱收納
-if(!PROPOSAL) for(const x of [735,770]) R(ceilG,[x,470,x+.8,537],2.375,2.38,M.gapDark,false);   // 行李箱收納維修口（討論版改到主臥衣櫃上方）
 
 // 討論版：遮光捲簾（窗框外安裝，左右各多蓋 8cm；上方捲軸盒，簾布拉下一半示意）
 function blackout(axis,face,a0,a1){ const w=Math.abs(a1-a0)+.16, c=(a0+a1)/2, top=2.42, drop=.75, m=std({color:0xcfc6b8,roughness:.95});
   if(axis==='z'){ B(staticG,.09,.1,w,M.lacquer,face+.045,top-.1,c); B(staticG,.012,drop,w-.02,m,face+.03,top-.1-drop,c); }
   else { B(staticG,w,.1,.09,M.lacquer,c,top-.1,face+.045); B(staticG,w-.02,drop,.012,m,c,top-.1-drop,face+.03); } }
-/* ---- 主臥室（261015：床背護牆板深 8cm 高 100、床 5×6.2 靠板；化妝桌 90×60；衣櫃三片香檳框玻璃滑門；渲染_主臥_01～_03） ---- */
-// 討論版：沿用業主現有床頭板（寬 155、高 110、深 10cm，兩層收納層架，對齊床中心），頂面放手機（不預留插座／USB）；化妝桌改成書桌＋上方書櫃
-const WAIN=PROPOSAL?{x0:341.25-.775/S,x1:341.25+.775/S,z0:275.5,z1:275.5+.1/S,h:1.1}:{x0:211.5,x1:439.5,z0:275.5,z1:281.25,h:1.0};
-if(!PROPOSAL){ RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h-.02,M.wainscot); RM(staticG,WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+.7,WAIN.h-.02,WAIN.h,M.wainscot);
-  for(let x=WAIN.x0+7.09; x<WAIN.x1-1; x+=7.09) B(staticG,.004,WAIN.h-.04,.002,M.gapDark,MX(x),.02,MZ(WAIN.z1)+.001,false); }   // 直溝縫每 10cm
-else { const HB=MOVABLE?new THREE.Group():staticG; if(MOVABLE) dynG.add(HB); const W0=WAIN.x0, W1=WAIN.x1, z0=WAIN.z0, z1=WAIN.z1, t=1.26, m=M.wainscot, back=z0+.8, xa=W0+t+18, xb=W1-t-18;   // 現有床頭板：兩側立板＋上下兩層層架、中段面板
+/* ---- 主臥室（261109 AR05／AR12／AR17：沿用現有床頭板 W155×D10、床 5×6.2＝152×188；書桌 85×51；滑門衣櫃 274×67×240＋上掀櫃 高 50 深 69、三片 91；261109 渲染圖） ---- */
+const MBED_X=339, MDESK_X=252.9;                                                   // 床中心、書桌中心（AR05 平面配置圖 pt）
+const WAIN={x0:MBED_X-.775/S,x1:MBED_X+.775/S,z0:275.5,z1:275.5+.1/S,h:1.1};
+const HB=MOVABLE?new THREE.Group():staticG; if(MOVABLE) dynG.add(HB);
+{ const W0=WAIN.x0, W1=WAIN.x1, z0=WAIN.z0, z1=WAIN.z1, t=1.26, m=M.wainscot, back=z0+.8, xa=W0+t+18, xb=W1-t-18;   // 現有床頭板：兩側立板＋上下兩層層架、中段面板
   for(const [a,b] of [[W0,W0+t],[W1-t,W1]]) RM(HB,a,z0,b,z1,0,WAIN.h+.03,m);  // 兩側立板（略高出頂板）
   RM(HB,W0+t,z0,W1-t,back,0,WAIN.h,m);                                         // 背板
   RM(HB,W0+t,z0,W1-t,z1,0,.56,m);                                              // 下段實心
   RM(HB,xa,z0,xb,z1,.56,.84,m);                                                // 中段面板（兩側留開放格）
   RM(HB,W0+t,z0,W1-t,z1,.84,.86,m); RM(HB,W0+t,z0,W1-t,z1,WAIN.h-.02,WAIN.h,m);   // 第二層層板、頂板
-  B(HB,.075,.008,.155,M.blackGlass,MX(W0+9),WAIN.h,MZ((z0+z1)/2)); }           // 頂板上的手機（10/16：不預留插座／USB）
-colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1+(PROPOSAL?0:.7),0,WAIN.h); if(MOVABLE&&PROPOSAL) furn(dynG.children.at(-1),'現有床頭板（沿用・深 10cm）'); else furnM(PROPOSAL?'現有床頭板（沿用・深 10cm）':'床頭護牆板',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
-{ const zc=PZ(MZ(WAIN.z1)+1.93/2+.005); furn(put(bed(1.614,1.93,false,false),NPM(341.25,0)[0],zc,0),'雙人床'); }   // 雙人床 5×6.2：不做床頭板，靠護牆板
+  B(HB,.075,.008,.155,M.blackGlass,MX(W0+9),WAIN.h,MZ((z0+z1)/2)); }           // 頂板上的手機
+colM(WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
+if(MOVABLE){ HB.userData.cols=[colliders.at(-1)]; furn(HB,'現有床頭板（沿用 155×10）'); } else furnM('現有床頭板（沿用 155×10）',WAIN.x0,WAIN.z0,WAIN.x1,WAIN.z1,0,WAIN.h);
+{ const zc=PZ(MZ(WAIN.z1)+1.88/2+.005); furn(put(bed(1.52,1.88,false,false),NPM(MBED_X,0)[0],zc,0),'雙人床 5×6.2（152×188）'); }   // 不做床頭板，靠現有床頭板
 { const g=new THREE.Group(); B(g,1.45,.82,.03,M.lacquer,0,0,0); const a=mk(new THREE.PlaneGeometry(1.43,.8),M.art2,false,true); a.position.set(0,.41,.016); g.add(a);
-  g.position.set(MX(341.25),1.36,MZ(WAIN.z0)+.02); staticG.add(g); }                 // 床頭藍色抽象畫
-// 化妝桌深 60、離牆 8cm（護牆板）；上方層板 80×24 兩片、高 135／172：渲染_主臥_02 沒有，預設不放，點化妝桌可加上（同時顯示隔桌拿取檢查）
-// 討論版 10/16：化妝桌改成書桌＋上方書櫃（參考圖_主臥書桌書櫃）：桌 90×55、右側三層抽屜、書櫃深 28、方格層板 135／165（給「櫃高與走道檢查」算隔桌拿取）
-const VANITY=PROPOSAL?{d:.55,back:0,shelfD:.28,shelfY:[1.35,1.65],on:true}:{d:.6,back:.08,shelfD:.24,shelfY:[1.35,1.72],on:false};
-const POUF_Z=PROPOSAL?324:330;
-const VANITY_OBJ=furn(put(PROPOSAL?deskHutch(.9,VANITY.d,VANITY.shelfD):desk(.9,VANITY.d),...NPM(250.6,PROPOSAL?275.6+VANITY.d/2/S:302.5),0),PROPOSAL?'書桌＋上方書櫃':'化妝桌');   // 化妝桌 90×60（白色細腳）
-VANITY.shelves=PROPOSAL?[]:VANITY.shelfY.map(y=>{ const m=B(dynG,.8,.025,VANITY.shelfD,M.oak,MX(250.6),y,MZ(WAIN.z0)+VANITY.shelfD/2); m.visible=VANITY.on;
-  colObj(m); const col=colliders[colliders.length-1]; col.onMaxY=col.maxY; if(!VANITY.on) col.maxY=-1; return {m,col}; });
-furn(put(pouf(),...NPM(250.6,POUF_Z),0),PROPOSAL?'書桌椅凳':'化妝凳');
+  g.position.set(MX(MBED_X),1.36,MZ(WAIN.z0)+.02); staticG.add(g); }                 // 床頭藍色抽象畫
+// 書桌 85×51 靠床頭牆（渲染圖：深灰鐵架＋洞洞板＋上方兩層層板 124／146）；VANITY 給「櫃高與走道檢查」算隔桌拿取
+const VANITY={d:.51,back:0,shelfD:.24,shelfY:[1.24,1.46],on:true,shelves:[]};
+const POUF_Z=275.5+(.51+.27)/S;
+const VANITY_OBJ=furn(put(frameDesk(.85,.51),...NPM(MDESK_X,275.5+.26/S),0),'書桌（鐵架 85×51）');
+furn(put(pouf(),...NPM(MDESK_X,POUF_Z),0),'書桌椅凳');
 plant({h:.36,spread:.14,potR:.06,potH:.1,n:12,leafS:.06,kind:'bush',potMat:M.potTerra}); // 桌上盆栽已拿掉：仍生成一次但不放進場景，後面書本、城市的亂數排列才不會跟著變
-const WARD_H=PROPOSAL?2.28:2.5;                                                   // 討論版：衣櫃做到 228，上方是行李箱櫃
-const WARD_OBJ=(()=>{ const g=slideWardrobe({w:LZ(261,457.7)-.012,d:LX(451,496.2),h:WARD_H,doors:3,front:M.wardFront,frame:M.wardFrame,mirror:PROPOSAL?2:-1}); if(!PROPOSAL) B(g,LZ(261,457.7)-.012,.2,LX(451,496.2),M.lacquer,0,2.5,0); return furn(put(g,473.6,359.35,-HP,true,dynG),PROPOSAL?'主臥衣櫃（滑門・最右門全身鏡）':'主臥衣櫃（滑門）'); })(); // 衣櫃：滑門可開（不合併）
-// 討論版 3：衣櫃上方行李箱收納（10/17：一整條上掀門、內部不分格，做法請設計師決定；放三只 29 吋行李箱橫放 78×50×30）；點它可開合
+const WARD_H=2.40, WARD_W=(469.7-275.5)*S-.004, WARD_D=.67;                        // 滑門衣櫃 274×67×240（踢腳 10＋230）
+const BED_X1=MX(MBED_X)+.76, WARD_X0=MX(484.3)-WARD_D;                              // 床右緣、衣櫃正面（世界 x，走道檢查用）
+console.assert(WARD_X0-BED_X1>.55&&WARD_X0-BED_X1<.7,'主臥床—衣櫃走道應約 62cm（AR05 量圖）');
+const WARD_OBJ=furn(put(slideWardrobe({w:WARD_W,d:WARD_D,h:WARD_H,doors:3,plinth:.10,front:M.wardFront,frame:M.wardFrame}),PX(WARD_X0+WARD_D/2),359.35,-HP,true,dynG),'主臥衣櫃（滑門 274×67×240）'); // 衣櫃：滑門可開（不合併）
+// 衣櫃上方上掀櫃（AR12 木作立面：高 50、深 69、三片各 91）：放三只 29 吋行李箱橫放 78×50×30；點它可開合
 let LUG_OBJ=null;
-if(PROPOSAL){ const w=LZ(261,457.7)-.012, d=LX(451,496.2), h=H-WARD_H-.02, t=.018, g=new THREE.Group(), doors=[], bw=w/3;
-  B(g,w,t,d,M.lacquer,0,0,0); B(g,w,t,d,M.lacquer,0,h-t,0); B(g,w,h,t,M.lacquer,0,0,-d/2+t/2);
-  for(const s of [-1,1]) B(g,t,h,d,M.lacquer,s*(w/2-t/2),0,0);
+{ const w=WARD_W, d=.69, h=.50, t=.018, dc=d-t, g=new THREE.Group(), doors=[], bw=(w-.04)/3;   // 上掀櫃 240～290（AR12：2＋90×3＋2、深 69）
+  console.assert(Math.abs(WARD_H+h-H)<.005,'衣櫃 240＋上掀櫃 50 應到天花 290');
+  B(g,w,t,dc,M.lacquer,0,0,-t/2); B(g,w,t,dc,M.lacquer,0,h-t,-t/2); B(g,w,h,t,M.lacquer,0,0,-d/2+t/2);
+  for(const s of [-1,1]) B(g,t,h,dc,M.lacquer,s*(w/2-t/2),0,-t/2);
+  for(const s of [-1,1]) B(g,.02,h,.018,M.lacquer,s*(w/2-.01),0,d/2-.009);           // 兩側填縫 2
   const bagCol=[0x6f7f8c,0xb9a58c,0x8d4b45];
-  for(let i=0;i<3;i++){ const cx=-w/2+bw*(i+.5), m=std({color:bagCol[i],roughness:.45});
-    RB(g,.78,.3,.5,.03,m,cx,t,-.02); B(g,.2,.03,.03,M.blackMetal,cx,t+.3,.15); B(g,.03,.05,.06,M.blackMetal,cx-.36,t+.12,.23);   // 行李箱＋提把
-  }
-  { const p=new THREE.Group(); p.position.set(0,h,d/2); g.add(p); B(p,w-.006,h-.004,.018,M.lacquer,0,-(h-.004),.009);   // 一整條上掀門
-    for(const x of [-w/3,0,w/3]) B(p,.14,.012,.006,M.gapDark,x,-(h-.004)+.02,.019,false); doors.push(p); }   // 下緣指扣
+  for(let i=0;i<3;i++){ const cx=-w/2+.02+bw*(i+.5), m=std({color:bagCol[i],roughness:.45});
+    RB(g,.78,.3,.5,.03,m,cx,t,-.04); B(g,.2,.03,.03,M.blackMetal,cx,t+.3,.13); B(g,.03,.05,.06,M.blackMetal,cx-.36,t+.12,.21);   // 行李箱＋提把
+    const p=new THREE.Group(); p.position.set(cx,h,d/2-t); g.add(p); B(p,bw-.006,h-.004,t,M.lacquer,0,-(h-.004),t/2);   // 上掀門 90
+    B(p,.14,.012,.006,M.gapDark,0,-(h-.004)+.02,t+.001,false); doors.push(p); }                                          // 下緣指扣
   g.userData.lug={doors,t:0,target:0};
-  const o=put(g,473.6,359.35,-HP,false,dynG); o.position.y=WARD_H+.01; colObj(o);
-  LUG_OBJ=furn(o,'衣櫃上方行李箱收納（一整條上掀門）'); }
+  const o=put(g,PX(MX(484.3)-d/2),359.35,-HP,false,dynG); o.position.y=WARD_H; colObj(o);
+  LUG_OBJ=furn(o,'衣櫃上方上掀櫃（90×3・高 50・深 69）'); }
 // 主臥房門旁開放掛區（討論版 8）已取消：外出衣、包包改掛客廳電視牆右側的汙衣區
 put(acUnit(),228,NPM(0,399.4)[1],HP,false).position.y=2.31;                         // 冷氣：261015 圖窗牆南段
 if(!PROPOSAL) for(let i=0;i<3;i++){ const len=LZ(261,431.1)/3; const b=B(staticG,.02,.45,len-.03,M.pleat,X(221.5)+.035,2.2-.45,Z(261)+len*(i+.5)); b.castShadow=true; } // 風琴簾
@@ -1475,7 +1556,7 @@ const CHAIR_OBJ=furn(put(officeChair(),572,GDESK_Y,-HP,true,dynG),'辦公椅'), 
   plant({h:.4,spread:.2,potR:.08,potH:.14,n:16,leafS:.07,kind:'bush',potMat:M.potDark}); }
 furn(put(metalShelf(),...NPM((491.25+533.25)/2,469.7-.4/S/2-.3),PI),'鐵架（原有 148×40×60）');
 for(let i=0;i<2;i++) books(new THREE.Group(),-.45,.35,1.5,.24,.26);   // 書桌上方層板已全部拿掉：原本兩片層板上的書照樣抽一次亂數不放，後面排列才不會跟著變
-furn(put(cabinet({w:(469.7-413)*S,d:(672.8-630)*S,h:2.4,doors:2,front:M.closetFront,handle:false}),...NPM((630+672.8)/2,(413+469.7)/2),-HP),'客房衣櫃');  // 門片與客房牆面齊平
+furn(put(cabinet({w:(469.7-413)*S,d:(672.8-630)*S,h:2.4,doors:2,plinth:.10,front:M.closetFront,handle:false,hinges:['L','R'],fill:.02,name:'客房衣櫃（80×60×240）',shelves:[2.02],rod:1.95}),...NPM((630+672.8)/2,(413+469.7)/2),-HP,true,dynG),'客房衣櫃（80×60×240）');   // 261109 AR14：78＋填縫 2（南側）、一般門板左開｜JL 門板右開、頂層板 202、吊衣桿 195
 put(acUnit(),590,457.7-7.3,PI,false).position.y=2.3;                               // 冷氣：房門上方偏書桌側（渲染_客房_01、_02）
 if(!PROPOSAL){ const b=B(staticG,LX(503.2,637.9)-.04,.5,.012,M.zebra,(X(503.2)+X(637.9))/2,1.7,Z(261)+.03,false); }  // 調光簾
 else blackout('x',Z(261)+.05,X(503.2),X(637.9));                                    // 討論版：遮光捲簾、窗框外安裝
@@ -1499,6 +1580,8 @@ furn(put(fridge(),...NPM(662.35,375.9),HP),'冰箱');                           
 RM(staticG,638.1,403.6,681.3,406,0,2.4,M.lacquer);                                  // 冰箱旁側板
 RM(staticG,638.1,345.5,681.3,403.6,1.93,1.95,M.lacquer);                            // 冰箱上方開放格底板
 RM(staticG,638.1,303.2,681.3,406,2.4,H,M.lacquer);                                  // 冰箱凹上方封板
+RM(staticG,681.3,406,681.3+.5,469.7,0,2.37,M.whiteApp,false);                      // 面貼琺瑯板 90×237（261109 AR20；顏色待確認，渲染圖為白色）
+for(const [z,y,m] of [[425,1.5,M.blackMetal],[440,1.25,BOOK_MATS[2]],[452,1.62,BOOK_MATS[5]]]) B(staticG,.004,.12,.09,m,MX(681.8)+.004,y,MZ(z),false);   // 磁鐵便條
 R(staticG,[770,289,806.9,457.7],0,.1,M.shadowDark);                                // 踢腳
 R(staticG,[766,287.6,806.9,457.7],.1,.86,M.lacquer);                                 // 下櫃
 for(const y of [346,391,426]) B(staticG,.004,.74,.004,M.gapDark,X(766)-.002,.11,Z(y),false);
@@ -1523,10 +1606,21 @@ colRect([763,287.6,806.9,457.7],0,.9); furnRect('廚房檯面',[763,287.6,806.9,
 
 /* ---- 浴廁 ---- */
 furn(put(toilet(),630.4,589,HP),'馬桶');
-furn(put(vanity(),697.2,648.7,PI),'洗手檯');
-B(staticG,.58,.78,.012,M.blackMetal,X(697.2),1.1,Z(665)-.006);
-const mirror = new Reflector(new THREE.PlaneGeometry(.55,.75),{clipBias:.003,textureWidth:LOW?512:1024,textureHeight:LOW?700:1400,color:0xc4c8c9});
-mirror.position.set(X(697.2),1.485,Z(665)-.0135); mirror.rotation.y=PI; scene.add(mirror);
+const BATH={wx:MX(666.1),zs:MZ(673.8)};                                              // 浴廁：洗手檯靠的西牆面、南牆面（世界座標）
+BATH.x=BATH.wx+.08+.36;                                                            // 鏡櫃中心（靠牆側填縫 8）
+furn(put(vanity(.8,'洗手檯（80 寬・兩門）'),PX(BATH.wx+.40),PZ(BATH.zs-.24),PI,true,dynG),'洗手檯（80 寬・兩門）');
+const MIRROR_NAME='浴室鏡櫃（72×16×70・30｜40 對開）';
+const mirror = new Reflector(new THREE.PlaneGeometry(.39,.66),{clipBias:.003,textureWidth:LOW?512:1024,textureHeight:LOW?700:1400,color:0xc4c8c9});
+{ const g=new THREE.Group(), y0=1.20, h=.70, d=.16; g.position.set(BATH.x,0,BATH.zs-d/2); g.rotation.y=PI; dynG.add(g);   // 261109 AR18：櫃底 120、高 70、深 16、白色
+  // 人面對鏡櫃時左手是東（區域 -x）：30 門左開、40 門右開；西側（區域 +x）填縫 8
+  cabShell(g,{w:.72,h,d:d-.018,at:[0,y0,d/2-.018],mat:M.whiteApp,shelves:[.24,.47]});
+  B(g,.08,h,.02,M.whiteApp,.40,y0,d/2-.01);                                        // 填縫 8
+  for(let k=0;k<3;k++) C(g,.025,.025,.12,[M.ceramic,M.steel,M.whiteApp][k],-.2+k*.15,y0+.258,0,12);   // 櫃內小物
+  const dA=cabLeaf(g,{cab:MIRROR_NAME,side:'L',w:.31,h:h-.004,at:[-.205,y0+.002,d/2],mat:M.whiteApp,label:'左門 30（左開）'});
+  B(dA.sw,.29,h-.04,.003,M.chrome,.155,.018,.0015,false);                          // 鏡面
+  const dB=cabLeaf(g,{cab:MIRROR_NAME,side:'R',w:.41,h:h-.004,at:[.155,y0+.002,d/2],mat:M.whiteApp,label:'右門 40（右開）'});
+  mirror.position.set(-.205,h/2,.002); dB.sw.add(mirror);
+  furn(g,MIRROR_NAME); colObj(g); }
 if(mirror.camera) mirror.camera.layers.enableAll();
 { const x=X(773), z=Z(665)-.045;                                                    // 淋浴柱＋頂噴
   C(staticG,.012,.012,1.12,M.chrome,x,.95,z,12);
@@ -1600,25 +1694,20 @@ pLight('living',330,560,2.45,16,9,true);   for(const [x,y] of [[262,530],[330,53
 pLight('dining',DINE_X,DINE_Y,1.47,7,6,true);                                     // 餐桌吊燈（燈罩下緣離桌面 74cm）
 pLight('master',360,352,2.45,13,8,true);   for(const [x,y] of [[290,320],[395,320],[290,430],[395,430]]) panel('master',...NPM(x,y),.045);   // 主臥崁燈
 pLight('guest',578,360,2.45,10,7,false);
-if(PROPOSAL) for(const [x,y] of [[525,325],[595,325],[525,415],[595,415]]) panel('guest',...NPM(x,y),.045);   // 討論版 7：全室崁燈（客房也做天花板）
-else { panel('guest',578,360,.2);                                                // 客房吸頂燈（黑邊）
-  const t=mk(new THREE.TorusGeometry(.2,.012,8,48),M.blackMetal,false,false); t.rotation.x=HP; t.position.set(X(578),H-.03,Z(360)); ceilG.add(t);
-  C(ceilG,.212,.212,.026,M.blackMetal,X(578),H-.026,Z(360),48,false); }
+for(const [x,y] of PROPOSAL?[[525,325],[595,325],[525,415],[595,415]]:[[560,330],[560,412]]) panel('guest',...NPM(x,y),.045);   // 客房崁燈（261109 渲染圖兩顆；討論版 7：四顆）
 if(PROPOSAL){ panel('master',...NPM(250.6,304),.045); pLight('master',...NPM(250.6,304),2.4,2.5,2.5,false); }   // 討論版 11：化妝桌前緣上方崁燈
 pLight('kitchen',740,372,2.45,10,6,false); R(ceilG,[722,340,758,404],H-.03,H,lpMat('kitchen'),false); // 廚房
 pLight('bath',688,598,2.4,7,5,false);      panel('bath',688,598,.14); panel('bath',772,620,.09);   // 浴廁
-pLight('entry',758,505,2.28,6,5,false);    panel('entry',740,505,.05,2.38); panel('entry',778,505,.05,2.38); // 玄關嵌燈
+pLight('entry',758,505,2.28,6,5,false);    panel('entry',740,505,.05,LOWC); panel('entry',778,505,.05,LOWC); for(const x of [610,665]) panel('entry',x,505,.045,LOWC); // 玄關嵌燈
 // 間接照明：可與主燈分開設定色溫
-const NICHE_X=(TVW.xn0+TVW.xn1)/2, NICHE_TOP=TVW.top;                              // 展示格（原設計位置，整排到頂）
-pLight('livingInd',...NPM(NICHE_X,495),NICHE_TOP-.2,.8,3,false);                    // 客廳：電視牆高櫃展示格投射燈＋懸浮櫃下燈條
+const NICHE_X=(TVW.xn0+TVW.xn1)/2, NICHE_TOP=TVW.up;                               // 展示櫃（261109：頂到吊櫃底 185）
+pLight('livingInd',...NPM(NICHE_X,495),NICHE_TOP-.2,.8,3,false);                    // 客廳：電視牆展示櫃投射燈＋南牆脫縫天花
 C(staticG,.025,.025,.006,lpMat('livingInd'),MX(NICHE_X),NICHE_TOP-.026,MZ(493),16,false);
-if(!PROPOSAL) RM(staticG,TVW.x0+1,TVW.z0+2,TVW.x1-2,TVW.z1-2,TVW.yb-.006,TVW.yb-.001,lpMat('livingInd'),false);   // 懸浮櫃下燈條（討論版落地沒有）
-if(!PROPOSAL){ pLight('masterInd',...NPM(325,290),1.2,.5,3,false);                 // 主臥：床頭護牆板頂端燈條（討論版：床頭不做夜燈）
-  RM(staticG,WAIN.x0+.5,WAIN.z0+.2,WAIN.x1-.5,WAIN.z0+1,WAIN.h,WAIN.h+.004,lpMat('masterInd'),false); }
+R(ceilG,NR([211.5+cmP(20),675.3-cmP(26),LOWC_X,675.3-cmP(24)]),H-.08,H-.02,lpMat('livingInd'),false);   // 南牆脫縫天花出光（261109 AR09）；電視櫃落地、沿用現有床頭板，原本的櫃下燈條與床頭燈條取消
 pLight('kitchenInd',795,400,1.42,1.5,2.5,false);                                  // 廚房：吊櫃下燈
 R(staticG,[787,347,804,456],1.494,1.5,lpMat('kitchenInd'),false);
 pLight('bathInd',697.2,650,1.9,1.2,2.5,false);                                    // 浴廁：鏡前燈
-B(staticG,.5,.02,.02,lpMat('bathInd'),X(697.2),1.875,Z(665)-.02,false);
+B(staticG,.6,.02,.02,lpMat('bathInd'),BATH.x,1.185,BATH.zs-.13,false);   // 鏡櫃下緣燈條
 panel('entry',715,228,.1);                                                        // 陽台
 panel('entry',850,508,.12);                                                       // 走廊
 R(ceilG,[680,570,694,584],H-.02,H,M.lacquer,false);                      // 浴室排風扇
@@ -1638,7 +1727,7 @@ R(ceilG,[680,570,694,584],H-.02,H,M.lacquer,false);                      // 浴�
 }
 
 /* =========================================================
-   8. 天空與城市景觀（位於 12 樓高度）
+   8. 天空與城市景觀
    ========================================================= */
 const GY = -36.2;
 const skyMat = new THREE.ShaderMaterial({
@@ -1785,8 +1874,8 @@ if(PROPOSAL){ const walkG=new THREE.Group(); labelG.add(walkG);
   wb.addEventListener('click',flipWalk); fab.addEventListener('click',flipWalk); syncWalk();
   setInterval(()=>{ fab.hidden=state.mode==='fps'; },400);   // 第一人稱時尺寸本來就不顯示，按鈕也藏起來
 }
-// 座向（A6 戶，對照標準層索引圖：北鄰梯廳、東鄰 A5）：圖面右＝北、下＝東、左＝南、上＝西 → 坐北朝南
-for(const [x,y,dir,what] of [[905,505,'北 N','大門・公共走廊'],[125,550,'南 S','客廳・主臥窗'],[560,205,'西 W','客房窗・陽台'],[514,710,'東 E','鄰戶 A5']]){
+// 座向（對照標準層索引圖）：圖面右＝北、下＝東、左＝南、上＝西 → 坐北朝南
+for(const [x,y,dir,what] of [[905,505,'北 N','大門・公共走廊'],[125,550,'南 S','客廳・主臥窗'],[560,205,'西 W','客房窗・陽台'],[514,710,'東 E','鄰戶']]){
   const el=document.createElement('div'); el.className='compass-label'; el.innerHTML=`<b>${dir}</b><span>${what}</span>`;
   const o=new CSS2DObject(el); o.position.set(X(x),.05,Z(y)); labelG.add(o);
 }
@@ -1804,9 +1893,9 @@ function personMats(kind,body){
 }
 function joint(p,x,y,z){ const g=new THREE.Group(); g.position.set(x,y,z); p.add(g); return g; }
 function limb(p,r,len,mat){ const m=mk(new THREE.CapsuleGeometry(r,Math.max(.001,len-2*r),4,12),mat); m.position.y=-len/2; p.add(m); return m; }
-// 基準模型高 179.3cm；身高決定縱向比例，BMI 決定圍度
+// 基準模型高 179.3cm；身高決定縱向比例，BMI 決定圍度（沒給體重時用標準體型 BMI 22，線上版不放體重）
 function bodyMetrics(kind,body){
-  const f=kind==='f', s=body.h/179.3, bmi=body.kg/Math.pow(body.h/100,2);
+  const f=kind==='f', s=body.h/179.3, bmi=body.kg>0?body.kg/Math.pow(body.h/100,2):22;
   const g=Math.min(1.35,Math.max(.85,Math.sqrt(bmi/22))), gw=Math.pow(g,.55);
   const hipW=(f?.172:.17)*s*gw, shW=(f?.16:.185)*s*gw, armR=.048*s*g, torsoD=.22*s*g, belly=Math.max(0,g-1)*.16*s;
   const half=Math.max(shW+.02*s+armR, hipW+.01);
@@ -1892,17 +1981,17 @@ function addSeat(name,xPt,yPt,lx,lz,rot,h,lean,arms){
   const c=Math.cos(rot), sn=Math.sin(rot);
   const s={name,x:X(xPt)+lx*c+lz*sn,z:Z(yPt)-lx*sn+lz*c,yaw:rot,h,lean,arms}; SEATS.push(s); return s;
 }
-[-.6,0,.6].forEach(lx=>addSeat('客廳沙發',SOFA_X,SOFA_Y,lx,.1,PI,.46,-.16,'lap'));
+(SOFA_W<2.1?[-.42,.42]:[-.6,0,.6]).forEach(lx=>addSeat('客廳沙發',SOFA_X,SOFA_Y,lx,.1,PI,.46,-.16,'lap'));
 SEATS.forEach(s=>{ if(s.name==='客廳沙發') s.sofa=true; });
 addSeat('客房書桌椅',572,GDESK_Y,0,-.06,-HP,.53,.04,'desk');
 for(const y of CHAIR_Y){ addSeat('餐椅',DINE_X-42,y,0,-.04,HP,.52,0,'desk'); addSeat('餐椅',DINE_X+42,y,0,-.04,-HP,.52,0,'desk'); }
 const XSEATS=[addSeat('餐椅',DINE_X-42,XCHAIR_Y,0,-.04,HP,.52,0,'desk'),addSeat('餐椅',DINE_X+42,XCHAIR_Y,0,-.04,-HP,.52,0,'desk')]; // 180 加椅：off 時不能坐
 XSEATS.forEach(s=>s.off=true);
-addSeat('化妝凳',...NPM(250.6,POUF_Z),0,0,PI,.45,0,'desk');
+addSeat('化妝凳',...NPM(MDESK_X,POUF_Z),0,0,PI,.45,0,'desk');
 
 const PEOPLE=[
-  {name:'男性', kind:'m', body:{h:170,kg:90,top:'#34506b',bottom:'#b7a583'}, home:SEATS.find(s=>s.name==='客房書桌椅'), seat:null},
-  {name:'女性', kind:'f', body:{h:155,kg:50,top:'#c4826b',bottom:'#56687f'}, home:SEATS[1], seat:null},
+  {name:'男性', kind:'m', body:{h:170,top:'#34506b',bottom:'#b7a583'}, home:SEATS.find(s=>s.name==='客房書桌椅'), seat:null},
+  {name:'女性', kind:'f', body:{h:155,top:'#c4826b',bottom:'#56687f'}, home:SEATS[1], seat:null},
 ];
 PEOPLE.forEach(P=>{ P.defaults={...P.body}; P.obj=makePerson(P.kind,P.body); P.obj.userData.entry=P; });
 // 伸縮沙發拉長時，坐在沙發上的人改成盤腿（cross）或躺著（lie）；一次只讓一個人躺
@@ -2371,14 +2460,14 @@ const bodyUI={title:$('#body-title'),checks:$('#checks'),fps:$('#body-fps')};
 const editing=()=>selected||PEOPLE[0];
 const cm=v=>Math.round(v*100);
 const SHELVES=[{name:'廚房吊櫃頂層',top:2.35},{name:'主臥衣櫃頂層',top:WARD_H,f:true},{name:'客房鐵架頂層',top:1.48}];
-if(PROPOSAL) SHELVES.splice(2,0,{name:'主臥行李箱櫃（取放行李箱）',top:WARD_H+.3,f:true},{name:'電視上方吊櫃頂層',top:2.45});   // f：主臥一律用女主人身形檢查
+SHELVES.splice(2,0,{name:'主臥上掀櫃（取放行李箱）',top:WARD_H+.3,f:true},{name:'電視上方吊櫃頂層',top:TVW.top});   // f：主臥一律用女主人身形檢查
 const FEMALE=()=>PEOPLE.find(P=>P.kind==='f');
 // 隔著桌子拿層板（一般人體比例）：站姿肩高 .818h、坐姿肩高＝座高 52＋.345h；手抓得到的距離＝臂長 .43h 減手掌 7cm
 // 肩到層板前緣的水平距離＝桌深－層板深＋身體到桌緣（站 15、坐 25）；回傳還差多少（≤0 拿得到）
 function overDesk(h,top,seated,desk){ const sh=seated?.52+.345*h:.818*h, grasp=.43*h-.07, horiz=desk.d+(desk.back||0)-desk.shelfD+(seated?.25:.15); return Math.hypot(horiz,top-sh)-grasp; }
 const reachRow=(label,r)=>`<li><span>${label}</span>${r<=0?'<b class="ok">拿得到</b>':r<=.12?'<b class="warn">要往前趴</b>':'<b class="bad">拿不到</b>'}</li>`;
 const SOFA_GAP=LZ(TV_FRONT,SOFA_Y)-SOFA_OBJ.userData.slide.depth/2;   // 沙發前緣到懸浮電視櫃正面（261015 圖 505）
-const AISLES=[{name:'主臥 床—衣櫃',w:LX(409.6,451),f:true},{name:'廚房 冰箱—檯面',w:LX(699.1,763)},{name:'浴廁門淨寬',w:.67},{name:'客廳 沙發—電視櫃',w:SOFA_GAP},{name:'客廳 沙發拉長後—電視櫃',w:SOFA_GAP-SOFA_OBJ.userData.slide.ext},{name:'餐椅—餐邊櫃',w:LX(DINE_X+42+15.2,SIDE_X)},{name:'沙發扶手—餐椅',w:LX(SOFA_X,DINE_X-42-15.2)-SOFA_W/2},
+const AISLES=[{name:'主臥 床—衣櫃',w:WARD_X0-BED_X1,f:true},{name:'廚房 冰箱—檯面',w:LX(699.1,763)},{name:'浴廁門淨寬',w:.67},{name:'客廳 沙發—電視櫃',w:SOFA_GAP},{name:'客廳 沙發拉長後—電視櫃',w:SOFA_GAP-SOFA_OBJ.userData.slide.ext},{name:'餐椅—餐邊櫃',w:LX(DINE_X+42+15.2,SIDE_X)},{name:'沙發扶手—餐椅',w:LX(SOFA_X,DINE_X-42-15.2)-SOFA_W/2},
   {name:'餐桌拉到 180 後—電視牆高櫃',w:LZ(TV_FRONT,DINE_Y)-TABLE_OBJ.userData.slide.len/2-2*TABLE_OBJ.userData.slide.ext}];   // 玄關進客廳的主動線
 // 家具離窗簾盒：窗簾垂在盒子正下方，家具要退到盒外緣以外；留 3cm 給家具實品誤差與踢腳板
 const CLEARS=[{name:'沙發扶手—窗簾盒',w:()=>LX(CBOX_X,SOFA_X)-SOFA_W/2}];
@@ -2389,7 +2478,7 @@ function renderBodyUI(){
   for(const sh of SHELVES){ const F=sh.f?FEMALE():P, gap=sh.top-.1-F.obj.userData.reach;
     rows.push(`<li><span>${sh.name} ${cm(sh.top)} cm${sh.f&&F!==P?`（${F.name} ${F.body.h}cm）`:''}</span>${gap<=0?'<b class="ok">拿得到</b>':gap<=.12?`<b class="warn">差 ${cm(gap)} cm・踮腳</b>`:`<b class="bad">差 ${cm(gap)} cm・需踏凳</b>`}</li>`); }
   const F=FEMALE(), fh=F.body.h/100;
-  if(VANITY.on){ rows.push(`<li class="sub">${PROPOSAL?'主臥書桌上方書櫃':'主臥化妝桌層板'}（${F.name} ${F.body.h}cm・隔著桌深 ${cm(VANITY.d+VANITY.back)}）</li>`);
+  if(VANITY.on){ rows.push(`<li class="sub">主臥書桌上方層板（${F.name} ${F.body.h}cm・隔著桌深 ${cm(VANITY.d+VANITY.back)}）</li>`);
     VANITY.shelfY.forEach((y,i)=>{ for(const seated of [false,true]) rows.push(reachRow(`${i?'上':'下'}層 ${cm(y)} cm・${seated?'坐著':'站著'}`,overDesk(fh,y+.025,seated,VANITY))); }); }
   else rows.push('<li class="sub">主臥化妝桌層板</li><li><span>設計師圖沒有層板・點化妝桌可加上再檢查</span></li>');
   rows.push('<li class="sub">走道寬度</li>');
@@ -2537,7 +2626,7 @@ ctUI.plan.addEventListener('click',()=>{ Object.assign(state.ct,CT_PLAN); applyL
    12d. 我的方案：最多 5 組「名稱＋風格＋各燈色溫」，點一下即切換
    儲存位置：連結雲端硬碟裡的方案檔（.json），並另存一份在瀏覽器當快取
    ========================================================= */
-const SLOT_KEY='home3d-slots-v1', MAX_SLOTS=5, NAME_MAX=24, FILE_NAME='A01_3D方案.json';
+const SLOT_KEY='zheng3d-slots-v1', MAX_SLOTS=5, NAME_MAX=24, FILE_NAME='A01_3D方案.json';
 // 補齊缺少的間接燈：沿用同房主燈色溫
 const fillCt=ct=>{ const o={}; for(const c of LIGHT_CH) o[c.k]=ct[c.k]??ct[c.k.replace('Ind','')]??3000; return o; };
 const cleanName=(n,i)=>(typeof n==='string'&&n.trim()?n.trim().slice(0,NAME_MAX):`方案 ${i+1}`);
@@ -2545,7 +2634,7 @@ const validSlot=(s,i)=>s&&THEMES[s.style]?{name:cleanName(s.name,i),style:s.styl
 const normSlots=arr=>Array.from({length:MAX_SLOTS},(_,i)=>validSlot(Array.isArray(arr)?arr[i]:null,i));
 function loadLocal(){
   try{ const s=JSON.parse(localStorage.getItem(SLOT_KEY)||'null'); if(Array.isArray(s)) return normSlots(s); }catch(e){}
-  try{ const old=JSON.parse(localStorage.getItem('home3d-schemes-v1')||'null');            // 舊版方案 A／B 轉成方案 1、2
+  try{ const old=JSON.parse(localStorage.getItem('zheng3d-schemes-v1')||'null');            // 舊版方案 A／B 轉成方案 1、2
     if(old&&old.A&&old.B) return normSlots([old.A,old.B]); }catch(e){}
   return normSlots([]);
 }
@@ -2675,7 +2764,7 @@ function adoptSlots(arr,applyFirst){
 }
 
 // 本機 HTML：連結一個 .json 方案檔（Chrome／Edge），檔案放在雲端硬碟就能跨電腦沿用
-function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open('home3d',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open('zheng3d',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
 async function kv(key,val){
   const d=await idb();
   return new Promise((res,rej)=>{ const st=d.transaction('kv',val===undefined?'readonly':'readwrite').objectStore('kv');
@@ -2929,8 +3018,8 @@ function showDims(f){
   dimCard.style.bottom=(ui.hint.offsetHeight+28)+'px';
   cardName.textContent=f.name+(f.obj===SOFA_OBJ&&SOFA.t>0?'（坐深拉長）':'')+(f.obj===TABLE_OBJ?TABLE_NAME[TABLE.n]:'')+(f.obj===DESK_OBJ?(DESK.target?'（站立）':'（坐姿）'):'');
   cardSize.textContent=`寬 ${W} × 深 ${D} × 高 ${Hh} cm`+seatTxt+(a.y>.05?`・離地 ${cm(a.y)} cm`:'')+(f.obj===DESK_OBJ?`・可升降 ${cm(DESK.h0)}～${cm(DESK.h0+DESK.ext)}`:'')+(warn?`　${warn}`:'');
-  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&(PROPOSAL||f.obj!==VANITY_OBJ)&&!(LUG_OBJ&&f.obj===LUG_OBJ)&&!(LAUNDRY.obj&&f.obj===LAUNDRY.obj);
-  if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(f.obj===VANITY_OBJ) refreshVanityBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else if(LAUNDRY.obj&&f.obj===LAUNDRY.obj) refreshLaundryBtn(); else refreshSofaBtn();
+  cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&!(LUG_OBJ&&f.obj===LUG_OBJ)&&!(LAUNDRY.obj&&f.obj===LAUNDRY.obj)&&!cabOf(f);
+  if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else if(LAUNDRY.obj&&f.obj===LAUNDRY.obj) refreshLaundryBtn(); else if(cabOf(f)) refreshCabBtn(f); else refreshSofaBtn();
 }
 
 /* ---------- 點選判定：按下後沒拖動才算「點」，拖曳照常轉視角／拖人物 ---------- */
@@ -2981,7 +3070,7 @@ function setSofaSlide(open,quiet){
 }
 function applySofa(){ const e=SOFA.t*SOFA.t*(3-2*SOFA.t); SOFA.deck.visible=SOFA.t>0; SOFA.seat.position.z=SOFA.ext*e; }
 function sofaDone(){ if(dimSel&&dimSel.obj===SOFA_OBJ) showDims(dimSel); }
-cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else if(LAUNDRY.obj&&o===LAUNDRY.obj) setLaundry(!LAUNDRY.on); else setSofaSlide(!SOFA.target); });
+cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else if(LAUNDRY.obj&&o===LAUNDRY.obj) setLaundry(!LAUNDRY.on); else if(cabOf(dimSel)) setCab(dimSel.name,!CAB_BY.get(dimSel.name).some(d=>d.want)); else setSofaSlide(!SOFA.target); });
 poseBtn.addEventListener('click',()=>{
   if(dimSel&&dimSel.obj===WARD_OBJ){ setWard(0); return; }
   if(dimSel&&dimSel.obj===TABLE_OBJ){ setTable(0); return; }
@@ -3015,7 +3104,7 @@ function refreshVanityBtn(){
 const LUG=LUG_OBJ?LUG_OBJ.userData.lug:{t:0,target:0,doors:[]};
 function refreshLugBtn(){ cardBtn.textContent=LUG.target?'收起上掀門':'打開上掀門（看行李箱）'; cardBtn.setAttribute('aria-pressed',String(!!LUG.target)); poseBtn.hidden=true; }
 function setLug(open){ LUG.target=open?1:0; refreshLugBtn(); if(REDUCED){ LUG.t=LUG.target; applyLug(); }
-  toast(open?`行李箱櫃打開：衣櫃上方 ${cm(H-WARD_H)} cm，放三只 29 吋行李箱（橫放 78×50×30），做法請設計師決定`:'行李箱櫃已收起'); }
+  toast(open?`上掀櫃打開：衣櫃上方 ${cm(H-WARD_H)} cm、三片各 91，放三只 29 吋行李箱（橫放 78×50×30）`:'上掀櫃已收起'); }
 /* ---------- 討論版：汙衣區可拿掉，看電視牆尾端到餐邊櫃的走道變多寬 ---------- */
 function refreshLaundryBtn(){ cardBtn.textContent=LAUNDRY.on?'拿掉汙衣區（看走道寬）':'放回汙衣區'; cardBtn.setAttribute('aria-pressed',String(!LAUNDRY.on)); poseBtn.hidden=true; }
 function setLaundry(on){ LAUNDRY.on=on; LAUNDRY.real.visible=on; LAUNDRY.ghost.visible=!on; LAUNDRY.col.maxY=on?LAUNDRY.col.onMaxY:-1;
@@ -3106,6 +3195,7 @@ function applyDesk(){ DESK.top.position.y=DESK.ext*smooth(DESK.t); }
 function deskDone(){ if(dimSel===DESK_F) showDims(DESK_F); else measure(DESK_F); }
 
 function updateFurn(dt){
+  updateCabDoors(dt);                                                             // 櫃門開關（13_櫃門開關與動線.js）
   dimG.visible=state.mode!=='fps'; dimCard.hidden=!dimSel||state.mode==='fps';
   if(DESK.t!==DESK.target){ DESK.t=DESK.t<DESK.target?Math.min(1,DESK.t+dt*.8):Math.max(0,DESK.t-dt*.8); applyDesk(); if(DESK.t===DESK.target) deskDone(); }
   if(WARD.off.some((v,i)=>v!==WARD.want[i])){
@@ -3125,7 +3215,7 @@ function updateFurn(dt){
 // shortcut: 只移動家具本身＋碰撞盒＋上面的座位；伸縮沙發／升降桌推椅子的動畫仍以原位計算，之後要準可改成相對位置
 const movable=f=>MOVABLE&&!!f&&!!f.obj&&f.obj.parent===dynG;
 const canMove=f=>!VIEWER&&movable(f);
-const LAYOUT_KEY='home3d-furn-layout-v2';
+const LAYOUT_KEY='zheng3d-furn-layout-v2';
 const _b3=new THREE.Box3();
 // 第一次動某件家具時，記下它的碰撞盒與座位（座位用家具自己的座標記，之後跟著轉）
 function bindFurn(f){
@@ -3168,7 +3258,7 @@ function markOverlap(f){ const n=canMove(f)?overlapNames(f):[]; dimMat.color.set
 function warnText(n){ return n.length?`⚠ 壓到 ${n.join('、')}`:''; }
 // 「整面電視牆一起動」開著時，選到其中一件就整組一起搬、轉
 let SET_LINK=false;
-let SNAP_ON=true; try{ SNAP_ON=localStorage.getItem('home3d-snap')!=='0'; }catch(e){}   // 自動貼牆開關（轉 90°、拖曳放開都看這個）
+let SNAP_ON=true; try{ SNAP_ON=localStorage.getItem('zheng3d-snap')!=='0'; }catch(e){}   // 自動貼牆開關（轉 90°、拖曳放開都看這個）
 const groupOf=f=>SET_LINK&&f.obj&&f.obj.userData.set?FURN.filter(k=>movable(k)&&k.obj.userData.set===f.obj.userData.set):[f];
 // 一組家具的平面範圍（有碰撞盒用碰撞盒，沒有用外框）與高度範圍
 function footprint(list){
@@ -3247,7 +3337,7 @@ if(MOVABLE&&!VIEWER){
   rotBtn.addEventListener('click',()=>{ if(canMove(dimSel)) rotateFurn(dimSel); });
   homeBtn.addEventListener('click',()=>{ const f=dimSel; if(!canMove(f)) return; const h=bindFurn(f).home; placeFurn(f,h.x,h.z,h.rot); saveLayout(); showDims(f); toast(`${f.name}已回原位`); });
   const snapBtn=$('#furn-snap'), snapTxt=()=>{ if(snapBtn){ snapBtn.textContent=`自動貼牆：${SNAP_ON?'開':'關'}`; snapBtn.setAttribute('aria-pressed',String(SNAP_ON)); } }; snapTxt();
-  snapBtn?.addEventListener('click',()=>{ SNAP_ON=!SNAP_ON; try{ localStorage.setItem('home3d-snap',SNAP_ON?'1':'0'); }catch(e){} snapTxt(); toast(SNAP_ON?'自動貼牆已開：轉 90° 或拖曳放開時，30cm 內的牆會自動貼上':'自動貼牆已關：放在哪就在哪'); });
+  snapBtn?.addEventListener('click',()=>{ SNAP_ON=!SNAP_ON; try{ localStorage.setItem('zheng3d-snap',SNAP_ON?'1':'0'); }catch(e){} snapTxt(); toast(SNAP_ON?'自動貼牆已開：轉 90° 或拖曳放開時，30cm 內的牆會自動貼上':'自動貼牆已關：放在哪就在哪'); });
   $('#furn-undo')?.addEventListener('click',undoLayout);
   $('#furn-redo')?.addEventListener('click',redoLayout);
   addEventListener('keydown',e=>{ if(!(e.ctrlKey||e.metaKey)||(e.target.closest&&e.target.closest('input,textarea'))) return;   // Ctrl+Z 上一步；Ctrl+Y 或 Ctrl+Shift+Z 下一步
@@ -3277,6 +3367,162 @@ if(MOVABLE&&!VIEWER){
   try{ const d=JSON.parse(localStorage.getItem(LAYOUT_KEY)||'{}'); for(const f of FURN){ const v=d[furnKey(f)]; if(canMove(f)&&Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)) placeFurn(f,...v); } }catch(e){}
   lastLay=JSON.stringify(furnLayout()); refreshUndo(); refreshPressed();
 }
+
+/* =========================================================
+   12e. 櫃門開關與開門動線（門向照 261109 立面圖：左開／右開、上掀、抽屜）
+   點櫃子 → 卡片「打開櫃門」；左側「櫃門全開」一次全開；左側清單點櫃名單獨開關；第一人稱按 E 開關面前的櫃子
+   開門後地面畫出開門範圍（綠＝可通過、橘＝要側身或和別的門重疊、紅＝擋住或撞到），清單列出每座櫃子開門後前方剩多少走道
+   ========================================================= */
+const CAB_BY=new Map(); for(const d of CAB_DOORS){ if(!CAB_BY.has(d.cab)) CAB_BY.set(d.cab,[]); CAB_BY.get(d.cab).push(d); }
+const cabOf=f=>!!f&&CAB_BY.has(f.name);
+const cabShort=n=>n.replace(/（.*$/,'');
+const ROOM_DOOR_NAMES=['主臥房門','客房房門','廚房門','浴廁門','大門','陽台門','淋浴拉門'];
+const CAB_LV={ok:'可通過',warn:'要注意',bad:'擋住'}, CAB_RANK={ok:0,warn:1,bad:2};
+const CAB_SIDE=.45, CAB_PASS=.70;   // 開門後前方剩不到 45 cm：人站不進去；不到 70 cm：要側身
+// 開著的門片當碰撞盒（第一人稱撞得到、走道尺寸算得到）；關著時 maxY=-1 停用
+for(const d of CAB_DOORS){ d.col={minX:0,maxX:0,minZ:0,maxZ:0,minY:0,maxY:-1,cabDoor:d}; colliders.push(d.col); }
+const _cb=new THREE.Box3();
+function poseCab(d){ const e=smooth(d.v);
+  if(d.kind==='hinge') d.sw.rotation.y=-d.s*d.ang*e; else if(d.kind==='flip') d.sw.rotation.x=-d.ang*e; else d.sw.position.z=d.ext*e; }
+function syncCabCol(d){ const c=d.col; if(d.v<.5){ c.maxY=-1; return; }
+  d.sw.updateWorldMatrix(true,true); _cb.setFromObject(d.sw); c.minX=_cb.min.x; c.maxX=_cb.max.x; c.minZ=_cb.min.z; c.maxZ=_cb.max.z; c.minY=_cb.min.y; c.maxY=_cb.max.y; }
+
+/* ---------- 開門幾何（世界座標，俯視 2D）：鉸鏈門用 90° 算，實際門片開到約 93° ---------- */
+function cabGeo(d){
+  d.pivot.updateWorldMatrix(true,false); const m=d.pivot.matrixWorld;
+  const P=new THREE.Vector3().setFromMatrixPosition(m), ex=new THREE.Vector3(1,0,0).transformDirection(m), ez=new THREE.Vector3(0,0,1).transformDirection(m);
+  const y0=d.kind==='flip'?P.y-d.h:P.y, u=[ex.x*d.s,ex.z*d.s], n=[ez.x,ez.z];
+  const C=d.kind==='hinge'?[P.x+u[0]*d.w/2,P.z+u[1]*d.w/2]:[P.x,P.z];   // 門片正面中心
+  return {P:[P.x,P.z],u,n,ex:[ex.x,ex.z],y0,y1:y0+d.h,C,reach:d.kind==='hinge'?d.w:d.kind==='drawer'?d.ext:0};
+}
+function sweepPts(d,g){ const pts=[];
+  if(d.kind==='hinge') for(let a=3;a<=90;a+=4.5){ const r=a*Math.PI/180, c=Math.cos(r), s=Math.sin(r), dx=g.u[0]*c+g.n[0]*s, dz=g.u[1]*c+g.n[1]*s;
+    for(let k=1;k<=6;k++){ const rr=d.w*k/6; pts.push([g.P[0]+dx*rr,g.P[1]+dz*rr]); } }
+  else if(d.kind==='drawer') for(let i=-2;i<=2;i++) for(let k=1;k<=4;k++){ const lx=(d.w/2-.02)*i/2, dz=d.ext*k/4; pts.push([g.P[0]+g.ex[0]*lx+g.n[0]*dz,g.P[1]+g.ex[1]*lx+g.n[1]*dz]); }
+  return pts; }
+function inSweep(d,g,[x,z]){ const vx=x-g.P[0], vz=z-g.P[1];
+  if(d.kind==='hinge') return Math.hypot(vx,vz)<=d.w&&vx*g.u[0]+vz*g.u[1]>=0&&vx*g.n[0]+vz*g.n[1]>=0;
+  if(d.kind==='drawer'){ const a=vx*g.ex[0]+vz*g.ex[1], b=vx*g.n[0]+vz*g.n[1]; return Math.abs(a)<=d.w/2&&b>=0&&b<=d.ext; }
+  return false; }
+function inRoomDoor(rd,[x,z]){ const vx=x-rd.hx, vz=z-rd.hz, r=Math.hypot(vx,vz); if(r>rd.width||r<.02) return false;
+  let a=Math.atan2(-vz,vx)-rd.thc; while(a>Math.PI) a-=2*Math.PI; while(a<-Math.PI) a+=2*Math.PI;
+  return rd.delta>0?a>=0&&a<=rd.delta:a<=0&&a>=rd.delta; }
+// 障礙物：高度和門片（或人）重疊的碰撞盒；包含門片後方那一點的（＝櫃子本身）不算
+function cabObstacles(g,lo,hi){ const ix=g.C[0]-g.n[0]*.05, iz=g.C[1]-g.n[1]*.05;
+  return colliders.filter(c=>!c.cabDoor&&c.maxY>Math.max(lo,.05)&&c.minY<hi&&!(ix>=c.minX-.005&&ix<=c.maxX+.005&&iz>=c.minZ-.005&&iz<=c.maxZ+.005)); }
+function rayDist(o,dir,cols,maxD=3){ let best=maxD, hit=null;
+  for(const c of cols){ let t0=0, t1=maxD;
+    for(const [p,dv,mn,mx] of [[o[0],dir[0],c.minX,c.maxX],[o[1],dir[1],c.minZ,c.maxZ]]){
+      if(Math.abs(dv)<1e-9){ if(p<mn||p>mx){ t0=1e9; break; } continue; }
+      let a=(mn-p)/dv, b=(mx-p)/dv; if(a>b) [a,b]=[b,a]; t0=Math.max(t0,a); t1=Math.min(t1,b); }
+    if(t0<=t1&&t0<best){ best=t0; hit=c; } }
+  return {dist:best,hit}; }
+// 點到哪件家具（找不到＝牆或固定櫃）
+function cabNameAt(x,z,y0,y1,skip){
+  for(const f of FURN){ if(f.name===skip) continue; const o=f.obj, p=o?o.position:f.p, r=o?o.rotation.y:f.rot, c=Math.cos(r), s=Math.sin(r), dx=x-p.x, dz=z-p.z;
+    const lx=dx*c-dz*s, lz=dx*s+dz*c, yb=(o?o.position.y:0)+f.min.y, yt=(o?o.position.y:0)+f.max.y;
+    if(lx>=f.min.x-.01&&lx<=f.max.x+.01&&lz>=f.min.z-.01&&lz<=f.max.z+.01&&yt>y0&&yb<y1) return cabShort(f.name); }
+  return '牆或固定櫃'; }
+
+/* ---------- 開門檢查：前方剩多少走道、掃過範圍撞到什麼、和房門／其他櫃門重疊 ---------- */
+function analyzeCab(){
+  scene.updateMatrixWorld(true);
+  const all=CAB_DOORS.map(d=>({d,g:cabGeo(d)}));
+  for(const {d,g} of all){
+    d.geo=g; d.res={lv:'ok',left:null,notes:[]};
+    if(!g.reach) continue;                                                         // 上掀門：往上開，不佔走道
+    const lv=(l,t)=>{ d.res.notes.push(t); if(CAB_RANK[l]>CAB_RANK[d.res.lv]) d.res.lv=l; };
+    const high=g.y0>=1.0;                                                          // 吊櫃、鏡櫃：門在檯面上方，不算走道，改查會不會撞頭
+    if(!high){ const sp=rayDist([g.C[0]+g.n[0]*.003,g.C[1]+g.n[1]*.003],g.n,cabObstacles(g,.1,1.8));
+      d.res.left=sp.dist-g.reach;
+      const what=sp.hit?cabNameAt(g.C[0]+g.n[0]*(sp.dist+.01),g.C[1]+g.n[1]*(sp.dist+.01),.1,1.8,d.cab):'';
+      if(sp.hit&&sp.hit.soft&&d.res.left<CAB_PASS) lv('warn',`${d.label}：前方 ${cm(sp.dist)} cm 就是${what}，要先把${what}拉開（開門後只剩 ${Math.max(0,cm(d.res.left))} cm）`);
+      else if(d.res.left<CAB_SIDE) lv('bad',`${d.label}：前方 ${cm(sp.dist)} cm 就是${what||'牆'}，開門後只剩 ${Math.max(0,cm(d.res.left))} cm，人站不進去`);
+      else if(d.res.left<CAB_PASS) lv('warn',`${d.label}：開門後前方剩 ${cm(d.res.left)} cm，要側身`); }
+    else if(g.y0<1.8){ let sup=0; for(;sup<g.reach;sup+=.01){ const x=g.C[0]+g.n[0]*sup, z=g.C[1]+g.n[1]*sup;   // 門片下方有沒有櫃子撐著（伸出檯面多少）
+        if(!colliders.some(c=>!c.cabDoor&&c.minY<.9&&c.maxY>.5&&x>=c.minX&&x<=c.maxX&&z>=c.minZ&&z<=c.maxZ)) break; }
+      if(g.reach-sup>=.15) lv('warn',`${d.label}：門片下緣離地 ${cm(g.y0)} cm，打開會伸出下方櫃子 ${cm(g.reach-sup)} cm，經過小心撞頭`); }
+    const pts=sweepPts(d,g), obs=cabObstacles(g,g.y0,g.y1), hits=new Map();
+    for(const p of pts){ const c=obs.find(c=>p[0]>c.minX+.005&&p[0]<c.maxX-.005&&p[1]>c.minZ+.005&&p[1]<c.maxZ-.005);
+      if(c){ const n=cabNameAt(p[0],p[1],Math.max(c.minY,g.y0),Math.min(c.maxY,g.y1),d.cab); hits.set(n,hits.get(n)||!!c.soft); } }
+    for(const [h,soft] of hits) if(soft) lv('warn',`${d.label}：開門會碰到${h}（${h}要先拉開）`); else lv('bad',`${d.label}：開到 90° 前會撞到${h}`);
+    if(g.y0<2.0) doors.forEach((rd,i)=>{ if(pts.some(p=>inRoomDoor(rd,p))) lv('warn',`${d.label}：和${ROOM_DOOR_NAMES[i]}的開門範圍重疊（兩扇門不能同時全開）`); });
+    for(const o of all){ if(o.d.cab===d.cab||!o.g.reach||o.g.y1<=g.y0||o.g.y0>=g.y1) continue;
+      if(pts.some(p=>inSweep(o.d,o.g,p))) lv('warn',`${d.label}：和${cabShort(o.d.cab)}${o.d.label.replace(/（.*$/,'')}的開門範圍重疊`); }
+  }
+}
+function cabSum(name){ const ds=CAB_BY.get(name), s={lv:'ok',left:null,notes:[]};
+  for(const d of ds){ if(!d.res) continue; if(CAB_RANK[d.res.lv]>CAB_RANK[s.lv]) s.lv=d.res.lv;
+    if(d.res.left!=null&&(s.left==null||d.res.left<s.left)) s.left=d.res.left; for(const t of d.res.notes) if(!s.notes.includes(t)) s.notes.push(t); }
+  return s; }
+
+/* ---------- 地面開門範圍＋標籤（俯視、鳥瞰時顯示；只畫打開的櫃子） ---------- */
+const cabVizG=new THREE.Group(); scene.add(cabVizG);
+const CAB_COL={ok:new THREE.Color(0x2e7d32),warn:new THREE.Color(0xef6c00),bad:new THREE.Color(0xc62828)};
+const cabLineMat=new THREE.LineBasicMaterial({vertexColors:true,depthTest:false,transparent:true,opacity:.95});
+const cabLines=new THREE.LineSegments(new THREE.BufferGeometry(),cabLineMat); cabLines.renderOrder=11; cabLines.frustumCulled=false; cabVizG.add(cabLines);
+function drawCabViz(){
+  for(const o of [...cabVizG.children]) if(o!==cabLines){ cabVizG.remove(o); if(o.element) o.element.remove(); }
+  const pos=[], col=[], y=.025, seg=(a,b,c)=>{ pos.push(a[0],y,a[1],b[0],y,b[1]); col.push(c.r,c.g,c.b,c.r,c.g,c.b); };
+  for(const [name,ds] of CAB_BY){ if(!ds.some(d=>d.want)) continue;
+    const s=cabSum(name), lows=ds.filter(d=>d.geo&&d.geo.reach);
+    for(const d of lows){ const g=d.geo, c=CAB_COL[d.res.lv];
+      if(d.kind==='hinge'){ let prev=null; for(let a=0;a<=90;a+=6){ const r=a*Math.PI/180, p=[g.P[0]+(g.u[0]*Math.cos(r)+g.n[0]*Math.sin(r))*d.w,g.P[1]+(g.u[1]*Math.cos(r)+g.n[1]*Math.sin(r))*d.w]; if(prev) seg(prev,p,c); prev=p; }
+        seg(g.P,[g.P[0]+g.n[0]*d.w,g.P[1]+g.n[1]*d.w],c); }
+      else { const q=(lx,dz)=>[g.P[0]+g.ex[0]*lx+g.n[0]*dz,g.P[1]+g.ex[1]*lx+g.n[1]*dz], a=q(-d.w/2,0), b=q(d.w/2,0), e=q(d.w/2,d.ext), f=q(-d.w/2,d.ext); seg(a,f,c); seg(f,e,c); seg(e,b,c); } }
+    if(!lows.length||s.left==null) continue;
+    const cx=lows.reduce((t,d)=>t+d.geo.C[0],0)/lows.length, cz=lows.reduce((t,d)=>t+d.geo.C[1],0)/lows.length, n=lows[0].geo.n, r=Math.max(...lows.map(d=>d.geo.reach))+.12;
+    const el=document.createElement('div'); el.className='walk-dim cab-dim '+s.lv; el.innerHTML=`<b>${Math.max(0,cm(s.left))}</b>cm<span>${cabShort(name)}開門後前方</span>`;
+    const o=new CSS2DObject(el); o.position.set(cx+n[0]*r,.05,cz+n[1]*r); cabVizG.add(o); }
+  cabLines.geometry.dispose(); cabLines.geometry=new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(pos,3)).setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+}
+
+/* ---------- 左側清單 ---------- */
+const cabUI=document.getElementById('cab-checks'), cabAllBtn=document.getElementById('t-cab');
+const escH=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderCabList(){ if(!cabUI) return; const rows=[];
+  for(const [name,ds] of CAB_BY){ const s=cabSum(name), open=ds.some(d=>d.want);
+    rows.push(`<li><span><button type="button" class="cab-go" data-cab="${escH(name)}" aria-pressed="${open}">${escH(cabShort(name))}</button>　${s.left!=null?`開門後前方剩 ${Math.max(0,cm(s.left))} cm`:ds.every(d=>d.kind==='flip')?'上掀門，不佔走道':'門在檯面上方'}</span><b class="${s.lv}">${CAB_LV[s.lv]}</b></li>`);
+    for(const t of s.notes) rows.push(`<li class="cab-note">${escH(t)}</li>`); }
+  rows.push('<li class="cab-note">主臥衣櫃是滑門、上方是上掀櫃：都不佔走道（點衣櫃可逐段打開）</li>');
+  cabUI.innerHTML=rows.join(''); }
+cabUI?.addEventListener('click',e=>{ const b=e.target.closest('.cab-go'); if(!b) return; const n=b.dataset.cab; setCab(n,!CAB_BY.get(n).some(d=>d.want)); });
+function refreshCabBtn(f){ const ds=CAB_BY.get(f.name), open=ds.some(d=>d.want);
+  cardBtn.textContent=open?'關上櫃門':`打開櫃門（${ds.length} 片${ds.some(d=>d.kind==='drawer')?'・含抽屜':''}）`; cardBtn.setAttribute('aria-pressed',String(open)); poseBtn.hidden=true; }
+function refreshCabUI(){ renderCabList(); drawCabViz(); if(dimSel&&cabOf(dimSel)) refreshCabBtn(dimSel);
+  const any=CAB_DOORS.some(d=>d.want); if(cabAllBtn) cabAllBtn.setAttribute('aria-pressed',String(any)); }
+function setCab(name,open,quiet){ const ds=CAB_BY.get(name); if(!ds) return;
+  ds.forEach(d=>{ d.want=open?1:0; if(REDUCED){ d.v=d.want; poseCab(d); syncCabCol(d); } });
+  analyzeCab(); refreshCabUI(); cabDirty=true;
+  if(quiet) return; const s=cabSum(name);
+  toast(open?`${cabShort(name)}打開：${s.left!=null?`開門後前方剩 ${Math.max(0,cm(s.left))} cm（${CAB_LV[s.lv]}）`:ds.every(d=>d.kind==='flip')?'上掀門，不佔走道':`門在檯面上方（${CAB_LV[s.lv]}）`}${s.notes.length?'；'+s.notes[0]:''}`:`${cabShort(name)}已關上`); }
+function setAllCab(open){
+  for(const name of CAB_BY.keys()) setCab(name,open,true);
+  setWard(open?1:0); setLug(open);
+  const sums=[...CAB_BY.keys()].map(cabSum), nb=sums.filter(s=>s.lv==='bad').length, nw=sums.filter(s=>s.lv==='warn').length;
+  toast(open?`櫃門全開：${CAB_BY.size} 座櫃子，紅色（擋住）${nb} 座、橘色（要注意）${nw} 座，詳見左側「櫃門開關」清單`:'櫃門全部關上'); }
+cabAllBtn?.addEventListener('click',()=>setAllCab(!CAB_DOORS.some(d=>d.want)));
+
+/* ---------- 動畫（由 updateFurn 每格呼叫） ---------- */
+let cabDirty=false, cabSyncT=0;
+function updateCabDoors(dt){
+  let moving=false;
+  for(const d of CAB_DOORS){ if(d.v===d.want) continue; moving=true; const st=dt*1.5; d.v=d.v<d.want?Math.min(d.want,d.v+st):Math.max(d.want,d.v-st); poseCab(d); if(d.v===d.want) syncCabCol(d); }
+  if(!moving&&cabDirty){ cabDirty=false; refreshWalk(); }
+  cabVizG.visible=state.mode!=='fps';
+  if(MOVABLE&&CAB_DOORS.some(d=>d.want)&&(cabSyncT+=dt)>1){ cabSyncT=0; for(const d of CAB_DOORS) if(d.want) syncCabCol(d); analyzeCab(); refreshCabUI(); }   // 家具調整版：櫃子搬動後重算
+}
+
+/* ---------- 第一人稱：按 E 開關面前 1.4 m 內的櫃子 ---------- */
+addEventListener('keydown',e=>{ if(state.mode!=='fps'||e.code!=='KeyE'||e.repeat) return;
+  const fw=new THREE.Vector3(); fpsCam.getWorldDirection(fw); let best=null, bd=1.4;
+  for(const [name,ds] of CAB_BY) for(const d of ds){ const g=cabGeo(d), dx=g.C[0]-player.pos.x, dz=g.C[1]-player.pos.z, dist=Math.hypot(dx,dz);
+    if(dist<bd&&dx*fw.x+dz*fw.z>0&&g.n[0]*dx+g.n[1]*dz<0){ bd=dist; best=name; } }
+  if(best) setCab(best,!CAB_BY.get(best).some(d=>d.want)); else toast('面前 1.4 m 內沒有可以開的櫃子'); });
+
+analyzeCab(); renderCabList();
+console.assert(CAB_DOORS.every(d=>d.cab&&CAB_BY.has(d.cab)),'每片櫃門都要掛在某座櫃子名下');
+console.assert([...CAB_BY.keys()].every(n=>FURN.some(f=>f.name===n)),'櫃門的櫃子名稱要和家具名稱一致（點櫃子才找得到）');
 
 /* =========================================================
    13. 主迴圈
