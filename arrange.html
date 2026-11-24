@@ -228,6 +228,17 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
   .hint{font-size:11.5px;border-radius:8px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* 工程圖查核工具 */
+#inspection-results{font-size:12px;line-height:1.45;overflow-x:auto;margin-top:8px}
+#inspection-results table{width:100%;border-collapse:collapse;font-size:11px}
+#inspection-results td,#inspection-results th{padding:5px 3px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+#inspection-results th{color:var(--muted)}
+#inspection-results .ok{color:var(--ok)} #inspection-results .warn{color:var(--warn)} #inspection-results .bad{color:var(--bad)}
+#inspection-results li{margin-bottom:5px} #inspection-results ul{padding-left:18px;margin:6px 0}
+.inspect-label{padding:3px 5px;border-radius:4px;background:var(--panel);border:1px solid var(--rule);font:600 11px/1.2 var(--sans);white-space:nowrap;color:var(--ink);pointer-events:none}
+.inspect-label.electric{border:1px solid #1d75b7;color:#1d75b7;font-size:10px}
+.inspect-label.electric.original{border-color:#9a571a;color:#9a571a}
+.inspect-label.electric.pending{border-style:dashed;color:var(--warn)}
 </style>
 </head>
 <body>
@@ -236,7 +247,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="844bf2d86345fa7e20803229f93be94c254a5b980c18a64ea075bb40511cbc9b" data-commit="3ba1b5a4a0e03378b6e1889f754f1b032ef47219" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 3ba1b5a4a0e03378b6e1889f754f1b032ef47219 | SHA-256 844bf2d86345fa7e20803229f93be94c254a5b980c18a64ea075bb40511cbc9b">版本 v1-844bf2d86345 · Commit 3ba1b5a4a0e0</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="1ec37f2fa040b73757f7fc3dbab53e2330cbd6c71019000e411d788def252b75" data-commit="2826e1bb9992e7557da4a68c756f03f5a7236a0f" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 2826e1bb9992e7557da4a68c756f03f5a7236a0f | SHA-256 1ec37f2fa040b73757f7fc3dbab53e2330cbd6c71019000e411d788def252b75">版本 v1-1ec37f2fa040 · Commit 2826e1bb9992</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -286,12 +297,24 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
     <div class="seg" role="group" aria-label="視角模式">
       <button id="m-plan" data-mode="plan" aria-pressed="false">1F 平面俯視</button>
       <button id="m-orbit" data-mode="orbit" aria-pressed="true">3D 鳥瞰</button>
-      <button id="m-fps" data-mode="fps" aria-pressed="false">進入第一人稱</button>
+      <button id="m-fps" data-mode="fps" aria-pressed="false">第一人稱</button>
+      <button id="m-ceiling" data-mode="ceiling" aria-pressed="false">天花檢視</button>
     </div>
     <div>
       <p class="grp-label">空間 · 點選聚焦／傳送</p>
       <div class="chips" id="rooms"></div>
     </div>
+    <section aria-label="工程圖查核">
+      <p class="grp-label">工程圖查核 · 2026/11/23</p>
+      <div class="toggles">
+        <button class="tog" id="inspect-dims" aria-pressed="false">尺寸驗證</button>
+        <button class="tog" id="inspect-electric" aria-pressed="false">插座／開關</button>
+        <button class="tog" id="inspect-doors" aria-pressed="false">櫃門碰撞</button>
+      </div>
+      <div class="toggles" id="ceiling-controls" hidden style="margin-top:6px"><button class="chip" id="ceil-under">仰視</button><button class="chip" id="ceil-above">俯視</button><button class="chip" id="ceil-labels" aria-pressed="true">高度標籤</button></div>
+      <p class="note" id="inspection-note">依 AR05、AR07、AR08、AR09-1 及各立面圖；模型核對非現場丈量。</p>
+      <div id="inspection-results" aria-live="polite" hidden></div>
+    </section>
     <div data-edit>
       <p class="grp-label">人物 · 直接拖曳到任意位置</p>
       <div class="chips" id="people"></div>
@@ -999,7 +1022,7 @@ function clad(axis,at,a0,a1,yb,yt,dir,mat,size){
 clad('x',792.6,303.2,469.7,.9,1.52,-1,M.subway,.6);
 
 // 大樑：實測圖標示沿右側外牆（廚房→玄關→浴室）D:34cm、梁底 B.H:240cm
-R(ceilG,NR([768.5,303.2,792.6,673.8]),2.4,H,M.paint);
+const ENTRY_BEAM = R(ceilG,NR([768.5,303.2,792.6,673.8]),2.4,H,M.paint);
 
 /* =========================================================
    4. 可動門扇（靠近自動開啟）
@@ -1040,7 +1063,7 @@ function addDoor(o){
   let d=tho-thc; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI;
   const leaf=LEAF[o.type](o.width,o.height,o.thick); pivot.add(leaf); pivot.rotation.y=thc+d;
   const door={name:o.name,short:o.short||o.name,pivot,leaf,thc,delta:d,t:1,target:1,open:true,fpsManual:null,fpsKeep:false,
-    width:o.width,thick:o.thick,hx:pivot.position.x,hz:pivot.position.z,
+    width:o.width,height:o.height,thick:o.thick,hx:pivot.position.x,hz:pivot.position.z,
     cx:X(o.center[0]),cz:Z(o.center[1]),openR:o.openR||1.5};
   leaf.traverse(m=>{ if(m.isMesh){ m.layers.set(DOOR_LAYER); m.userData.door=door; } });
   doorG.add(pivot);
@@ -1458,24 +1481,31 @@ for(let i=0;i<2;i++){
 colM(TVW.xh,TVW.z0,TVW.x1,TVW.z1,0,2.4); TVR.userData.cols=[colliders.at(-1)];
 // 65 吋電視左距 25、下緣 H75，145×84。
 const TV_X=TVW.xa+cmP(25+72.5);
-B(TVSET,1.45,.84,.03,M.tvFrame,MX(TV_X),.75,MZ(TVW.z0)+.035);
+const TV_PANEL=B(TVSET,1.45,.84,.03,M.tvFrame,MX(TV_X),.75,MZ(TVW.z0)+.035);
 {const m=mk(new THREE.PlaneGeometry(1.42,.80),M.tvScreen,false,false);m.position.set(MX(TV_X),1.17,MZ(TVW.z0)+.051);TVSET.add(m);}
 if(MOVABLE){furn(TVLOW,TV_NAMES[0]);furn(TVHANG,TV_NAMES[1]);furn(TVR,TV_NAMES[2]);furn(TVSET,'壁掛電視 65 吋');for(const g of [TVLOW,TVSET,TVR,TVHANG])g.userData.set='電視牆';}
 else{furnM(TV_NAMES[0],TVW.xa,TVW.z0,TVW.xh,TVW.z1,0,.46);furnM(TV_NAMES[1],TVW.xa,TVW.z0,TVW.xh,TVW.zd,1.9,2.4);furnM(TV_NAMES[2],TVW.xh,TVW.z0,TVW.x1,TVW.z1,0,2.4);}
 // AR09 / AR09-1：平頂 CH 待現場量，暫用 260；低天花 240。短向 278 / 283 差異以既有平面為準。
 const LOWC=2.40, FLAT_CH=2.60, LOWC_X=211.5+cmP(20+478), SOFFIT_Z=TVW.z0+cmP(40);
 const CEIL_N=TVW.z0, CEIL_S=675.3, CEIL_W=211.5, CEIL_E=768.5;
-for(const r of [[CEIL_W+cmP(20),CEIL_N,LOWC_X,SOFFIT_Z],[LOWC_X,CEIL_N,CEIL_E,554.1],[LOWC_X,554.1,586.7,CEIL_S],[732,554.1,CEIL_E,582.4]]) R(ceilG,NR(r),LOWC,H,M.ceiling);
-R(ceilG,NR([CEIL_W+cmP(20),SOFFIT_Z,LOWC_X,CEIL_S-cmP(30)]),FLAT_CH,H,M.ceiling);
-R(ceilG,NR([CEIL_W+cmP(20),CEIL_S-cmP(15),LOWC_X,CEIL_S]),2.70,H,M.paint); // 封樑高度暫用 270
-R(ceilG,NR([CEIL_W+cmP(20),CEIL_S-cmP(30),LOWC_X,CEIL_S-cmP(15)]),FLAT_CH+.06,H,M.ceiling); // 脫縫 D15，高差暫估
-R(ceilG,NR([CEIL_W,CEIL_N,CEIL_W+cmP(20),CEIL_S]),LOWC,H,M.ceiling); // 窗側高度暫用 240
+// 保留實際建立的幾何參照，供工程圖檢視與尺寸核對；合併前讀取原始尺寸。
+const CEIL_REGIONS=[];
+function ceilingRegion(r,y,kind,label,mat=M.ceiling){
+  const mesh=R(ceilG,NR(r),y,H,mat);
+  CEIL_REGIONS.push({mesh,kind,label}); return mesh;
+}
+CEIL_REGIONS.push({mesh:ENTRY_BEAM,kind:'beam',label:'入口樑 CH240'});
+for(const r of [[CEIL_W+cmP(20),CEIL_N,LOWC_X,SOFFIT_Z],[LOWC_X,CEIL_N,CEIL_E,554.1],[LOWC_X,554.1,586.7,CEIL_S],[732,554.1,CEIL_E,582.4]]) ceilingRegion(r,LOWC,'low','低天花 CH240');
+const MAIN_CEIL=ceilingRegion([CEIL_W+cmP(20),SOFFIT_Z,LOWC_X,CEIL_S-cmP(30)],FLAT_CH,'flat','客餐廳平頂 CH260 暫估');
+ceilingRegion([CEIL_W+cmP(20),CEIL_S-cmP(15),LOWC_X,CEIL_S],2.70,'beam','封樑 CH270 暫估',M.paint); // 封樑高度暫用 270
+ceilingRegion([CEIL_W+cmP(20),CEIL_S-cmP(30),LOWC_X,CEIL_S-cmP(15)],FLAT_CH+.06,'gap','脫縫 D15・高度暫估'); // 脫縫 D15，高差暫估
+ceilingRegion([CEIL_W,CEIL_N,CEIL_W+cmP(20),CEIL_S],LOWC,'window','窗簾盒 D20・CH 暫估'); // 窗側高度暫用 240
 // 主、次臥平頂高度暫用 260，主臥衣櫃上掀櫃高度 290 區保留。
-R(ceilG,NR([211.5,275.5,484.3-cmP(69),469.7]),FLAT_CH,H,M.ceiling);
-R(ceilG,NR([490.7,275.5,630,469.7]),FLAT_CH,H,M.ceiling);
-R(ceilG,NR([681.3,303.2,792.6,469.7]),2.37,H,M.ceiling);
-R(ceilG,NR([595.2,563.3,793.6,673.8]),2.28,H,M.ceiling);
-R(ceilG,NR([643.7,190.5,759.3,288.3]),2.26,H,M.ceiling);
+ceilingRegion([211.5,275.5,484.3-cmP(69),469.7],FLAT_CH,'flat','主臥平頂 CH260 暫估');
+ceilingRegion([490.7,275.5,630,469.7],FLAT_CH,'flat','次臥平頂 CH260 暫估');
+ceilingRegion([681.3,303.2,792.6,469.7],2.37,'original','廚房 CH237');
+ceilingRegion([595.2,563.3,793.6,673.8],2.28,'original','浴廁 CH228');
+ceilingRegion([643.7,190.5,759.3,288.3],2.26,'original','陽台 CH226');
 const SOFA_W=1.95, SOFA_D=.9, SOFA_Y=NPM(0,675.3-(SOFA_D/2+.005)/S)[1];           // 沙發 195×90 靠南牆（261109 AR05 平面配置圖）
 const SOFA_X=NPM(323.7,0)[0];                                                      // AR05 量圖：沙發 254.4～393pt，靠窗側扶手離窗牆約 60cm
 const SOFA_OBJ=furn(put(sofa(SOFA_W,SOFA_D),SOFA_X,SOFA_Y,PI,true,dynG),'沙發'), SOFA_COL=colliders[colliders.length-1]; // 沙發 195×90（坐深可拉長，總深到 120，不合併）
@@ -1534,7 +1564,7 @@ RM(SBU,SB.x1-1,SB.z0+1.4,SB.x1,SB.zU2,SB.uy0+.02,SB.un,M.oak);
     cabLeaf(cabP(SBU),{cab:SB_NAMES[1],side:sd,w:(b-a)*S,h:SB.uy1-y0-.004,at:[UF,y0+.002,sbZ(a,b)],face:-HP,mat:M.lacquer,label:lab}); }
 B(SBL,.14,.25,.3,M.whiteApp,MX(578),SB.top,MZ(650)); C(SBL,.035,.035,.32,M.chrome,MX(580),SB.top,MZ(662),12);   // 咖啡機、膠囊架
 for(let k=0;k<4;k++) B(SBU,.2,.03,.14,BOOK_MATS[k],MX(578),SB.uy0+.02+k*.03,MZ(575));   // 開放櫃裡的書
-colM(SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top); SBL.userData.cols=[colliders.at(-1)]; colM(SB.xu,SB.z0,SB.x1,SB.z1,SB.uy0,H); SBU.userData.cols=[colliders.at(-1)];
+colM(SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top); SBL.userData.cols=[colliders.at(-1)]; colM(SB.xu,SB.z0,SB.x1,SB.z1,SB.uy0,SB.uy1); SBU.userData.cols=[colliders.at(-1)];
 if(MOVABLE){ furn(SBL,SB_NAMES[0]); furn(SBU,SB_NAMES[1]); SBL.userData.set=SBU.userData.set='餐邊櫃'; }
 else { furnM(SB_NAMES[0],SB.x0,SB.z0,SB.x1,SB.z1,0,SB.top); furnM(SB_NAMES[1],SB.xu,SB.z0,SB.x1,SB.z1,SB.uy0,SB.uy1); }
 /* ---- AR11 / AR11-1：玄關鞋櫃 88×240，洞洞板 54×240、外推 9 ---- */
@@ -1551,9 +1581,10 @@ const SHOE={x0:732.1,x1:732.1+cmP(88),zf:547.6,depth:.48};
   furn(put(g,...NPM((SHOE.x0+SHOE.x1)/2,SHOE.zf+.24/S),PI,true,dynG),name);
   for(let i=0;i<6;i++) RB(staticG,.09,.08,.28,.025,[M.blackMetal,M.duvet,M.potDark][i%3],MX(SHOE.x0)+.10+i*.12,.012,MZ(SHOE.zf)+.20);
 }
+let PEG_PANEL;
 {const x1=732.1,x0=x1-cmP(54),zb=554.1,za=zb-cmP(9),cx=MX((x0+x1)/2),z=MZ(za),m=M.oakV;
   // 落地洞洞板與右側圓角（半徑暫用 18 mm），用深色孔位呈現。層板不加支柱。
-  RB(staticG,.54,2.40,.09,.018,m,cx,0,z+.045);
+  PEG_PANEL=RB(staticG,.54,2.40,.09,.018,m,cx,0,z+.045);
   for(let ix=0;ix<9;ix++)for(let iy=0;iy<43;iy++) {const h=mk(new THREE.CircleGeometry(.004,8),M.gapDark,false,false);h.rotation.y=PI;h.position.set(cx-.22+ix*.055,.06+iy*.054,z-.001);staticG.add(h);}
   for(const y of [.95,2.00]) B(staticG,.54,.018,.09,M.oak,cx,y-.018,z-.045);
   for(const [y,n] of [[1.64,4],[.62,2]])for(let k=0;k<n;k++){const x=cx+(k-(n-1)/2)*.115;B(staticG,.012,.012,.045,M.blackMetal,x,y,z-.023);B(staticG,.012,.045,.012,M.blackMetal,x,y-.032,z-.048);}
@@ -1562,8 +1593,9 @@ const SHOE={x0:732.1,x1:732.1+cmP(88),zf:547.6,depth:.48};
 }
 // 浴室外牆（走廊側、餐邊櫃旁）一律特殊漆：浴室門兩側、門上方（到低天花 240）
 clad('z',554.1,586.7,640.6,0,2.40,-1,M.specialPaint,1.2); clad('z',554.1,640.6,693.7,2.1,2.40,-1,M.specialPaint,1.2);
+let ENTRY_MIRROR;
 { const xr=794.3, xl=xr-cmP(65), zf=MZ(478.6), cx=MX((xl+xr)/2);                     // 面貼茶鏡 65×240（AR19；鏡面材質、對講機尺寸位置待確認）
-  RM(staticG,xl,478.2,xr,478.6,0,2.40,M.bronzeMirror,false);
+  ENTRY_MIRROR=RM(staticG,xl,478.2,xr,478.6,0,2.40,M.bronzeMirror,false);
   B(staticG,.25,.18,.022,M.blackMetal,cx-.1,1.15,zf+.011); B(staticG,.215,.145,.002,M.blackGlass,cx-.1,1.167,zf+.023,false);   // 對講機面板
   B(staticG,.07,.11,.012,M.whiteApp,cx+.14,1.18,zf+.006); }                          // 開關
 // 原本的鞋櫃中段魚缸改成展示框：仍照樣建一次不放進場景，後面書本、城市的亂數排列才不會跟著變
@@ -1780,7 +1812,8 @@ function pLight(room,xPt,yPt,y,intensity,dist,shadow,color=0xffe2bd){
 }
 const LP={};                                                              // 各房燈面材質（色溫可分開設定）
 const lpMat=room=>LP[room]||(LP[room]=M.lightPanel.clone());
-function panel(room,xPt,yPt,r,y=H){ const m=mk(new THREE.CylinderGeometry(r,r,.03,32),lpMat(room),false,false); m.position.set(X(xPt),y-.015,Z(yPt)); ceilG.add(m); }
+const CEIL_FIXTURES=[];
+function panel(room,xPt,yPt,r,y=H){ const m=mk(new THREE.CylinderGeometry(r,r,.03,32),lpMat(room),false,false); m.position.set(X(xPt),y-.015,Z(yPt)); ceilG.add(m); CEIL_FIXTURES.push(m); }
 // AR08：9cm 防眩崁燈；位置依平面圖比例換算，施工放樣待確認。
 pLight('living',330,560,2.45,16,9,true);
 for(const [x,z] of [[315,552],[337,552],[357,552],[453,522],[491,554],[534,523]])panel('living',...NPM(x,z),.045,FLAT_CH);
@@ -1797,7 +1830,7 @@ for(const c of [260,300]){const x=TVW.xa+cmP(c),z=TVW.z0+cmP(20); C(TVR,.0175,.0
 for(const z of [SB.z0+cmP(28),SB.z0+cmP(84)]){const x=SB.x1-cmP(15);C(SBU,.0175,.0175,.006,fixedWarm,MX(x),SB.uy0-.007,MZ(z),16,false);pLight('fixed3000',...NPM(x,z),SB.uy0-.08,.8,2,false);}
 for(const y of [.198,1.248])B(staticG,.84,.006,.012,fixedWarm,MX((SHOE.x0+SHOE.x1)/2),y,MZ(SHOE.zf)+.02,false);
 pLight('fixed3000',...NPM((SHOE.x0+SHOE.x1)/2,SHOE.zf),1.18,.6,2,false);
-R(ceilG,NR([CEIL_W+cmP(20),CEIL_S-cmP(29),LOWC_X,CEIL_S-cmP(27)]),FLAT_CH+.025,FLAT_CH+.035,lpMat('livingInd'),false);
+CEIL_FIXTURES.push(R(ceilG,NR([CEIL_W+cmP(20),CEIL_S-cmP(29),LOWC_X,CEIL_S-cmP(27)]),FLAT_CH+.025,FLAT_CH+.035,lpMat('livingInd'),false));
 pLight('livingInd',...NPM((CEIL_W+LOWC_X)/2,CEIL_S-cmP(26)),FLAT_CH-.1,2,4,false);
 pLight('kitchenInd',795,400,1.42,1.5,2.5,false);                                  // 廚房：吊櫃下燈
 R(staticG,[787,347,804,456],1.494,1.5,lpMat('kitchenInd'),false);
@@ -1913,6 +1946,13 @@ function mergeGroup(group){
   for(let i=group.children.length-1;i>=0;i--){ const c=group.children[i]; if(c.isGroup&&c.children.length===0) group.remove(c); }
   for(const b of buckets.values()){ const m=new THREE.Mesh(mergeGeometries(b.list,false),b.mat); m.castShadow=b.cast; m.receiveShadow=b.recv; group.add(m); }
 }
+const AUDIT_GEOMETRY=new Map();
+for(const m of [TV_PANEL,PEG_PANEL,ENTRY_MIRROR,...CEIL_REGIONS.map(r=>r.mesh),...CEIL_FIXTURES]){
+  m.updateWorldMatrix(true,false); const bb=new THREE.Box3().setFromObject(m);
+  AUDIT_GEOMETRY.set(m,{min:bb.min.clone(),max:bb.max.clone()});
+}
+// 初始模型家具的實測外包框（可能含寢具、把手與裝飾物，與圖面板材外徑有別）。
+const AUDIT_FURN=FURN.map(f=>({name:f.name,min:f.min.clone(),max:f.max.clone(),p:f.p.clone(),rot:f.rot}));
 mergeGroup(staticG); mergeGroup(ceilG);
 // 家具調整版：將每件獨立家具內部的靜態子零件（如吊衣、書本、床具、櫃身板材）以該家具自身座標按材質合併，保留獨立移動與櫃門動畫，大幅減少 draw call
 if(MOVABLE){
@@ -2191,6 +2231,7 @@ const HINTS = {
   orbit:'點門扇可開關 · 點家具看尺寸 · 拖曳人物可移動（放到椅子或沙發會自動坐下）· <kbd>R</kbd> 旋轉人物 · 拖曳空白處旋轉視角 · 右鍵平移',
   fps:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動 · 滑鼠轉向 · <kbd>E</kbd> 開關門／櫃門 · <kbd>Shift</kbd> 快走 · <kbd>Space</kbd> 跳 · <kbd>Esc</kbd> 暫停 · <kbd>1</kbd>–<kbd>5</kbd> 切換方案',
   drag:'按住左鍵拖曳轉向 · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動 · <kbd>E</kbd> 開關門／櫃門 · <kbd>Shift</kbd> 快走 · <kbd>Space</kbd> 跳 · <kbd>1</kbd>–<kbd>5</kbd> 切換方案 · <kbd>Esc</kbd> 離開',
+  ceiling:'天花獨立檢視 · 拖曳旋轉、滾輪縮放 · 可切換仰視／俯視；色塊表示不同標高',
   touch:'左下拖曳移動 · 右半邊拖曳轉向 · 靠近門自動開啟',
 };
 if(VIEWER){ HINTS.plan='點門扇可開關 · 點家具看尺寸 · 拖曳平移 · 滾輪或雙指縮放 · 點選左側方案即可切換'; HINTS.orbit='點門扇可開關 · 點家具看尺寸 · 左鍵拖曳旋轉 · 右鍵拖曳平移 · 滾輪縮放 · 點選左側方案即可切換'; }
@@ -2302,14 +2343,19 @@ function setMode(m){
   state.mode=m; tween=null;
   document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
   const fps=m==='fps';
+  const ceiling=m==='ceiling';
+  ceilingCtl.enabled=ceiling; ceilingLabelRenderer.domElement.hidden=!ceiling; $('#ceiling-controls').hidden=!ceiling;
+  electricG.visible=electricOn&&!ceiling;
+  if(ceiling) showDims(null);
+  renderer.domElement.style.cursor='';
   ceilG.visible=upperG.visible=fps;
   cityG.visible=m!=='plan';
   scene.background=m==='plan'?new THREE.Color(getCss('--ground')||'#e4e8e6'):null;
   scene.fog=m==='plan'?null:(scene.fog||new THREE.Fog(skyMat.uniforms.horizon.value.getHex(),110,700));
   if(scene.fog) scene.fog.color.copy(skyMat.uniforms.horizon.value);
   orbit.enabled=m==='orbit'; plan.enabled=m==='plan';
-  activeCam=m==='plan'?planCam:m==='orbit'?orbitCam:fpsCam;
-  labelRenderer.domElement.hidden=fps;
+  activeCam=ceiling?ceilingCam:m==='plan'?planCam:m==='orbit'?orbitCam:fpsCam;
+  labelRenderer.domElement.hidden=fps||ceiling;
   ui.cross.hidden=ui.hud.hidden=!fps; ui.compass.hidden=m!=='plan';   // 指北針只在俯視顯示（俯視不能旋轉，方向固定）
   ui.hint.innerHTML=HINTS[m];
   if(fps) enterFPS();
@@ -2321,6 +2367,7 @@ function focusRoom(rm){
   document.querySelectorAll('#rooms .chip').forEach(c=>c.setAttribute('aria-current',String(c.dataset.room===rm.id)));
   const cx=(X(rm.r[0])+X(rm.r[2]))/2, cz=(Z(rm.r[1])+Z(rm.r[3]))/2, w=LX(rm.r[0],rm.r[2]), d=LZ(rm.r[1],rm.r[3]);
   const dur=REDUCED?0:.8;
+  if(state.mode==='ceiling'){ const off=ceilingCam.position.clone().sub(ceilingCtl.target); ceilingCtl.target.set(cx,2.55,cz); ceilingCam.position.copy(ceilingCtl.target).add(off.normalize().multiplyScalar(Math.max(w,d)+2)); ceilingCtl.update(); return; }
   if(state.mode==='fps'){ spawn(rm.spot,rm.face); toast(`已傳送到 ${rm.zh}`); return; }
   if(state.mode==='plan'){
     const fw=planCam.right-planCam.left, fh=planCam.top-planCam.bottom;
@@ -2528,6 +2575,7 @@ ui.people=$('#people');
 function toNDC(e){ const r=renderer.domElement.getBoundingClientRect(); ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); ray.setFromCamera(ndc,activeCam); }
 const _pCenter=new THREE.Vector3();
 function pickPerson(e){
+  if(state.mode==='ceiling') return null;
   toNDC(e); const cand=[];
   for(const p of PEOPLE){
     if(!p.obj.visible) continue;
@@ -2582,7 +2630,7 @@ function dropPerson(d){
   refreshPeopleChips();
 }
 stage.addEventListener('pointerdown',e=>{
-  if(VIEWER||state.mode==='fps'||(e.pointerType==='mouse'&&e.button!==0)) return;
+  if(VIEWER||(state.mode==='fps'||state.mode==='ceiling')||(e.pointerType==='mouse'&&e.button!==0)) return;
   const hit=pickPerson(e);
   if(!hit){ if(selected) select(null); return; }
   e.stopPropagation(); e.preventDefault();
@@ -2598,7 +2646,7 @@ const endPersonDrag=e=>{ if(!pdrag||e.pointerId!==pdrag.id) return; const d=pdra
 addEventListener('pointerup',endPersonDrag); addEventListener('pointercancel',endPersonDrag);
 
 function rotateSelected(){ if(!selected||selected.seat) return; selected.obj.rotation.y+=Math.PI/4; }
-addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return; if(!VIEWER&&state.mode!=='fps'&&(e.code==='KeyR')&&!e.ctrlKey&&!e.metaKey) rotateSelected(); });
+addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return; if(!VIEWER&&state.mode!=='fps'&&state.mode!=='ceiling'&&(e.code==='KeyR')&&!e.ctrlKey&&!e.metaKey) rotateSelected(); });
 
 PEOPLE.forEach((P,i)=>{
   const b=document.createElement('button'); b.className='chip'; b.id='person-'+i; b.dataset.person=i;
@@ -3213,6 +3261,7 @@ function showDims(f){
 /* ---------- 點選判定：按下後沒拖動才算「點」，拖曳照常轉視角／拖人物 ---------- */
 const _inv=new THREE.Matrix4(), _ray=new THREE.Ray(), _box=new THREE.Box3(), _hit=new THREE.Vector3();
 function pickFurnHit(e){
+  if(state.mode==='ceiling') return null;
   toNDC(e); let best=null, bd=Infinity;
   for(const f of FURN){
     if(f.obj&&!f.obj.visible) continue;   // 收起來的 180 加椅
@@ -3225,6 +3274,7 @@ function pickFurnHit(e){
 function pickFurn(e){ const h=pickFurnHit(e); return h?h.furn:null; }
 const _dCenter=new THREE.Vector3();
 function pickDoor(e){
+  if(state.mode==='ceiling') return null;
   toNDC(e);
   if(state.mode!=='plan'){
     const cand=[];
@@ -3250,7 +3300,7 @@ function pickDoor(e){
 const downIds=new Set(); let tap=null, lastHoverT=0;
 stage.addEventListener('pointerdown',e=>{   // 點到人物時，人物拖曳會攔下事件，不會進到這裡
   downIds.add(e.pointerId);
-  tap=(downIds.size===1&&state.mode!=='fps'&&!(e.pointerType==='mouse'&&e.button!==0))?{x:e.clientX,y:e.clientY,t:performance.now(),id:e.pointerId}:null;
+  tap=(downIds.size===1&&state.mode!=='fps'&&state.mode!=='ceiling'&&!(e.pointerType==='mouse'&&e.button!==0))?{x:e.clientX,y:e.clientY,t:performance.now(),id:e.pointerId}:null;
 });
 addEventListener('pointercancel',e=>{ downIds.delete(e.pointerId); tap=null; });
 addEventListener('pointerup',e=>{
@@ -3262,7 +3312,7 @@ addEventListener('pointerup',e=>{
   const f=fh?fh.furn:null; showDims(f===dimSel?null:f);
 });
 addEventListener('pointermove',e=>{
-  if(pdrag||downIds.size||e.buttons||state.mode==='fps'||e.pointerType!=='mouse'||e.target!==renderer.domElement||renderer.domElement.style.cursor==='grabbing') return;
+  if(pdrag||downIds.size||e.buttons||(state.mode==='fps'||state.mode==='ceiling')||e.pointerType!=='mouse'||e.target!==renderer.domElement||renderer.domElement.style.cursor==='grabbing') return;
   const now=performance.now(); if(now-lastHoverT<36) return; lastHoverT=now;
   if(!VIEWER&&pickPerson(e)){ renderer.domElement.style.cursor='grab'; return; }
   if(typeof canMove==='function'&&canMove(dimSel)&&pickFurn(e)===dimSel){ renderer.domElement.style.cursor='move'; return; }
@@ -3419,7 +3469,7 @@ function deskDone(){ if(dimSel===DESK_F) showDims(DESK_F); else measure(DESK_F);
 
 function updateFurn(dt){
   updateCabDoors(dt);                                                             // 櫃門開關（13_櫃門開關與動線.js）
-  dimG.visible=state.mode!=='fps'; dimCard.hidden=!dimSel||state.mode==='fps';
+  dimG.visible=state.mode!=='fps'&&state.mode!=='ceiling'; dimCard.hidden=!dimSel||state.mode==='fps'||state.mode==='ceiling';
   if(DESK.t!==DESK.target){ DESK.t=DESK.t<DESK.target?Math.min(1,DESK.t+dt*.8):Math.max(0,DESK.t-dt*.8); applyDesk(); if(DESK.t===DESK.target) deskDone(); }
   if(WARD.off.some((v,i)=>v!==WARD.want[i])){
     WARD.off=WARD.off.map((v,i)=>{ const w=WARD.want[i], st=dt*1.1; return Math.abs(w-v)<=st?w:v+Math.sign(w-v)*st; }); applyWard(); }
@@ -3437,7 +3487,7 @@ function updateFurn(dt){
    ========================================================= */
 // shortcut: 只移動家具本身＋碰撞盒＋上面的座位；伸縮沙發／升降桌推椅子的動畫仍以原位計算，之後要準可改成相對位置
 const movable=f=>MOVABLE&&!!f&&!!f.obj&&f.obj.parent===dynG;
-const canMove=f=>!VIEWER&&movable(f);
+const canMove=f=>!VIEWER&&state.mode!=='ceiling'&&movable(f);
 const LAYOUT_KEY='zheng3d-furn-layout-v2';
 const _b3=new THREE.Box3();
 // 第一次動某件家具時，記下它的碰撞盒與座位（座位用家具自己的座標記，之後跟著轉）
@@ -3618,12 +3668,12 @@ function cabGeo(d){
   return {P:[P.x,P.z],u,n,ex:[ex.x,ex.z],y0,y1:y0+d.h,C,reach:d.kind==='hinge'?d.w:d.kind==='drawer'?d.ext:0};
 }
 function sweepPts(d,g){ const pts=[];
-  if(d.kind==='hinge') for(let a=3;a<=90;a+=4.5){ const r=a*Math.PI/180, c=Math.cos(r), s=Math.sin(r), dx=g.u[0]*c+g.n[0]*s, dz=g.u[1]*c+g.n[1]*s;
+  if(d.kind==='hinge') for(let a=3;a<=90;a+=4.5){ const r=a/90*d.ang, c=Math.cos(r), s=Math.sin(r), dx=g.u[0]*c+g.n[0]*s, dz=g.u[1]*c+g.n[1]*s;
     for(let k=1;k<=6;k++){ const rr=d.w*k/6; pts.push([g.P[0]+dx*rr,g.P[1]+dz*rr]); } }
   else if(d.kind==='drawer') for(let i=-2;i<=2;i++) for(let k=1;k<=4;k++){ const lx=(d.w/2-.02)*i/2, dz=d.ext*k/4; pts.push([g.P[0]+g.ex[0]*lx+g.n[0]*dz,g.P[1]+g.ex[1]*lx+g.n[1]*dz]); }
   return pts; }
 function inSweep(d,g,[x,z]){ const vx=x-g.P[0], vz=z-g.P[1];
-  if(d.kind==='hinge') return Math.hypot(vx,vz)<=d.w&&vx*g.u[0]+vz*g.u[1]>=0&&vx*g.n[0]+vz*g.n[1]>=0;
+  if(d.kind==='hinge'){ const a=Math.atan2(vx*g.n[0]+vz*g.n[1],vx*g.u[0]+vz*g.u[1]); return Math.hypot(vx,vz)<=d.w&&a>=0&&a<=d.ang; }
   if(d.kind==='drawer'){ const a=vx*g.ex[0]+vz*g.ex[1], b=vx*g.n[0]+vz*g.n[1]; return Math.abs(a)<=d.w/2&&b>=0&&b<=d.ext; }
   return false; }
 function inRoomDoor(rd,[x,z]){ const vx=x-rd.hx, vz=z-rd.hz, r=Math.hypot(vx,vz); if(r>rd.width||r<.02) return false;
@@ -3669,7 +3719,7 @@ function analyzeCab(){
       if(c){ const n=cabNameAt(p[0],p[1],Math.max(c.minY,g.y0),Math.min(c.maxY,g.y1),d.cab); hits.set(n,hits.get(n)||!!c.soft); } }
     for(const [h,soft] of hits) if(soft) lv('warn',`${d.label}：開門會碰到${h}（${h}要先拉開）`); else lv('bad',`${d.label}：開到 90° 前會撞到${h}`);
     if(g.y0<2.0) doors.forEach((rd,i)=>{ if(pts.some(p=>inRoomDoor(rd,p))) lv('warn',`${d.label}：和${ROOM_DOOR_NAMES[i]}的開門範圍重疊（兩扇門不能同時全開）`); });
-    for(const o of all){ if(o.d.cab===d.cab||!o.g.reach||o.g.y1<=g.y0||o.g.y0>=g.y1) continue;
+    for(const o of all){ if(o.d===d||!o.g.reach||o.g.y1<=g.y0||o.g.y0>=g.y1) continue;
       if(pts.some(p=>inSweep(o.d,o.g,p))) lv('warn',`${d.label}：和${cabShort(o.d.cab)}${o.d.label.replace(/（.*$/,'')}的開門範圍重疊`); }
   }
 }
@@ -3755,11 +3805,156 @@ console.assert(CAB_DOORS.every(d=>d.cab&&CAB_BY.has(d.cab)),'每片櫃門都要�
 console.assert([...CAB_BY.keys()].every(n=>FURN.some(f=>f.name===n)),'櫃門的櫃子名稱要和家具名稱一致（點櫃子才找得到）');
 
 /* =========================================================
+   工程圖查核：AR05/07/08/09-1/11/12/14/15/16/18/19（261123）
+   量測為模型外徑或建模邊界，非現場放樣。待定資料不作合格判定。
+   ========================================================= */
+const inspection=$('#inspection-results'), inspectionNote=$('#inspection-note');
+let inspectionTab='', electricOn=false;
+const cround=v=>Math.round(v*1000)/10;
+const dimsOf=m=>{const b=AUDIT_GEOMETRY.get(m);return [b.max.x-b.min.x,b.max.z-b.min.z,b.max.y-b.min.y].map(cround);};
+const bottomOf=m=>cround(AUDIT_GEOMETRY.get(m).min.y);
+const ceilBy=k=>CEIL_REGIONS.find(r=>r.kind===k).mesh;
+const fAudit=n=>AUDIT_FURN.find(f=>f.name.startsWith(n));
+function fSize(n,top=false){const f=fAudit(n); if(!f)return null;return [f.max.x-f.min.x,f.max.z-f.min.z,top?f.max.y+f.p.y:f.max.y-f.min.y].map(cround);}
+const scaled=(...v)=>v.map(cround);
+// Only compare like with like (closed design envelope vs drawing, not current movable furniture poses).
+function auditRows(){
+ const sofa=fSize('沙發'), table=fSize('餐桌'), main=dimsOf(MAIN_CEIL), tv=dimsOf(TV_PANEL), peg=dimsOf(PEG_PANEL), mir=dimsOf(ENTRY_MIRROR);
+ const r=(area,item,drawing,model,detail='',pending=false)=>({area,item,drawing,model,detail,pending});
+ const doorSizes=(name,kind)=>CAB_DOORS.filter(d=>d.cab===name&&(!kind||d.kind===kind)).map(d=>cround(d.w));
+ return [
+ r('客廳 AR16','電視櫃總寬×高',[320,240],scaled((TVW.x1-TVW.xa)*S,TVW.top),'建模外徑'),
+ r('客廳 AR16','上櫃 寬×深×高',[240,32,50],scaled((TVW.xh-TVW.xa)*S,(TVW.zd-TVW.z0)*S,TVW.top-TVW.up),'櫃體建模外徑'),
+ r('客廳 AR16-1','上櫃門片寬×4',[60,60,60,60],doorSizes(TV_NAMES[1],'hinge'),'左／右／左／右鉸；實際門面有門縫'),
+ r('客廳 AR16','下櫃 寬×深×總高',[240,38,46],scaled((TVW.xh-TVW.xa)*S,(TVW.z1-TVW.z0)*S,TVW.yt),'40 門面＋6 踢腳'),
+ r('客廳 AR16-1','下櫃抽屜／側開格柵／抽屜',[80,80,80],CAB_DOORS.filter(d=>d.cab===TV_NAMES[0]).map(d=>cround(d.w)),'兩抽屜各 80、中間格柵側開 80'),
+ r('客廳 AR16','高櫃 寬×深×高',[80,38,240],scaled((TVW.x1-TVW.xh)*S,(TVW.z1-TVW.z0)*S,TVW.top),'把手外凸另計'),
+ r('客廳 AR16','電視 寬×高／下緣',[145,84,75],[tv[0],tv[2],bottomOf(TV_PANEL)],'電視外框網格實測'),
+ r('客廳 AR05','沙發 寬×深',[195,90],sofa?.slice(0,2),'初始模型外包框，伸縮後另計'),
+ r('餐廳 AR05','餐桌 長×寬',[120,80],table?[table[1],table[0]]:null,'收合狀態'),
+ r('餐廳 AR15','矮櫃 寬×深×高',[171,45,100],scaled((SB.z1-SB.z0)*S,(SB.x1-SB.x0)*S,SB.top),'建模外徑'),
+ r('餐廳 AR15','吊櫃 寬×深×高',[171,30,88],scaled((SB.z1-SB.z0)*S,(SB.x1-SB.xu)*S,SB.uy1-SB.uy0),'H150–238，頂部收邊待現場'),
+ r('餐廳 AR15','掃拖機器人櫃 寬×深',[45,54],scaled((SB.x1-SB.x0)*S,(SB.zA-SB.z0)*S),'走道端；開門掃掠另查'),
+ r('玄關 AR11','鞋櫃 寬×深×頂高',[88,48,240],fSize('鞋櫃',true),'模型外包框，底部懸空另計'),
+ r('玄關 AR11','洞洞板 寬×外推×高',[54,9,240],peg,'木作板網格，層板另計'),
+ r('玄關 AR11','走道淨寬 約69','約69','待現場拉線','掛物、大門把手及電箱位置未確定',true),
+ r('玄關 AR19','茶鏡 寬×高',[65,240],[mir[0],mir[2]],'鏡色、對講機位置待確認'),
+ r('主臥 AR12-1','衣櫃 寬×深×高',[274,67,240],fSize('主臥衣櫃'),'模型外包框含門片'),
+ r('主臥 AR12','上掀櫃 寬×深×高',[274,69,50],fSize('衣櫃上方上掀櫃'),'模型外包框；實際五金另計'),
+ r('主臥 AR05','雙人床 寬×長',[152,188],fSize('雙人床')?.slice(0,2),'含棉被外包框；床架尺寸與外包框不同'),
+ r('主臥 AR05','書桌 寬×深',[85,51],fSize('書桌（鐵架')?.slice(0,2),'含層板／擺件外包框'),
+ r('主臥 AR12-1','床邊走道 約60','約60',cround(WARD_X0-BED_X1),'以床架與櫃面間距估算，需現場量',true),
+ r('次臥 AR14','衣櫃 寬×深×高',[80,60,240],fSize('客房衣櫃'),'模型外包框含填縫'),
+ r('次臥 AR05','單人床 寬×長',[91,188],fSize('單人床')?.slice(0,2),'含寢具外包框'),
+ r('次臥 AR05','書桌 長×寬',[120,80],fSize('升降書桌')?.slice(0,2),'含模型桌面，擺件可能超出'),
+ r('次臥 AR05','原有鐵架 148×40×60','148×40×60','高148／深40／寬60','模型依既有排列；圖面未明示尺寸順序',true),
+ r('廚房 AR05','冰箱預留 寬×深',[70,70],fSize('冰箱')?.slice(0,2),'模型含把手，冰箱實品散熱間距待查'),
+ r('廚房 AR15-2','電器櫃','無立面','模型示意','待現場確認',true),
+ r('陽台 AR05','洗衣機 寬×深',[60,51.5],fSize('洗衣機')?.slice(0,2),'含前凸面／實品管線另計'),
+ r('浴廁 AR18','鏡櫃預留 寬≤80／高約70／深≤16','≤80／約70／≤16','依原模型示意','自購實品與安裝高度待定',true),
+ r('天花 AR09-1','低天花 CH',[240],[bottomOf(ceilBy('low'))],'實際低天花網格下緣'),
+ r('天花 AR09-1','平頂 CH','待定',bottomOf(MAIN_CEIL),'暫估260；依管線最低點',true),
+ r('天花 AR09-1','客廳長向總長',[823],scaled((792.6-CEIL_W)*S),'依既有實測座標，原圖 20+478+32+259+34'),
+ r('天花 AR09-1','客廳短向總深','278／283',cround((CEIL_S-CEIL_N)*S),'兩張圖互相矛盾，不強判合格',true),
+ r('天花 AR09-1','平頂短向寬',[213],[main[1]],'依既有 278 深建模，剖面為 283'),
+ r('天花 AR09-1','窗側寬',[20],[dimsOf(ceilBy('window'))[0]],'高度待定，模型暫估240'),
+ r('天花 AR09-1','脫縫寬',[15],[dimsOf(ceilBy('gap'))[1]],'高度差為模型假設'),
+ r('天花 AR09-1','封樑 CH／RC 高','待定','270／模型基準290','AR00 原始 H320；現場完成面及樓板待量',true),
+ ];
+}
+const fmt=v=>Array.isArray(v)?v.join(' × '):v==null?'未取得':String(v);
+function auditStatus(r){if(r.pending||!Array.isArray(r.drawing)||!Array.isArray(r.model)||r.drawing.length!==r.model.length)return ['warn','待複核']; const dif=Math.max(...r.drawing.map((n,i)=>Math.abs(n-r.model[i])));return dif<=.5?['ok','相符']:[dif<=2?'warn':'bad','差 '+Math.round(dif*10)/10+' cm'];}
+function renderAudit(){const rows=auditRows();let stats={ok:0,warn:0,bad:0};for(const r of rows)stats[auditStatus(r)[0]]++;
+ inspection.innerHTML=`<p>圖面基準 vs 初始模型（cm，±0.5cm 作數值核對，不是施工允差）｜相符 ${stats.ok}、待複核 ${stats.warn}、差異 ${stats.bad}</p><table><thead><tr><th>圖號／項目</th><th>工程圖</th><th>模型</th><th>結果</th></tr></thead><tbody>${rows.map(r=>{const [kind,result]=auditStatus(r);return `<tr><td>${escH(r.area)}<br>${escH(r.item)}<br><small>${escH(r.detail)}</small></td><td>${escH(fmt(r.drawing))}</td><td>${escH(fmt(r.model))}</td><td class="${kind}">${result}</td></tr>`;}).join('')}</tbody></table><p>櫃體標稱外徑取自建模邊界；網格外包框可能含把手、寢具及飾物。家具拖曳後用原有家具尺標查看目前位置；本表不作現場驗收。</p>`;return rows;}
+// 以已建立的實際天花網格製作獨立場景，不改家具、材質或原場景。
+const ceilingScene=new THREE.Scene(); ceilingScene.background=new THREE.Color(0xeeeae2);
+const ceilingLabelRenderer=new CSS2DRenderer();ceilingLabelRenderer.setSize(innerWidth,innerHeight);ceilingLabelRenderer.domElement.className='labels';ceilingLabelRenderer.domElement.hidden=true;document.body.appendChild(ceilingLabelRenderer.domElement);
+const ceilingCam=new THREE.PerspectiveCamera(43,aspect(),.03,100);
+const ceilingCtl=new OrbitControls(ceilingCam,renderer.domElement); ceilingCtl.enableDamping=true; ceilingCtl.minDistance=1.5;ceilingCtl.maxDistance=25;ceilingCtl.maxPolarAngle=Math.PI-.03;ceilingCtl.enabled=false;
+const ceilingLabels=new THREE.Group();ceilingScene.add(ceilingLabels);
+const ceilColors={flat:0xe5d9c4,low:0x9fb6c5,beam:0xb99772,gap:0xdeb85b,window:0x99bcb0,original:0xc3c7cf};
+function addInspectLabel(group,txt,x,y,z,cls=''){const el=document.createElement('div');el.className='inspect-label '+cls;el.textContent=txt;const o=new CSS2DObject(el);o.position.set(x,y,z);group.add(o);return o;}
+for(const r of CEIL_REGIONS){const b=AUDIT_GEOMETRY.get(r.mesh), d=b.max.clone().sub(b.min), c=b.min.clone().addScaledVector(d,.5);
+ // Thin slab at real underside: height differences remain true; no RC volume obscuring view.
+ const mat=new THREE.MeshBasicMaterial({color:ceilColors[r.kind],side:THREE.DoubleSide});const o=new THREE.Mesh(new THREE.BoxGeometry(d.x,.035,d.z),mat);o.position.set(c.x,b.min.y+.0175,c.z);ceilingScene.add(o);
+ const edge=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry),new THREE.LineBasicMaterial({color:0x6d6b65}));o.add(edge);
+ // Avoid repeated labels for narrow continuation strips.
+ if(r.kind!=='low'||d.x*d.z>1.3)addInspectLabel(ceilingLabels,r.label,c.x,b.min.y-.06,c.z);
+}
+for(const m of CEIL_FIXTURES){const b=AUDIT_GEOMETRY.get(m), d=b.max.clone().sub(b.min), c=b.min.clone().addScaledVector(d,.5),o=new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:0xfff8df,side:THREE.DoubleSide}));o.position.copy(c);o.position.y=b.min.y-.025;ceilingScene.add(o);}
+function ceilingView(above=false){ceilingCtl.target.set((MX(CEIL_W)+MX(792.6))/2,2.52,(MZ(275.5)+MZ(CEIL_S))/2);const t=ceilingCtl.target;const scale=Math.max(1,1/aspect());ceilingCam.position.set(t.x-3*scale,t.y+(above?9:-8)*scale,t.z+4*scale);ceilingCtl.update();}
+ceilingView(false);
+$('#ceil-under').addEventListener('click',()=>ceilingView(false));$('#ceil-above').addEventListener('click',()=>ceilingView(true));$('#ceil-labels').addEventListener('click',()=>{ceilingLabels.visible=!ceilingLabels.visible;$('#ceil-labels').setAttribute('aria-pressed',String(ceilingLabels.visible));});
+// AR07 p9 wall symbol positions: piecewise calibrated against existing model wall coordinates.
+// Height not marked -> use display-only H30/H120, label expressly provisional. No concealed wiring or breaker model.
+const electricG=new THREE.Group();scene.add(electricG);electricG.visible=false;
+const electrical=[];
+const E=(name,x,z,h,kind='original',note='',pending=false)=>electrical.push({name,x:MX(x),z:MZ(z),h:h/100,kind,note,pending});
+const TVE=(name,x,h,kind='original',note='',pending=false)=>E(name,TVW.xa+cmP(x),TVW.z0+cmP(2),h,kind,note,pending);
+TVE('① 110V',85,82,'original','AR07／AR16');TVE('② 電視＋網路',104,82,'original','AR07／AR16');TVE('③ Wi-Fi 插座',128,30,'original','AR07 H30');TVE('④ 櫃燈開關',203,120,'original','AR07 位置依圖估算，高度待確認',true);TVE('⑤ 右抽屜插座',223,30,'original','AR07／AR16');TVE('⑥ 高櫃充電',300,30,'new','AR16 新增');TVE('⑥ 高櫃燈電源',300,225,'new','AR16 新增，接法待確認');TVE('右牆插座',383,30,'original','AR16 未標高度暫定',true);TVE('右牆開關',383,120,'original','AR16 未標高度暫定',true);
+const ex=p=>pl([[265,211.5],[606,484.3],[788,630],[994,792.6]],p,0,1), ez=p=>pl([[335,275.5],[571,469.7],[582,478.2],[674,554.1],[821,675.3]],p,0,1);
+const EP=(name,x,z,h,kind='original',note='',pending=false)=>E(name,ex(x),ez(z),h,kind,note||'AR07 位置依圖比例估算',pending);
+EP('主臥北牆網路',285,340,30,'original','高度未標',true);EP('主臥北牆插座',302,340,30,'original','高度未標',true);EP('主臥床頭開關',505,340,61);EP('主臥床頭插座',522,340,61);EP('主臥窗側插座',270,467,30,'original','高度未標',true);EP('主臥門旁開關',362,565,120,'original','高度未標',true);EP('主臥衣櫃踢腳出線',601,452,10,'new','踢腳板出線，實高待定',true);
+EP('次臥窗側開關',620,354,117);EP('次臥西牆插座',620,445,30,'original','高度未標',true);EP('次臥西牆網路',620,461,30,'original','高度未標',true);EP('次臥門旁插座',696,556,30,'original','高度未標',true);EP('次臥門旁開關',696,566,120,'original','高度未標',true);
+EP('廚房電器插座',806,378,65);EP('廚房電器插座',818,378,120);EP('廚房冰箱插座',805,478,30,'original','高度未標',true);EP('廚房檯面插座',987,476,120);EP('廚房櫃內插座',987,516,120,'original','櫃內實際高度待確認',true);EP('陽台插座',812,254,107);EP('陽台插座',946,251,114);
+EP('客廳窗側插座',270,678,30,'original','高度未標',true);EP('沙發側插座',301,815,30,'original','高度未標',true);EP('餐廳南牆網路',583,815,106);EP('餐廳南牆插座',600,815,106);EP('餐邊櫃南端插座',713,815,106);EP('餐邊櫃新增插座',730,691,106,'new');EP('掃拖機器人背板出線',730,749,30,'new','櫃內放長線，H待確認',true);EP('浴廁鏡櫃旁插座',840,801,150);EP('玄關鞋櫃燈帶電源',965,702,120,'new','位置與高度待確認',true);
+const electricalLabels=new THREE.Group();electricG.add(electricalLabels);
+for(const e of electrical){const col=e.pending?0xc99730:e.kind==='new'?0x1d75b7:0xb97029;
+ const m=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),new THREE.MeshBasicMaterial({color:col,depthTest:false}));m.position.set(e.x,e.h,e.z);m.renderOrder=18;electricG.add(m);
+ const l=addInspectLabel(electricalLabels,`${e.name} ${e.pending?'H待定':'H'+Math.round(e.h*100)}`,e.x,e.h+.075,e.z,`electric ${e.pending?'pending':e.kind==='original'?'original':''}`);l.userData.e=e;
+}
+function renderElectric(){inspection.innerHTML=`<p>AR07（第9頁）／AR16（第25–26頁）：藍＝新增、橘＝原有、虛線＝待定。除電視牆標註距離外，點位依圖比例估算，不可作放樣。未標高度僅用示意標高，請現場確認。</p><table><thead><tr><th>點位</th><th>高度</th><th>狀態／備註</th></tr></thead><tbody>${electrical.map(e=>`<tr><td>${escH(e.name)}</td><td>${e.pending?'待定（示意 '+Math.round(e.h*100)+'）':Math.round(e.h*100)}</td><td>${e.kind==='new'?'新增':'原有'}；${escH(e.note)}</td></tr>`).join('')}</tbody></table>`;}
+// 2D oriented door panel SAT with vertical intersection. Sample both paths independently; crossing does not imply a simultaneous collision.
+function rectPanel(x,z,ux,uz,nx,nz,w,t,y0,y1){return {x,z,ux,uz,nx,nz,w,t,y0,y1};}
+function panelsOverlap(a,b){if(Math.min(a.y1,b.y1)-Math.max(a.y0,b.y0)<=.004)return false;const dx=b.x-a.x,dz=b.z-a.z;for(const [x,z] of [[a.ux,a.uz],[a.nx,a.nz],[b.ux,b.uz],[b.nx,b.nz]]){const rad=o=>Math.abs(o.ux*x+o.uz*z)*o.w/2+Math.abs(o.nx*x+o.nz*z)*o.t/2;if(Math.abs(dx*x+dz*z)>=rad(a)+rad(b)-.003)return false;}return true;}
+function cabPanel(d,g,t){const w=Math.max(.001,d.w-.003),th=d.t||.018;if(d.kind==='flip')return null;
+ if(d.kind==='drawer')return rectPanel(g.C[0]+g.n[0]*(d.ext*t-th/2),g.C[1]+g.n[1]*(d.ext*t-th/2),g.ex[0],g.ex[1],g.n[0],g.n[1],w,th,g.y0,g.y1);
+ const a=d.ang*t,c=Math.cos(a),s=Math.sin(a),ux=g.u[0]*c+g.n[0]*s,uz=g.u[1]*c+g.n[1]*s,nx=g.n[0]*c-g.u[0]*s,nz=g.n[1]*c-g.u[1]*s;
+ return rectPanel(g.P[0]+ux*d.w/2-nx*th/2,g.P[1]+uz*d.w/2-nz*th/2,ux,uz,nx,nz,w,th,g.y0,g.y1);
+}
+function roomPanel(d,t){const a=d.thc+d.delta*t,ux=Math.cos(a),uz=-Math.sin(a),nx=Math.sin(a),nz=Math.cos(a);return rectPanel(d.hx+ux*d.width/2,d.hz+uz*d.width/2,ux,uz,nx,nz,d.width,d.thick,d.pivot.position.y,d.pivot.position.y+d.height);}
+const samples=Array.from({length:19},(_,i)=>i/18);
+const doorHit=(a,b)=>a.some(x=>b.some(y=>panelsOverlap(x,y)));
+function inspectionDoorReport(){
+ analyzeCab();const targets=CAB_DOORS.filter(d=>TV_NAMES.includes(d.cab)||d.cab.startsWith('鞋櫃')||d.cab.startsWith('客房衣櫃'));
+ const all=CAB_DOORS.filter(d=>d.kind!=='flip').map(d=>{const g=cabGeo(d);return {d,p:samples.map(t=>cabPanel(d,g,t))};});
+ const room=doors.map(d=>({d,p:samples.map(t=>roomPanel(d,t))}));const rows=[];
+ for(const a of all.filter(x=>targets.includes(x.d))){let notes=[];const name=cabShort(a.d.cab)+'／'+a.d.label;let severity='ok';
+  const add=(s,txt)=>{if(CAB_RANK[s]>CAB_RANK[severity])severity=s; if(!notes.includes(txt))notes.push(txt);};
+  for(const r of room){if(panelsOverlap(a.p.at(-1),r.p.at(-1)))add('bad',r.d.name+'與櫃門全開互撞');else if(doorHit(a.p,[r.p.at(-1)]))add('bad',r.d.name+'全開時擋住櫃門開啟');else if(doorHit(a.p,r.p))add('warn',r.d.name+'與開啟路徑重疊');}
+  for(const b of all){if(b===a)continue;if(panelsOverlap(a.p.at(-1),b.p.at(-1)))add('bad','與'+cabShort(b.d.cab)+'／'+b.d.label+'全開相撞');else if(doorHit(a.p,b.p))add('warn','與'+cabShort(b.d.cab)+'／'+b.d.label+'掃掠重疊');}
+  if(a.d.res?.lv!=='ok')add(a.d.res.lv,a.d.res.notes.join('；')||'既有動線檢查警示');
+  rows.push({name,severity,notes,left:a.d.res?.left==null?null:cround(a.d.res.left)});
+ }
+ return rows;
+}
+function renderDoorInspection(){const rows=inspectionDoorReport(); const count=k=>rows.filter(r=>r.severity===k).length;inspection.innerHTML=`<p>玄關、次臥、電視櫃逐片檢查｜${rows.length} 片：未見衝突 ${count('ok')}、注意 ${count('warn')}、干涉 ${count('bad')}。</p><p><b>工程圖已註明：</b>大門全開會擋鞋櫃門（AR11-1）、次臥房門會貼住衣櫃（AR14／AR13），須現場決定門擋及五金。即使模型未碰撞也不可取消此警示。</p><table><thead><tr><th>門片</th><th>結果／原因</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escH(r.name)}</td><td class="${r.severity}">${r.severity==='bad'?'干涉':r.severity==='warn'?'注意':'取樣未見衝突'}${r.left==null?'':`；前方估 ${Math.max(0,r.left)} cm`}<br>${escH(r.notes.join('；'))}</td></tr>`).join('')}</tbody></table><p>19 個開度取樣＋門板厚度、垂直重疊及原碰撞盒；把手、鉸鏈、細小五金、實際門擋、人體通行均非精密驗證。不改門片開啟狀態；移動家具後按此鍵重新計算。</p>`;return rows;}
+function selectInspection(tab){inspectionTab=tab;inspection.hidden=!tab;for(const n of ['dims','electric','doors'])$('#inspect-'+n).setAttribute('aria-pressed',String(n==='electric'?electricOn:tab===n));if(tab==='dims')renderAudit();else if(tab==='electric')renderElectric();else if(tab==='doors')renderDoorInspection();}
+$('#inspect-dims').addEventListener('click',()=>selectInspection(inspectionTab==='dims'?'':'dims'));
+$('#inspect-electric').addEventListener('click',()=>{electricOn=!electricOn;if(electricOn&&state.mode==='ceiling')setMode('orbit');electricG.visible=electricOn&&state.mode!=='ceiling';selectInspection(electricOn?'electric':'');});
+$('#inspect-doors').addEventListener('click',()=>selectInspection('doors'));
+// CI calls this only in an injected test harness; no user layout or stored scheme is modified.
+window.__h3dInspectionSelfTest=()=>{
+ const rows=auditRows();if(rows.length<30||!rows.every(r=>r.item&&r.area))throw Error('audit panel incomplete');
+ if(electrical.length<30||!electrical.some(e=>e.pending)||CEIL_REGIONS.length<10)throw Error('inspection layers incomplete');
+ const a=rectPanel(0,0,1,0,0,1,1,.04,0,1),b=rectPanel(0,0,0,1,1,0,1,.04,0,1),c=rectPanel(2,0,1,0,0,1,1,.04,0,1);
+ if(!panelsOverlap(a,b)||panelsOverlap(a,c))throw Error('SAT geometry failed');
+ $('#m-ceiling').click();if(state.mode!=='ceiling'||activeCam!==ceilingCam||!ceilingCtl.enabled)throw Error('ceiling switch failed');
+ $('#ceil-above').click();if(ceilingCam.position.y<=ceilingCtl.target.y)throw Error('ceiling above failed');$('#ceil-under').click();if(ceilingCam.position.y>=ceilingCtl.target.y)throw Error('ceiling under failed');
+ $('#inspect-dims').click();if(!inspection.querySelector('table'))throw Error('dimension UI failed');
+ $('#inspect-electric').click();if(!electricG.visible||state.mode==='ceiling')throw Error('electric toggle failed');$('#inspect-electric').click();if(electricG.visible)throw Error('electric toggle off failed');
+ const before=CAB_DOORS.map(d=>d.want).join(',');$('#inspect-doors').click();const report=inspectionDoorReport();if(report.length<15||CAB_DOORS.map(d=>d.want).join(',')!==before)throw Error('door report failed');
+ for(const group of ['鞋櫃','客房衣櫃','電視'])if(!report.some(r=>r.name.startsWith(group)))throw Error('missing target '+group);
+ const data={audit:rows.map(r=>({area:r.area,item:r.item,drawing:r.drawing,model:r.model,status:auditStatus(r)[1]})),doors:report,points:electrical.length,regions:CEIL_REGIONS.length};
+ selectInspection('');setMode('orbit');return data;
+};
+
+/* =========================================================
    13. 主迴圈
    ========================================================= */
 addEventListener('resize',()=>{
-  const w=innerWidth,h=innerHeight; renderer.setSize(w,h); labelRenderer.setSize(w,h);
-  orbitCam.aspect=fpsCam.aspect=w/h; orbitCam.updateProjectionMatrix(); fpsCam.updateProjectionMatrix(); fitPlan();
+  const w=innerWidth,h=innerHeight; renderer.setSize(w,h); labelRenderer.setSize(w,h); ceilingLabelRenderer.setSize(w,h);
+  orbitCam.aspect=fpsCam.aspect=ceilingCam.aspect=w/h; orbitCam.updateProjectionMatrix(); fpsCam.updateProjectionMatrix(); ceilingCam.updateProjectionMatrix(); fitPlan();
 });
 const clock=new THREE.Clock(); let first=true, elapsed=0;
 function frame(){
@@ -3770,17 +3965,20 @@ function frame(){
     tween.cam.position.lerpVectors(tween.p0,tween.p1,e); tween.ctl.target.lerpVectors(tween.t0,tween.t1,e);
     if(tween.cam.isOrthographicCamera){ tween.cam.zoom=tween.z0+(tween.z1-tween.z0)*e; tween.cam.updateProjectionMatrix(); }
     if(tween.t>=1) tween=null; }
-  if(state.mode==='orbit') orbit.update(); else if(state.mode==='plan') plan.update();
+  if(state.mode==='orbit') orbit.update(); else if(state.mode==='plan') plan.update(); else if(state.mode==='ceiling') ceilingCtl.update();
   const tank=window.__tank;
   if(tank) for(const f of tank.userData.fish){ const t=elapsed*f.sp+f.ph; f.m.position.set(Math.sin(t)*f.amp,f.y+Math.sin(t*1.7)*.02,f.z+Math.sin(t*.6)*.04); f.m.rotation.y=Math.cos(t)>0?0:Math.PI; }
   mirror.visible=state.mode==='fps'?(player.pos.x>X(580)&&player.pos.z>Z(460)):(state.mode==='orbit'&&orbitCam.position.z<BATH.zs&&orbitCam.position.distanceToSquared(BATH_POS)<36);
-  renderer.render(scene,activeCam);
-  if(state.mode!=='fps') labelRenderer.render(scene,activeCam); else drawMini();
+  if(state.mode==='ceiling'){
+    renderer.render(ceilingScene,ceilingCam); ceilingLabelRenderer.render(ceilingScene,ceilingCam);
+  }else{ renderer.render(scene,activeCam);
+  if(state.mode!=='fps') labelRenderer.render(scene,activeCam); else drawMini(); }
   if(first){ first=false; ui.loading.hidden=true; }
 }
 applyQuality();
 applyEnv();
 setMode('orbit');
+if(window.__h3dRunInspectionTests){const result=window.__h3dInspectionSelfTest();const el=document.createElement('pre');el.id='__inspection_test';el.hidden=true;el.textContent=JSON.stringify(result);document.body.appendChild(el);}
 renderer.setAnimationLoop(frame);
 </script>
 <script>
