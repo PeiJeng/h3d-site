@@ -204,6 +204,9 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .walk-dim b{font:700 14px var(--mono)}
 .walk-dim span{display:block;font-size:9px;color:#555}
 .walk-dim.warn{color:#b71c1c;border-color:#c62828}
+.walk-arrow-anchor{width:0;height:0;pointer-events:none}
+.walk-arrow-label{position:absolute;left:0;bottom:12px;transform:translateX(-50%);width:max-content;max-width:180px;white-space:nowrap}
+
 .cab-dim.ok{color:#1b5e20;border-color:#2e7d32}
 .cab-dim.warn{color:#e65100;border-color:#ef6c00}
 .cab-dim.bad{color:#b71c1c;border-color:#c62828}
@@ -249,7 +252,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="1c11e99d2aea20ec277b372224c924a8efa458fc75c3f1117112c12a9fdfa1c7" data-commit="ac018ceaffbc01aced142c76f6e81ec29af44881" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit ac018ceaffbc01aced142c76f6e81ec29af44881 | SHA-256 1c11e99d2aea20ec277b372224c924a8efa458fc75c3f1117112c12a9fdfa1c7">版本 v1-1c11e99d2aea · Commit ac018ceaffbc</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="4d02571ea2e3bc5e83347e9ae6237e291e30e31171b86883c0b6fff0557f1068" data-commit="34dc792fdc4b8cb02c4e8fcf8a5133b6fd8df1cf" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 34dc792fdc4b8cb02c4e8fcf8a5133b6fd8df1cf | SHA-256 4d02571ea2e3bc5e83347e9ae6237e291e30e31171b86883c0b6fff0557f1068">版本 v1-4d02571ea2e3 · Commit 34dc792fdc4b</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -2020,7 +2023,10 @@ for(const rm of ROOMS){
   const o=new CSS2DObject(el); o.position.set(X(rm.lab[0]),.05,Z(rm.lab[1])); labelG.add(o);
 }
 // 兩版共用走道尺寸；固定採樣走道使用當前碰撞盒，電視牆與餐邊櫃採實際櫃體平面外框。
-const walkG=new THREE.Group(), rulerMeasureG=new THREE.Group(); labelG.add(walkG,rulerMeasureG);
+const walkG=new THREE.Group(), rulerMeasureG=new THREE.Group(); labelG.add(walkG,rulerMeasureG);walkG.visible=false;
+// CSS2D labels are DOM elements, not WebGL meshes. Honor every ancestor's visibility explicitly.
+function syncOverlayDom(group){group.traverse(o=>{if(!o.isCSS2DObject)return;let visible=true;for(let a=o;a;a=a.parent)if(!a.visible){visible=false;break;}o.element.hidden=!visible;});}
+function syncMeasurementDom(){for(const g of [walkG,rulerMeasureG,electricG,savedMeasureG,clearanceHeatG,cargoG,dimG,cabVizG])syncOverlayDom(g);}
 let WALK_ON=false, walkSignature='', walkTime=-Infinity, walkLast=null, measureOn=false, measurePoints=[], measureTap=null;
 const walkRect=c=>[[c.minX,c.minZ],[c.maxX,c.minZ],[c.maxX,c.maxZ],[c.minX,c.maxZ]];
 const walkSolid=c=>c.maxY>.1&&c.minY<2&&[c.minX,c.maxX,c.minZ,c.maxZ].every(Number.isFinite);
@@ -2032,12 +2038,21 @@ function walkInside(p,poly){let pos=false,neg=false;for(let i=0;i<poly.length;i+
 function walkCross(a,b,c,d){const u=walkSub(b,a),v=walkSub(d,c),w=walkSub(c,a),den=u[0]*v[1]-u[1]*v[0];if(Math.abs(den)<1e-10)return null;const t=(w[0]*v[1]-w[1]*v[0])/den,k=(w[0]*u[1]-w[1]*u[0])/den;return t>=0&&t<=1&&k>=0&&k<=1?[a[0]+t*u[0],a[1]+t*u[1]]:null;}
 function closestWalkPolys(a,b){for(const p of a)if(walkInside(p,b))return {a:p,b:p,d:0};for(const p of b)if(walkInside(p,a))return {a:p,b:p,d:0};for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++){const p=walkCross(a[i],a[(i+1)%a.length],b[j],b[(j+1)%b.length]);if(p)return {a:p,b:p,d:0};}let best={d:Infinity};const test=(p,q)=>{const d=walkLen(p,q);if(d<best.d)best={a:p,b:q,d};};for(const p of a)for(let i=0;i<b.length;i++)test(p,walkClosestOn(p,b[i],b[(i+1)%b.length]));for(const q of b)for(let i=0;i<a.length;i++)test(walkClosestOn(q,a[i],a[(i+1)%a.length]),q);return best;}
 function cabinetWalk(){let best=null;for(const a of walkTV)for(const b of walkSB){if(Math.min(a[1].maxY,b[1].maxY,2)<=Math.max(a[1].minY,b[1].minY,.1))continue;const p=closestWalkPolys(walkPoly(a),walkPoly(b));if(!best||p.d<best.d)best={...p,dx:Math.abs(p.a[0]-p.b[0]),dz:Math.abs(p.a[1]-p.b[1]),names:[a[0],b[0]]};}return best;}
-function clearMeasureGroup(g){for(const o of [...g.children]){g.remove(o);if(o.element)o.element.remove();if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();}}
+function clearMeasureGroup(g){for(const o of [...g.children]){o.traverse(n=>{if(n.element)n.element.remove();if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose();});g.remove(o);}}
 function walkSpan(x,z,ax){let lo=-Infinity,hi=Infinity;for(const c of colliders){if(!walkSolid(c))continue;const cross=ax==='z'?x:z,base=ax==='z'?z:x,cl=ax==='z'?c.minX:c.minZ,ch=ax==='z'?c.maxX:c.maxZ,l=ax==='z'?c.minZ:c.minX,h=ax==='z'?c.maxZ:c.maxX;if(cross<cl||cross>ch)continue;if(l<base&&base<h)return null;if(h<=base)lo=Math.max(lo,h);else if(l>=base)hi=Math.min(hi,l);}if(!Number.isFinite(lo)||!Number.isFinite(hi)||hi<lo)return null;return ax==='z'?[[x,lo],[x,hi]]:[[lo,z],[hi,z]];}
 function measureSegment(group,a,b,color,width=.018,dashed=false){const len=a.distanceTo(b);if(len<.0001)return;const mat=new THREE.MeshBasicMaterial({color,depthTest:false,depthWrite:false,transparent:true,opacity:.95});if(dashed){const n=Math.min(80,Math.max(1,Math.ceil(len/.16)));mat.dispose();for(let i=0;i<n;i++)measureSegment(group,a.clone().lerp(b,i/n),a.clone().lerp(b,(i+.56)/n),color,width);return;}const mesh=new THREE.Mesh(new THREE.BoxGeometry(width,len,width),mat);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.clone().sub(a).normalize());mesh.renderOrder=30;group.add(mesh);}
 function measureLabel(group,pos,main,desc,warn=false){const el=document.createElement('div');el.className='walk-dim'+(warn?' warn':'');const b=document.createElement('b'),s=document.createElement('span');b.textContent=main;s.textContent=desc;el.append(b,s);const o=new CSS2DObject(el);o.position.copy(pos);group.add(o);}
 const walkVec=p=>new THREE.Vector3(p[0],.035,p[1]), walkCm=v=>(v*100).toFixed(1);
-function drawWalk(pair,name,offset=[0,0],detail=''){if(!pair)return;const [a,b]=pair,d=walkLen(a,b),warn=d<.8,col=warn?0xc62828:0x1565c0,A=walkVec(a),B=walkVec(b);measureSegment(walkG,A,B,col,.025);if(d>1e-6){const dir=B.clone().sub(A).normalize(),normal=new THREE.Vector3(-dir.z,0,dir.x).multiplyScalar(.055);for(const v of [A,B])measureSegment(walkG,v.clone().sub(normal),v.clone().add(normal),col,.018);}measureLabel(walkG,A.clone().add(B).multiplyScalar(.5).add(new THREE.Vector3(offset[0],.025,offset[1])),`${walkCm(d)} cm`,name+(detail?'｜'+detail:''),warn);}
+function drawWalk(pair,name,offset=[0,0],detail=''){if(!pair)return;const [a,b]=pair,d=walkLen(a,b),warn=d<.8,col=warn?0xc62828:0x1565c0,A=walkVec(a),B=walkVec(b);
+ const g=new THREE.Group();g.userData={walkDimension:true,name,ends:[A.toArray(),B.toArray()]};walkG.add(g);
+ measureSegment(g,A,B,col,.025);
+ if(d>1e-6){const dir=B.clone().sub(A).normalize(),normal=new THREE.Vector3(-dir.z,0,dir.x),length=Math.min(.13,d*.24),half=length*.58;
+  // Arrow tips land on the measured boundaries, not the label or the cabinet center.
+  for(const [tip,sign] of [[A,1],[B,-1]]){const tail=tip.clone().addScaledVector(dir,sign*length);for(const side of [-1,1]){measureSegment(g,tip,tail.clone().addScaledVector(normal,side*half),col,.025);g.children.at(-1).userData.walkArrow=true;}}
+ }
+ const anchor=document.createElement('div');anchor.className='walk-arrow-anchor';const el=document.createElement('div');el.className='walk-dim walk-arrow-label'+(warn?' warn':'');const value=document.createElement('b'),caption=document.createElement('span');value.textContent=`${walkCm(d)} cm`;caption.textContent=name.startsWith('電視牆↔餐邊櫃')?'電視櫃↔餐邊櫃':name;el.title=name+(detail?'｜'+detail:'');el.append(value,caption);anchor.append(el);
+ const o=new CSS2DObject(anchor);o.position.copy(A).add(B).multiplyScalar(.5).add(new THREE.Vector3(offset[0],.025,offset[1]));g.add(o);syncOverlayDom(walkG);
+}
 function walkKey(){return colliders.map(c=>[c.minX,c.maxX,c.minZ,c.maxZ,c.minY,c.maxY].map(v=>Math.round(v*1000)).join(',')).join(';')+'|'+[...walkTV,...walkSB].map(([n])=>{const f=FURN.find(f=>f.name===n);return f?[f.p.x,f.p.z,f.rot].map(v=>Math.round(v*10000)).join(','):'';}).join(';');}
 function refreshWalk(){walkSignature=walkKey();clearMeasureGroup(walkG);walkLast=cabinetWalk();if(walkLast){const {a,b,d,dx,dz}=walkLast;drawWalk([a,b],'電視牆↔餐邊櫃 最短淨距',[0,0],`水平 X ${walkCm(dx)} / 縱向 Z ${walkCm(dz)} cm`);const k=[b[0],a[1]];if(dx>.001&&dz>.001){measureSegment(walkG,walkVec(a),walkVec(k),0x7184b1,.009,true);measureSegment(walkG,walkVec(k),walkVec(b),0x7184b1,.009,true);}const out=document.getElementById('walk-current');out.textContent=`電視牆－餐邊櫃：最短 ${walkCm(d)} cm｜水平 X ${walkCm(dx)}｜縱向 Z ${walkCm(dz)} cm${d<.001?'（外框接觸或重疊）':''}`;out.title=walkLast.names.join(' ↔ ')+'；櫃體外框，未計把手／開門掃掠／完整搬運路徑';}
  const span=(x,z,ax,n,off)=>drawWalk(walkSpan(x,z,ax),n,off);
@@ -4092,7 +4107,7 @@ window.__h3dInspectionSelfTest=()=>{const report=walkPreviousTest();setMode('pla
  planCam.updateMatrixWorld(true);const world=walkVec(initial.a).add(walkVec(initial.b)).multiplyScalar(.5),projected=world.clone().project(planCam),rect=renderer.domElement.getBoundingClientRect(),picked=pickMeasurePoint(rect.left+(projected.x+1)*rect.width/2,rect.top+(1-projected.y)*rect.height/2);if(!picked||!Number.isFinite(picked.y)||Math.abs(picked.x-world.x)>.02||Math.abs(picked.z-world.z)>.02)throw Error('surface picking failed');
  document.getElementById('measure-clear').click();if(measurePoints.length)throw Error('clear ruler failed');
  for(const [i,w] of [world,world.clone().add(new THREE.Vector3(.06,0,0))].entries()){const n=w.clone().project(planCam),o={pointerId:10+i,button:0,pointerType:'mouse',bubbles:true,cancelable:true,clientX:rect.left+(n.x+1)*rect.width/2,clientY:rect.top+(1-n.y)*rect.height/2};renderer.domElement.dispatchEvent(new PointerEvent('pointerdown',o));renderer.domElement.dispatchEvent(new PointerEvent('pointerup',o));if(measurePoints.length!==i+1)throw Error('ruler pointer interaction failed');}if(Math.abs(rulerStats(...measurePoints).x-.06)>.02)throw Error('ruler pointer measurement failed');document.getElementById('measure-clear').click();setRuler(false);setMode('ceiling');if(walkG.visible||!walkFab.hidden)throw Error('walk ceiling visibility failed');setMode('orbit');
- walkFab.click();report.unified={defaultBrowse:true,defaultWalkOff:true,defaultFurnitureDimsOff:true,defaultElectricOff:true,editToggle:true,slotCapture:true,draftNotPersisted:true,explicitSave:true};report.measurement={initialCm:+walkCm(initial.d),xCm:+walkCm(initial.dx),zCm:+walkCm(initial.dz),movedCm:moved===null?null:+walkCm(moved),rulerCm:+walkCm(stats.d),surfacePick:true,walkLabels:walkG.children.filter(o=>o.isCSS2DObject).length};return report;};
+ walkFab.click();report.unified={defaultBrowse:true,defaultWalkOff:true,defaultFurnitureDimsOff:true,defaultElectricOff:true,editToggle:true,slotCapture:true,draftNotPersisted:true,explicitSave:true};report.measurement={initialCm:+walkCm(initial.d),xCm:+walkCm(initial.dx),zCm:+walkCm(initial.dz),movedCm:moved===null?null:+walkCm(moved),rulerCm:+walkCm(stats.d),surfacePick:true,walkLabels:walkG.children.filter(o=>o.userData.walkDimension).length};return report;};
 
 /* ---------- 搬運模擬、已儲存量尺、走道熱區（統一版） ---------- */
 const savedMeasureG=new THREE.Group(), clearanceHeatG=new THREE.Group(), cargoG=new THREE.Group();
@@ -4195,6 +4210,24 @@ window.__h3dInspectionSelfTest=()=>{const defaults=!savedRulersOn&&!heatOn&&!car
 const cargoAdvancedPreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{const report=cargoAdvancedPreviousTest();if(cargoOn||cargoPlaying||!$('#cargo-controls').hidden)throw Error('cargo defaults');const route=[{x:0,z:0,a:Math.PI*7/8},{x:1,z:0,a:0}],p=cargoPose(route,.5);if(Math.abs(p.x-.5)>1e-8||Math.abs(p.a-Math.PI*15/16)>1e-8)throw Error('cargo rotation interpolation');const raw=[60,65,180,2],sc=scaledCargo(raw,.5,false);if(sc.raw[0]!==30||sc.raw[1]!==32.5||sc.raw[2]!==180||Math.abs(sc.w-.34)>1e-8)throw Error('cargo reverse scale');const preset={};for(const k of Object.keys(CARGO_PRESETS)){const ends=cargoPresetEnds(k);if(!ends||!ends.every(p=>onFloor(p.x,p.z,FLOORS)))throw Error('cargo preset '+k);preset[k]=ends;}setMode('plan');$('#cargo-toggle').click();$('#cargo-preset').value='washer';$('#cargo-preset').onchange();if(!setCargoDefault()||!$('#cargo-skip').checked||cargoEnds[1].x!==preset.washer[1].x)throw Error('cargo preset control');const oldSig=spaceKey(),trial={status:'found',path:[{...cargoEnds[0],a:0},{...cargoEnds[0],x:cargoEnds[0].x-.01,a:0}],expanded:1};applyCargoResult(trial,scaledCargo([60,45,85,2],1,false));$('#cargo-play').click();if(!cargoPlaying)throw Error('cargo play');cargoPlayTick(100);cargoPlayTick(180);if(Number($('#cargo-step').value)<=0)throw Error('cargo play progress');$('#cargo-rewind').click();if(cargoPlaying||Number($('#cargo-step').value)!==0)throw Error('cargo rewind');cargoInvalidate();if(cargoResult||!$('#cargo-play').disabled)throw Error('cargo invalidate');const results={};for(const k of ['fridge','washer']){const raw=[...CARGO_PRESETS[k].slice(0,3),2],s=scaledCargo(raw,1,false),f=FURN.find(f=>f.name.startsWith(CARGO_PRESETS[k][3]));const r=cargoSearch(...preset[k],s,cargoEnv(s,new Set(f?.bind?.cols||[])),16000,1100);results[k]={status:r.status,expanded:r.expanded,dimensions:raw.slice(0,3),steps:r.path?.length||0};}$('#cargo-preset').value='fridge';$('#cargo-preset').onchange();$('#cargo-skip').checked=false;$('#cargo-toggle').click();setMode('orbit');report.cargoAdvanced={presets:Object.keys(preset),animation:true,reverseScale:true,routeProbes:results};return report;};
 
+// Regression: verify the DOM itself, not just the Three.js parent flag.
+const overlayPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{
+ const labels=g=>{const list=[];g.traverse(o=>{if(o.isCSS2DObject)list.push(o.element);});return list;};
+ const paint=()=>{scene.updateMatrixWorld(true);activeCam.updateMatrixWorld(true);syncMeasurementDom();labelRenderer.render(scene,activeCam);};
+ const off=g=>labels(g).length>0&&labels(g).every(e=>e.hidden&&(!e.isConnected||getComputedStyle(e).display==='none'));
+ const on=g=>labels(g).some(e=>!e.hidden&&e.isConnected&&getComputedStyle(e).display!=='none');
+ paint();if(!off(walkG)||!off(electricG))throw Error('default overlay DOM visible');
+ setMode('plan');walkFab.click();paint();if(!on(walkG))throw Error('walk DOM toggle on');
+ const g=walkG.children.find(o=>o.userData.walkDimension&&o.userData.name.startsWith('電視牆↔餐邊櫃'));
+ if(!g||g.children.filter(o=>o.userData.walkArrow).length!==4||!g.children.some(o=>o.isCSS2DObject&&o.element.querySelector('.walk-arrow-label')))throw Error('dimension arrow endpoints missing');
+ const measured=cabinetWalk(),[a,b]=g.userData.ends;if(Math.abs(Math.hypot(a[0]-b[0],a[2]-b[2])-measured.d)>1e-7)throw Error('arrow endpoint distance mismatch');
+ walkFab.click();refreshWalk();paint();if(!off(walkG))throw Error('walk DOM toggle off after rebuild');
+ $('#inspect-electric').click();paint();if(!on(electricG))throw Error('electric DOM toggle on');$('#inspect-electric').click();paint();if(!off(electricG))throw Error('electric DOM toggle off');
+ setMode('orbit');paint();if(!off(walkG)||!off(electricG))throw Error('overlay DOM mode switch');
+ const report=overlayPreviousTest();report.overlayDom={defaultOff:true,toggleOff:true,modeSwitch:true,doubleArrow:true,endpointCm:+walkCm(measured.d)};return report;
+};
+
 /* =========================================================
    13. 主迴圈
    ========================================================= */
@@ -4218,7 +4251,7 @@ function frame(){
   if(state.mode==='ceiling'){
     renderer.render(ceilingScene,ceilingCam); ceilingLabelRenderer.render(ceilingScene,ceilingCam);
   }else{ renderer.render(scene,activeCam);
-  if(state.mode!=='fps') labelRenderer.render(scene,activeCam); else drawMini(); }
+  if(state.mode!=='fps'){syncMeasurementDom();labelRenderer.render(scene,activeCam);}else drawMini(); }
   if(first){ first=false; ui.loading.hidden=true; }
 }
 applyQuality();
