@@ -204,7 +204,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .walk-dim b{font:700 14px var(--mono)}
 .walk-dim span{display:block;font-size:9px;color:#555}
 .walk-dim.warn{color:#b71c1c;border-color:#c62828}
-.walk-arrow-anchor{width:0;height:0;pointer-events:none}
+#clear-overlays-fab{position:fixed;bottom:146px;right:12px;z-index:30;padding:8px 12px;border-radius:999px;border:1px solid #888;background:rgba(255,255,255,.94);color:#444;font:600 13px var(--sans);cursor:pointer}#walk-items{display:grid;gap:5px;font-size:12px;margin:8px 0}#walk-items label{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px}#walk-items output{font-variant-numeric:tabular-nums;color:var(--muted)}.walk-arrow-anchor{width:0;height:0;pointer-events:none}
 .walk-arrow-label{position:absolute;left:0;bottom:12px;transform:translateX(-50%);width:max-content;max-width:180px;white-space:nowrap}
 
 .cab-dim.ok{color:#1b5e20;border-color:#2e7d32}
@@ -252,7 +252,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="4d02571ea2e3bc5e83347e9ae6237e291e30e31171b86883c0b6fff0557f1068" data-commit="34dc792fdc4b8cb02c4e8fcf8a5133b6fd8df1cf" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 34dc792fdc4b8cb02c4e8fcf8a5133b6fd8df1cf | SHA-256 4d02571ea2e3bc5e83347e9ae6237e291e30e31171b86883c0b6fff0557f1068">版本 v1-4d02571ea2e3 · Commit 34dc792fdc4b</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="fef1b0f033c204c2b15471ce58afc6eded258c3a8a20776482121f8232f411bd" data-commit="26e6f43e59c3a07b33523dc637638f76bcc3c4c4" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 26e6f43e59c3a07b33523dc637638f76bcc3c4c4 | SHA-256 fef1b0f033c204c2b15471ce58afc6eded258c3a8a20776482121f8232f411bd">版本 v1-fef1b0f033c2 · Commit 26e6f43e59c3</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -310,6 +310,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       <p class="grp-label">空間 · 點選聚焦／傳送</p>
       <div class="chips" id="rooms"></div>
     </div>
+    <section aria-label="輔助標示"><p class="grp-label">輔助標示</p><div class="toggles"><button class="chip" id="clear-overlays" type="button">一鍵清除輔助標示</button><button class="tog" id="room-label-toggle" aria-pressed="true">房名／方位</button><button class="tog" id="cab-label-toggle" aria-pressed="true">開門範圍</button></div><p class="note">只關閉標示及工具，不刪除已儲存量尺、方案或改變家具與門扇。</p></section>
     <section aria-label="工程圖查核">
       <p class="grp-label">工程圖查核 · 2026/11/23</p>
       <div class="toggles">
@@ -317,7 +318,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <button class="tog" id="inspect-electric" aria-pressed="false">插座／開關</button>
         <button class="tog" id="inspect-doors" aria-pressed="false">櫃門碰撞</button>
       </div>
-      <div style="margin-top:8px"><p class="grp-label">量尺與走道 · 單位 cm</p><div class="toggles"><button class="tog" id="measure-toggle" aria-pressed="false">任意兩點量尺</button><button class="chip" id="measure-clear">清除量尺</button></div><output id="walk-current" hidden></output><output id="measure-result">尚未量測</output><p class="note">最短淨距為高度重疊櫃體的平面外框距離；X／Z 為其平面橫向／縱向分量，不是獨立可通行寬度。量尺點選模型表面，含垂直高差；不等同現場丈量。</p></div>
+      <div style="margin-top:8px"><p class="grp-label">量尺與走道 · 單位 cm</p><div class="toggles"><button class="tog" id="measure-toggle" aria-pressed="false">任意兩點量尺</button><button class="chip" id="measure-clear">清除量尺</button></div><details id="walk-filter"><summary>個別走道尺寸（勾選顯示）</summary><div class="toggles" style="margin:6px 0"><button class="chip" id="walk-select-all" type="button">全選</button><button class="chip" id="walk-select-none" type="button">全不選</button></div><div id="walk-items"></div></details><output id="walk-current" hidden></output><output id="measure-result">尚未量測</output><p class="note">最短淨距為高度重疊櫃體的平面外框距離；X／Z 為其平面橫向／縱向分量，不是獨立可通行寬度。量尺點選模型表面，含垂直高差；不等同現場丈量。</p></div>
       <details><summary>量尺儲存／走道熱區／搬運模擬</summary>
         <div class="toggles" style="margin-top:8px"><input id="saved-ruler-name" maxlength="40" placeholder="量尺名稱" style="max-width:145px"><button class="chip" id="saved-ruler-save">儲存目前量尺</button><button class="tog" id="saved-ruler-toggle" aria-pressed="false">已儲存量尺</button><button class="chip" id="saved-ruler-export">匯出 JSON</button><label class="chip">匯入 JSON<input id="saved-ruler-import" type="file" accept=".json,application/json" style="max-width:120px"></label></div><div id="saved-ruler-list" hidden></div><p class="note">最多 60 組，儲存固定模型座標；家具移動後不會跟著移動，請重新量測。僅存本瀏覽器，JSON 可備份。</p>
         <div class="toggles"><button class="tog" id="heat-toggle" aria-pressed="false">走道淨寬熱區</button><button class="tog" id="cargo-toggle" aria-pressed="false">大型家具搬運</button></div>
@@ -2027,6 +2028,8 @@ const walkG=new THREE.Group(), rulerMeasureG=new THREE.Group(); labelG.add(walkG
 // CSS2D labels are DOM elements, not WebGL meshes. Honor every ancestor's visibility explicitly.
 function syncOverlayDom(group){group.traverse(o=>{if(!o.isCSS2DObject)return;let visible=true;for(let a=o;a;a=a.parent)if(!a.visible){visible=false;break;}o.element.hidden=!visible;});}
 function syncMeasurementDom(){for(const g of [walkG,rulerMeasureG,electricG,savedMeasureG,clearanceHeatG,cargoG,dimG,cabVizG])syncOverlayDom(g);}
+const WALK_NAMES=["電視牆↔餐邊櫃 最短淨距","玄關走道","電視牆↔餐桌椅","主臥門前","餐椅↔餐邊櫃","沙發↔餐椅","主臥 床↔窗牆","主臥 床尾↔牆","主臥 床↔衣櫃","客房 椅子拉開後↔牆","廚房門洞（冰箱進出）"];
+const walkChosen=new Set(), walkItemUI=new Map();
 let WALK_ON=false, walkSignature='', walkTime=-Infinity, walkLast=null, measureOn=false, measurePoints=[], measureTap=null;
 const walkRect=c=>[[c.minX,c.minZ],[c.maxX,c.minZ],[c.maxX,c.maxZ],[c.minX,c.maxZ]];
 const walkSolid=c=>c.maxY>.1&&c.minY<2&&[c.minX,c.maxX,c.minZ,c.maxZ].every(Number.isFinite);
@@ -2044,7 +2047,7 @@ function measureSegment(group,a,b,color,width=.018,dashed=false){const len=a.dis
 function measureLabel(group,pos,main,desc,warn=false){const el=document.createElement('div');el.className='walk-dim'+(warn?' warn':'');const b=document.createElement('b'),s=document.createElement('span');b.textContent=main;s.textContent=desc;el.append(b,s);const o=new CSS2DObject(el);o.position.copy(pos);group.add(o);}
 const walkVec=p=>new THREE.Vector3(p[0],.035,p[1]), walkCm=v=>(v*100).toFixed(1);
 function drawWalk(pair,name,offset=[0,0],detail=''){if(!pair)return;const [a,b]=pair,d=walkLen(a,b),warn=d<.8,col=warn?0xc62828:0x1565c0,A=walkVec(a),B=walkVec(b);
- const g=new THREE.Group();g.userData={walkDimension:true,name,ends:[A.toArray(),B.toArray()]};walkG.add(g);
+ const g=new THREE.Group();g.userData={walkDimension:true,name,ends:[A.toArray(),B.toArray()]};walkG.add(g);g.visible=walkChosen.has(name);
  measureSegment(g,A,B,col,.025);
  if(d>1e-6){const dir=B.clone().sub(A).normalize(),normal=new THREE.Vector3(-dir.z,0,dir.x),length=Math.min(.13,d*.24),half=length*.58;
   // Arrow tips land on the measured boundaries, not the label or the cabinet center.
@@ -2054,12 +2057,17 @@ function drawWalk(pair,name,offset=[0,0],detail=''){if(!pair)return;const [a,b]=
  const o=new CSS2DObject(anchor);o.position.copy(A).add(B).multiplyScalar(.5).add(new THREE.Vector3(offset[0],.025,offset[1]));g.add(o);syncOverlayDom(walkG);
 }
 function walkKey(){return colliders.map(c=>[c.minX,c.maxX,c.minZ,c.maxZ,c.minY,c.maxY].map(v=>Math.round(v*1000)).join(',')).join(';')+'|'+[...walkTV,...walkSB].map(([n])=>{const f=FURN.find(f=>f.name===n);return f?[f.p.x,f.p.z,f.rot].map(v=>Math.round(v*10000)).join(','):'';}).join(';');}
-function refreshWalk(){walkSignature=walkKey();clearMeasureGroup(walkG);walkLast=cabinetWalk();if(walkLast){const {a,b,d,dx,dz}=walkLast;drawWalk([a,b],'電視牆↔餐邊櫃 最短淨距',[0,0],`水平 X ${walkCm(dx)} / 縱向 Z ${walkCm(dz)} cm`);const k=[b[0],a[1]];if(dx>.001&&dz>.001){measureSegment(walkG,walkVec(a),walkVec(k),0x7184b1,.009,true);measureSegment(walkG,walkVec(k),walkVec(b),0x7184b1,.009,true);}const out=document.getElementById('walk-current');out.textContent=`電視牆－餐邊櫃：最短 ${walkCm(d)} cm｜水平 X ${walkCm(dx)}｜縱向 Z ${walkCm(dz)} cm${d<.001?'（外框接觸或重疊）':''}`;out.title=walkLast.names.join(' ↔ ')+'；櫃體外框，未計把手／開門掃掠／完整搬運路徑';}
+function refreshWalk(){walkSignature=walkKey();clearMeasureGroup(walkG);walkLast=cabinetWalk();if(walkLast){const {a,b,d,dx,dz}=walkLast;drawWalk([a,b],'電視牆↔餐邊櫃 最短淨距',[0,0],`水平 X ${walkCm(dx)} / 縱向 Z ${walkCm(dz)} cm`);const k=[b[0],a[1]],g=walkG.children.find(o=>o.userData.walkDimension&&o.userData.name===WALK_NAMES[0]);if(g&&dx>.001&&dz>.001){measureSegment(g,walkVec(a),walkVec(k),0x7184b1,.009,true);measureSegment(g,walkVec(k),walkVec(b),0x7184b1,.009,true);}const out=document.getElementById('walk-current');out.textContent=`電視牆－餐邊櫃：最短 ${walkCm(d)} cm｜水平 X ${walkCm(dx)}｜縱向 Z ${walkCm(dz)} cm${d<.001?'（外框接觸或重疊）':''}`;out.title=walkLast.names.join(' ↔ ')+'；櫃體外框，未計把手／開門掃掠／完整搬運路徑';}
  const span=(x,z,ax,n,off)=>drawWalk(walkSpan(x,z,ax),n,off);
- span(MX(780),MZ(515),'z','玄關走道');span(MX(380),MZ(560),'z','電視牆↔餐桌椅');span(MX(243),MZ(490),'x','主臥門前');const cz=Z(CHAIR_Y[0]);span(X(DINE_X+42)+.25,cz,'x','餐椅↔餐邊櫃');span(X(DINE_X-42)-.25,cz,'x','沙發↔餐椅');span(.6,1.5,'x','主臥 床↔窗牆');span(1.35,2.6,'z','主臥 床尾↔牆');span(3.1,1.2,'x','主臥 床↔衣櫃');span(CHAIR_COL.maxX+.03,(CHAIR_COL.minZ+CHAIR_COL.maxZ)/2,'x','客房 椅子拉開後↔牆',[0,-.8]);const [x0,y0,x1,y1]=DOOR_OPENINGS[2].r,zc=(Z(y0)+Z(y1))/2;drawWalk([[X(x0),zc],[X(x1),zc]],'廚房門洞（冰箱進出）',[0,.3]);}
+ span(MX(780),MZ(515),'z','玄關走道');span(MX(380),MZ(560),'z','電視牆↔餐桌椅');span(MX(243),MZ(490),'x','主臥門前');const cz=Z(CHAIR_Y[0]);span(X(DINE_X+42)+.25,cz,'x','餐椅↔餐邊櫃');span(X(DINE_X-42)-.25,cz,'x','沙發↔餐椅');span(.6,1.5,'x','主臥 床↔窗牆');span(1.35,2.6,'z','主臥 床尾↔牆');span(3.1,1.2,'x','主臥 床↔衣櫃');span(CHAIR_COL.maxX+.03,(CHAIR_COL.minZ+CHAIR_COL.maxZ)/2,'x','客房 椅子拉開後↔牆',[0,-.8]);const [x0,y0,x1,y1]=DOOR_OPENINGS[2].r,zc=(Z(y0)+Z(y1))/2;drawWalk([[X(x0),zc],[X(x1),zc]],'廚房門洞（冰箱進出）',[0,.3]);updateWalkChoices();}
 const walkButton=document.getElementById('t-walk'),walkFab=document.createElement('button'),measureFab=document.createElement('button');walkFab.id='walk-fab';measureFab.id='measure-fab';walkFab.type=measureFab.type='button';document.body.append(walkFab,measureFab);walkButton.hidden=false;
-function syncMeasureUI(){const visible=state.mode==='plan'||state.mode==='orbit';walkG.visible=visible&&WALK_ON;document.getElementById('walk-current').hidden=!WALK_ON;rulerMeasureG.visible=visible;walkFab.hidden=measureFab.hidden=!visible;walkButton.disabled=!visible;document.getElementById('measure-toggle').disabled=!visible;document.getElementById('measure-clear').disabled=!visible;for(const b of [walkButton,walkFab])b.setAttribute('aria-pressed',String(WALK_ON));walkFab.textContent='📏 走道尺寸：'+(WALK_ON?'開':'關');for(const b of [measureFab,document.getElementById('measure-toggle')])b.setAttribute('aria-pressed',String(measureOn));measureFab.textContent=measureOn?'結束量尺':'任意兩點量尺';if(!visible){measureOn=false;measureTap=null;}}
-function flipWalk(){WALK_ON=!WALK_ON;if(WALK_ON)refreshWalk();syncMeasureUI();toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸');}
+function updateWalkChoices(){for(const [name,{input,out}] of walkItemUI){const g=walkG.children.find(o=>o.userData.walkDimension&&o.userData.name===name);input.checked=WALK_ON&&walkChosen.has(name);out.textContent=g?`${walkCm(Math.hypot(g.userData.ends[0][0]-g.userData.ends[1][0],g.userData.ends[0][2]-g.userData.ends[1][2]))} cm`:'無有效尺寸';if(g)g.visible=walkChosen.has(name);}document.getElementById('walk-current').hidden=!WALK_ON||!walkChosen.has(WALK_NAMES[0]);syncOverlayDom(walkG);}
+function chooseWalk(name,on){if(!WALK_ON)walkChosen.clear();if(on)walkChosen.add(name);else walkChosen.delete(name);WALK_ON=walkChosen.size>0;syncMeasureUI();}
+for(const name of WALK_NAMES){const row=document.createElement('label'),input=document.createElement('input'),title=document.createElement('span'),out=document.createElement('output');input.type='checkbox';input.setAttribute('aria-label',name);title.textContent=name;row.append(input,title,out);document.getElementById('walk-items').append(row);walkItemUI.set(name,{input,out});input.onchange=()=>chooseWalk(name,input.checked);}
+document.getElementById('walk-select-all').onclick=()=>{WALK_NAMES.forEach(n=>walkChosen.add(n));WALK_ON=true;syncMeasureUI();};
+document.getElementById('walk-select-none').onclick=()=>{walkChosen.clear();WALK_ON=false;syncMeasureUI();};
+function syncMeasureUI(){const visible=state.mode==='plan'||state.mode==='orbit';walkG.visible=visible&&WALK_ON;updateWalkChoices();rulerMeasureG.visible=visible;walkFab.hidden=measureFab.hidden=!visible;walkButton.disabled=!visible;document.getElementById('measure-toggle').disabled=!visible;document.getElementById('measure-clear').disabled=!visible;for(const b of [walkButton,walkFab])b.setAttribute('aria-pressed',String(WALK_ON));walkFab.textContent='📏 走道尺寸：'+(WALK_ON?'開':'關');for(const b of [measureFab,document.getElementById('measure-toggle')])b.setAttribute('aria-pressed',String(measureOn));measureFab.textContent=measureOn?'結束量尺':'任意兩點量尺';if(!visible){measureOn=false;measureTap=null;}}
+function flipWalk(){WALK_ON=!WALK_ON;if(WALK_ON){if(!walkChosen.size)WALK_NAMES.forEach(n=>walkChosen.add(n));refreshWalk();}syncMeasureUI();toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸');}
 walkButton.addEventListener('click',flipWalk);walkFab.addEventListener('click',flipWalk);
 function walkTick(now){if(now-walkTime<120||state.mode==='fps'||state.mode==='ceiling')return;walkTime=now;if(walkKey()!==walkSignature)refreshWalk();}
 function rulerStats(a,b){const x=Math.abs(a.x-b.x),y=Math.abs(a.y-b.y),z=Math.abs(a.z-b.z);return {x,y,z,h:Math.hypot(x,z),d:Math.hypot(x,y,z)};}
@@ -2390,7 +2398,7 @@ function setMode(m){
   ui.cross.hidden=ui.hud.hidden=!fps; ui.compass.hidden=m!=='plan';   // 指北針只在俯視顯示（俯視不能旋轉，方向固定）
   ui.hint.innerHTML=(m==='plan'||m==='orbit')&&!EDIT_MODE?'瀏覽模式 · 點門扇可開關 · 開啟家具調整後可拖曳家具 · 尺寸與插座可獨立開關':HINTS[m];
   if(fps) enterFPS();
-  syncMeasureUI(); syncEditUI(); syncExtraUI();
+  syncMeasureUI(); syncEditUI(); syncExtraUI(); syncAuxLabels();
   if(state.mode==='plan'||state.mode==='orbit') refreshWalk();
   placeSun();
 }
@@ -3829,7 +3837,7 @@ function updateCabDoors(dt){
   let moving=false;
   for(const d of CAB_DOORS){ if(d.v===d.want) continue; moving=true; const st=REDUCED?1:dt*1.5; const next=d.v<d.want?Math.min(d.want,d.v+st):Math.max(d.want,d.v-st); stepCabSafely(d,next); syncCabCol(d); }
   if(!moving&&cabDirty){ cabDirty=false; refreshWalk(); }
-  cabVizG.visible=state.mode!=='fps';
+  cabVizG.visible=cabLabelsOn&&state.mode!=='fps'&&state.mode!=='ceiling';
   if(MOVABLE&&CAB_DOORS.some(d=>d.want)&&(cabSyncT+=dt)>1){ cabSyncT=0; for(const d of CAB_DOORS) if(d.want) syncCabCol(d); analyzeCab(); refreshCabUI(); }   // 家具調整版：櫃子搬動後重算
 }
 
@@ -4228,6 +4236,43 @@ window.__h3dInspectionSelfTest=()=>{
  const report=overlayPreviousTest();report.overlayDom={defaultOff:true,toggleOff:true,modeSwitch:true,doubleArrow:true,endpointCm:+walkCm(measured.d)};return report;
 };
 
+/* ---------- 輔助標示：清除、個別圖層與畫面避讓 ---------- */
+let roomLabelsOn=true,cabLabelsOn=true,ceilingLabelsOn=true;
+const roomLabelObjects=labelG.children.filter(o=>o.isCSS2DObject);
+function syncAuxLabels(){for(const o of roomLabelObjects){o.visible=roomLabelsOn;syncOverlayDom(o);}ui.compass.hidden=state.mode!=='plan'||!roomLabelsOn;cabVizG.visible=cabLabelsOn&&state.mode!=='fps'&&state.mode!=='ceiling';$('#room-label-toggle').setAttribute('aria-pressed',String(roomLabelsOn));$('#cab-label-toggle').setAttribute('aria-pressed',String(cabLabelsOn));syncOverlayDom(cabVizG);}
+$('#room-label-toggle').onclick=()=>{roomLabelsOn=!roomLabelsOn;ceilingLabelsOn=roomLabelsOn;syncAuxLabels();};
+$('#cab-label-toggle').onclick=()=>{cabLabelsOn=!cabLabelsOn;syncAuxLabels();};
+const clearOverlaysFab=document.createElement('button');clearOverlaysFab.id='clear-overlays-fab';clearOverlaysFab.type='button';clearOverlaysFab.textContent='清除輔助標示';document.body.append(clearOverlaysFab);
+function clearAuxOverlays(){WALK_ON=false;walkChosen.clear();FURN_DIMS_ON=false;showDims(null);syncEditUI();measureOn=false;measureTap=null;measurePoints=[];renderRuler();cancelCargoPick();cargoOn=false;cargoStop();clearCargoMax('');cargoEnds=[null,null];cargoInvalidate();drawCargo();savedRulersOn=false;heatOn=false;electricOn=false;electricG.visible=false;selectInspection('');simResult.hidden=true;roomLabelsOn=false;cabLabelsOn=false;ceilingLabelsOn=false;select(null);ruler.visible=false;ring.visible=false;syncMeasureUI();syncExtraUI();syncAuxLabels();syncMeasurementDom();syncOverlayDom(ruler);toast('輔助標示已清除；已儲存量尺及方案保留');}
+$('#clear-overlays').onclick=clearAuxOverlays;clearOverlaysFab.onclick=clearAuxOverlays;
+const labelRect=(x,y,w,h)=>({left:x,top:y,right:x+w,bottom:y+h});
+function rectTouches(a,b,pad=3){return a.left<b.right+pad&&a.right>b.left-pad&&a.top<b.bottom+pad&&a.bottom>b.top-pad;}
+function rectHitsSegment(r,a,b,pad=7){let t0=0,t1=1;for(const [v,d,lo,hi] of [[a.x,b.x-a.x,r.left-pad,r.right+pad],[a.y,b.y-a.y,r.top-pad,r.bottom+pad]]){if(Math.abs(d)<1e-8){if(v<lo||v>hi)return false;continue;}let x=(lo-v)/d,y=(hi-v)/d;if(x>y)[x,y]=[y,x];t0=Math.max(t0,x);t1=Math.min(t1,y);if(t0>t1)return false;}return true;}
+function placeDimensionRect(r,occupied,lines,bounds){const w=r.right-r.left,h=r.bottom-r.top;const candidates=[[0,0]];for(const n of [18,36,60,90,125,165])for(const [x,y] of [[0,-1],[0,1],[1,0],[-1,0],[1,-1],[-1,-1],[1,1],[-1,1]])candidates.push([x*n,y*n]);for(const [dx,dy] of candidates){const q=labelRect(r.left+dx,r.top+dy,w,h);if(q.left<bounds.left||q.top<bounds.top||q.right>bounds.right||q.bottom>bounds.bottom||occupied.some(o=>rectTouches(q,o))||lines.some(([a,b])=>rectHitsSegment(q,a,b)))continue;return {dx,dy,q};}return null;}
+let lastLabelLayout=-Infinity;
+function layoutDimensionLabels(now,force=false){if(!force&&now-lastLabelLayout<100)return;lastLabelLayout=now;
+ const els=[...labelRenderer.domElement.querySelectorAll('.walk-arrow-label,.walk-dim:not(.walk-arrow-label),.dim-label,.ruler-label span')];
+ for(const el of els){el.style.translate='';el.style.visibility='';}
+ const bounds=labelRect(5,5,Math.max(0,innerWidth-10),Math.max(0,innerHeight-10)),occupied=[];
+ const visible=e=>e.isConnected&&e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden';
+ for(const e of [ui.panel,ui.hint,walkFab,measureFab,clearOverlaysFab,...labelRenderer.domElement.querySelectorAll('.electric,.room-label,.compass-label')])if(e&&visible(e)){const r=e.getBoundingClientRect();if(r.width&&r.height)occupied.push(r);}
+ const project=p=>{const v=new THREE.Vector3(...p).project(activeCam);return {x:(v.x+1)*innerWidth/2,y:(1-v.y)*innerHeight/2};};
+ const lines=WALK_ON&&walkG.visible?walkG.children.filter(g=>g.visible&&g.userData.walkDimension).map(g=>g.userData.ends.map(project)):[];
+ const candidates=els.filter(visible).map(el=>({el,r:el.getBoundingClientRect()})).filter(({r})=>r.width&&r.height);
+ candidates.sort((a,b)=>Number(!a.el.classList.contains('walk-arrow-label'))-Number(!b.el.classList.contains('walk-arrow-label')));
+ for(const {el,r} of candidates){const fit=placeDimensionRect(r,occupied,lines,bounds);if(!fit){el.style.visibility='hidden';continue;}el.style.translate=`${fit.dx}px ${fit.dy}px`;occupied.push(fit.q);}
+}
+const auxPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{
+ const report=auxPreviousTest();setMode('plan');$('#walk-select-none').click();const pick=walkItemUI.get(WALK_NAMES[0]).input;pick.click();if(!WALK_ON||walkChosen.size!==1||walkG.children.filter(g=>g.visible&&g.userData.walkDimension).length!==1)throw Error('individual walk selection failed');
+ const selectedGroup=walkG.children.find(g=>g.userData.name===WALK_NAMES[0]);if(selectedGroup.children.filter(o=>o.userData.walkArrow).length!==4)throw Error('individual arrows missing');refreshWalk();if(walkG.children.filter(g=>g.visible&&g.userData.walkDimension).length!==1)throw Error('walk selection lost on refresh');
+ $('#walk-select-all').click();if(walkChosen.size!==WALK_NAMES.length)throw Error('select all failed');
+ const test=placeDimensionRect(labelRect(45,45,40,20),[labelRect(45,45,40,20)],[[{x:0,y:55},{x:200,y:55}]],labelRect(0,0,200,200));if(!test||rectTouches(test.q,labelRect(45,45,40,20))||rectHitsSegment(test.q,{x:0,y:55},{x:200,y:55}))throw Error('label avoidance geometry failed');
+ scene.updateMatrixWorld(true);activeCam.updateMatrixWorld(true);syncMeasurementDom();labelRenderer.render(scene,activeCam);layoutDimensionLabels(performance.now(),true);
+ const saved=JSON.stringify(savedRulers),slotsBefore=slotsJSON();$('#inspect-electric').click();savedRulersOn=true;heatOn=true;cargoOn=true;syncExtraUI();$('#clear-overlays').click();if(WALK_ON||electricOn||FURN_DIMS_ON||savedRulersOn||heatOn||cargoOn||measureOn||walkG.visible||electricG.visible||savedMeasureG.visible||clearanceHeatG.visible||cargoG.visible||cabVizG.visible||roomLabelsOn||saved!==JSON.stringify(savedRulers)||slotsBefore!==slotsJSON())throw Error('clear overlays failed');
+ setMode('orbit');syncAuxLabels();if(roomLabelObjects.some(o=>o.visible)||cabVizG.visible)throw Error('clear lost on view switch');report.auxiliary={individual:true,all:true,clear:true,savedRetained:true,labelAvoidance:true,walkItems:WALK_NAMES.length};return report;
+};
+
 /* =========================================================
    13. 主迴圈
    ========================================================= */
@@ -4249,9 +4294,9 @@ function frame(){
   if(tank) for(const f of tank.userData.fish){ const t=elapsed*f.sp+f.ph; f.m.position.set(Math.sin(t)*f.amp,f.y+Math.sin(t*1.7)*.02,f.z+Math.sin(t*.6)*.04); f.m.rotation.y=Math.cos(t)>0?0:Math.PI; }
   mirror.visible=state.mode==='fps'?(player.pos.x>X(580)&&player.pos.z>Z(460)):(state.mode==='orbit'&&orbitCam.position.z<BATH.zs&&orbitCam.position.distanceToSquared(BATH_POS)<36);
   if(state.mode==='ceiling'){
-    renderer.render(ceilingScene,ceilingCam); ceilingLabelRenderer.render(ceilingScene,ceilingCam);
+    renderer.render(ceilingScene,ceilingCam); ceilingLabelRenderer.render(ceilingScene,ceilingCam);ceilingLabelRenderer.domElement.style.visibility=ceilingLabelsOn?'visible':'hidden';
   }else{ renderer.render(scene,activeCam);
-  if(state.mode!=='fps'){syncMeasurementDom();labelRenderer.render(scene,activeCam);}else drawMini(); }
+  if(state.mode!=='fps'){syncMeasurementDom();syncOverlayDom(ruler);labelRenderer.render(scene,activeCam);layoutDimensionLabels(performance.now());}else drawMini(); }
   if(first){ first=false; ui.loading.hidden=true; }
 }
 applyQuality();
