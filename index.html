@@ -204,7 +204,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .walk-dim b{font:700 14px var(--mono)}
 .walk-dim span{display:block;font-size:9px;color:#555}
 .walk-dim.warn{color:#b71c1c;border-color:#c62828}
-#clear-overlays-fab{position:fixed;bottom:146px;right:12px;z-index:30;padding:8px 12px;border-radius:999px;border:1px solid #888;background:rgba(255,255,255,.94);color:#444;font:600 13px var(--sans);cursor:pointer}#walk-items{display:grid;gap:5px;font-size:12px;margin:8px 0}#walk-items label{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px}#walk-items output{font-variant-numeric:tabular-nums;color:var(--muted)}.walk-arrow-anchor{width:0;height:0;pointer-events:none}
+#clear-overlays-fab{position:fixed;bottom:46px;right:12px;z-index:30;padding:8px 12px;border-radius:999px;border:1px solid #888;background:rgba(255,255,255,.94);color:#444;font:600 13px var(--sans);cursor:pointer}#walk-items{display:grid;gap:5px;font-size:12px;margin:8px 0}#walk-items label{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px}#walk-items output{font-variant-numeric:tabular-nums;color:var(--muted)}.walk-arrow-anchor{width:0;height:0;pointer-events:none}
 .walk-arrow-label{position:absolute;left:0;bottom:12px;transform:translateX(-50%);width:max-content;max-width:180px;white-space:nowrap}
 
 .cab-dim.ok{color:#1b5e20;border-color:#2e7d32}
@@ -244,6 +244,25 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 .inspect-label.electric{border:1px solid #1d75b7;color:#1d75b7;font-size:10px}
 .inspect-label.electric.original{border-color:#9a571a;color:#9a571a}
 .inspect-label.electric.pending{border-style:dashed;color:var(--warn)}
+/* Consistent panel sections: results follow the controls that produce them. */
+.pbody{gap:8px;padding:10px}
+.panel-group{min-width:0;border:1px solid var(--rule);border-radius:5px;background:var(--panel);overflow:hidden}
+.panel-group>summary{cursor:pointer;padding:10px 11px;font-size:13px;font-weight:700;color:var(--ink);background:var(--chip);line-height:1.4}
+.panel-group>summary:hover{background:var(--chip-hover)}
+.panel-group[open]>summary{border-bottom:1px solid var(--rule)}
+.group-body{display:grid;gap:10px;padding:10px;min-width:0}
+.group-body .grp-label{font-family:var(--sans);font-size:11px;letter-spacing:.04em;line-height:1.4;font-weight:600}
+.group-body .note{font-size:12px;line-height:1.55}
+.group-body .sub-group{border-top:1px solid var(--rule);padding-top:8px}
+.group-body .sub-group summary,.group-body #walk-filter summary{cursor:pointer;font-size:12px;font-weight:600;margin-top:5px}
+#inspection-results{margin:0;padding:8px;border:1px solid var(--rule);border-radius:4px;background:var(--chip)}
+#inspection-results>p{margin:0 0 7px;line-height:1.55}
+#inspection-results>p:last-child{margin-bottom:0}
+.inspection-table-scroll{max-height:300px;overflow:auto;margin:7px 0;overscroll-behavior:contain}
+.inspection-table-scroll th{position:sticky;top:0;background:var(--chip);z-index:1}
+#sim-result{font-size:12px;line-height:1.5;border:1px solid var(--rule);padding:8px;border-radius:4px}
+#sim-result table{width:100%;border-collapse:collapse;font-size:11px}
+#sim-result td,#sim-result th{padding:4px 2px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
 </style>
 </head>
 <body>
@@ -252,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="fef1b0f033c204c2b15471ce58afc6eded258c3a8a20776482121f8232f411bd" data-commit="26e6f43e59c3a07b33523dc637638f76bcc3c4c4" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 26e6f43e59c3a07b33523dc637638f76bcc3c4c4 | SHA-256 fef1b0f033c204c2b15471ce58afc6eded258c3a8a20776482121f8232f411bd">版本 v1-fef1b0f033c2 · Commit 26e6f43e59c3</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="5a9109c61906214ce9fe34834d3214f311923590063ad803a9d68d7d47308109" data-commit="3af19361b4e2b3a4303b6a9160c2428e73acdfea" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 3af19361b4e2b3a4303b6a9160c2428e73acdfea | SHA-256 5a9109c61906214ce9fe34834d3214f311923590063ad803a9d68d7d47308109">版本 v1-5a9109c61906 · Commit 3af19361b4e2</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -299,7 +318,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
     <div><dt>樓層</dt><dd>1F 單層</dd></div>
   </dl>
   <div class="pbody" id="pbody">
-    <section aria-label="操作模式"><p class="grp-label">操作模式</p><div class="toggles"><button type="button" class="tog" id="edit-mode" aria-pressed="false">家具調整：關</button><button type="button" class="tog" id="furn-dim-toggle" aria-pressed="false">家具尺寸：關</button></div><p class="note" id="edit-mode-note">瀏覽模式：不會移動家具。需要調整時開啟家具調整，完成後可另存方案。</p></section>
+    <details class="panel-group" id="panel-view" open><summary>01　視角與空間</summary><div class="group-body">
     <div class="seg" role="group" aria-label="視角模式">
       <button id="m-plan" data-mode="plan" aria-pressed="false">1F 平面俯視</button>
       <button id="m-orbit" data-mode="orbit" aria-pressed="true">3D 鳥瞰</button>
@@ -310,47 +329,53 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       <p class="grp-label">空間 · 點選聚焦／傳送</p>
       <div class="chips" id="rooms"></div>
     </div>
+    <section aria-label="操作模式"><p class="grp-label">操作模式</p><div class="toggles"><button type="button" class="tog" id="edit-mode" aria-pressed="false">家具調整：關</button><button type="button" class="tog" id="furn-dim-toggle" aria-pressed="true">家具尺寸：開</button></div><p class="note" id="edit-mode-note">瀏覽模式：點家具看尺寸；開啟家具調整才可移動，完成後可另存方案。</p></section>
     <section aria-label="輔助標示"><p class="grp-label">輔助標示</p><div class="toggles"><button class="chip" id="clear-overlays" type="button">一鍵清除輔助標示</button><button class="tog" id="room-label-toggle" aria-pressed="true">房名／方位</button><button class="tog" id="cab-label-toggle" aria-pressed="true">開門範圍</button></div><p class="note">只關閉標示及工具，不刪除已儲存量尺、方案或改變家具與門扇。</p></section>
-    <section aria-label="工程圖查核">
-      <p class="grp-label">工程圖查核 · 2026/11/23</p>
-      <div class="toggles">
+    </div></details>
+    <details class="panel-group" id="panel-measure"><summary>02　尺寸與量測</summary><div class="group-body">
+      <div><p class="grp-label">走道與量尺 · cm</p><div class="toggles"><button class="tog" id="t-walk" aria-pressed="false" hidden>走道尺寸</button><button class="tog" id="measure-toggle" aria-pressed="false">任意兩點量尺</button><button class="chip" id="measure-clear">清除量尺</button></div><details id="walk-filter"><summary>個別走道尺寸（勾選顯示）</summary><div class="toggles" style="margin:6px 0"><button class="chip" id="walk-select-all" type="button">全選</button><button class="chip" id="walk-select-none" type="button">全不選</button></div><div id="walk-items"></div></details><output id="walk-current" hidden></output><output id="measure-result">尚未量測</output><p class="note">最短淨距為高度重疊櫃體的平面外框距離；X／Z 為其平面橫向／縱向分量，不是獨立可通行寬度。量尺點選模型表面，含垂直高差；不等同現場丈量。</p></div>
+      <details class="sub-group"><summary>已儲存量尺</summary>
+        <div class="toggles" style="margin-top:8px"><input id="saved-ruler-name" maxlength="40" placeholder="量尺名稱" style="max-width:145px"><button class="chip" id="saved-ruler-save">儲存目前量尺</button><button class="tog" id="saved-ruler-toggle" aria-pressed="false">已儲存量尺</button><button class="chip" id="saved-ruler-export">匯出 JSON</button><label class="chip">匯入 JSON<input id="saved-ruler-import" type="file" accept=".json,application/json" style="max-width:120px"></label></div><div id="saved-ruler-list" hidden></div><p class="note">最多 60 組，儲存固定模型座標；家具移動後不會跟著移動，請重新量測。僅存本瀏覽器，JSON 可備份。</p>
+      </details>
+      <div class="sub-group"><div class="toggles"><button class="tog" id="heat-toggle" aria-pressed="false">走道淨寬熱區</button></div>
+        <p class="note" style="margin-top:6px">熱區：紅 &lt;60、橘 60–79、黃 80–99、綠 ≥100 cm；10 cm 取樣，固定 X/Z 軸截面較小值。</p><output id="heat-result" hidden></output>
+      </div>
+    </div></details>
+    <details class="panel-group" id="panel-inspection" open><summary>03　工程圖查核</summary><div class="group-body">
+      <p class="note">工程圖 2026/11/23 · 點選下方查核項目，結果直接顯示於此。</p>
+      <div class="toggles" id="inspection-toolbar">
         <button class="tog" id="inspect-dims" aria-pressed="false">尺寸驗證</button>
         <button class="tog" id="inspect-electric" aria-pressed="false">插座／開關</button>
         <button class="tog" id="inspect-doors" aria-pressed="false">櫃門碰撞</button>
+        <button class="chip" id="inspect-close" hidden>收合結果</button>
       </div>
-      <div style="margin-top:8px"><p class="grp-label">量尺與走道 · 單位 cm</p><div class="toggles"><button class="tog" id="measure-toggle" aria-pressed="false">任意兩點量尺</button><button class="chip" id="measure-clear">清除量尺</button></div><details id="walk-filter"><summary>個別走道尺寸（勾選顯示）</summary><div class="toggles" style="margin:6px 0"><button class="chip" id="walk-select-all" type="button">全選</button><button class="chip" id="walk-select-none" type="button">全不選</button></div><div id="walk-items"></div></details><output id="walk-current" hidden></output><output id="measure-result">尚未量測</output><p class="note">最短淨距為高度重疊櫃體的平面外框距離；X／Z 為其平面橫向／縱向分量，不是獨立可通行寬度。量尺點選模型表面，含垂直高差；不等同現場丈量。</p></div>
-      <details><summary>量尺儲存／走道熱區／搬運模擬</summary>
-        <div class="toggles" style="margin-top:8px"><input id="saved-ruler-name" maxlength="40" placeholder="量尺名稱" style="max-width:145px"><button class="chip" id="saved-ruler-save">儲存目前量尺</button><button class="tog" id="saved-ruler-toggle" aria-pressed="false">已儲存量尺</button><button class="chip" id="saved-ruler-export">匯出 JSON</button><label class="chip">匯入 JSON<input id="saved-ruler-import" type="file" accept=".json,application/json" style="max-width:120px"></label></div><div id="saved-ruler-list" hidden></div><p class="note">最多 60 組，儲存固定模型座標；家具移動後不會跟著移動，請重新量測。僅存本瀏覽器，JSON 可備份。</p>
-        <div class="toggles"><button class="tog" id="heat-toggle" aria-pressed="false">走道淨寬熱區</button><button class="tog" id="cargo-toggle" aria-pressed="false">大型家具搬運</button></div>
-        <p class="note" style="margin-top:6px">熱區：紅 &lt;60、橘 60–79、黃 80–99、綠 ≥100 cm；10 cm 取樣，固定 X/Z 軸截面較小值。</p><output id="heat-result" hidden></output>
-        <div id="cargo-controls" hidden style="margin-top:8px"><label>搬運物 <select id="cargo-preset"><option value="fridge">冰箱（60×65×180）</option><option value="washer">洗衣機（60×45×85）</option><option value="sofa">沙發（195×90×90）</option><option value="bed">雙人床墊側立（188×25×152）</option><option value="single">單人床墊側立（188×25×91）</option><option value="custom">自訂</option></select></label><div class="toggles" style="margin:6px 0"><label>寬／長 <input id="cargo-w" type="number" step="0.1" min="5" max="300" value="60" style="width:55px"></label><label>深 <input id="cargo-d" type="number" step="0.1" min="5" max="300" value="65" style="width:55px"></label><label>高 <input id="cargo-h" type="number" step="0.1" min="5" max="300" value="180" style="width:55px"></label><label>每側餘量 <input id="cargo-pad" type="number" step="0.1" min="0" max="20" value="2" style="width:55px"> cm</label></div><label><input id="cargo-skip" type="checkbox"> 忽略模型中同款家具（尚未搬入）</label><div class="toggles" style="margin:6px 0"><button class="chip" id="cargo-default">大門 → 預設目的地</button><button class="chip" id="cargo-a">選起點 A</button><button class="chip" id="cargo-b">選終點 B</button><button class="chip" id="cargo-run">搜尋搬運路徑</button></div><output id="cargo-result" aria-live="polite">先選起點與終點中心</output><input id="cargo-step" type="range" min="0" max="0" value="0" disabled style="width:100%" aria-label="搬運步驟"><div class="toggles"><button class="chip" id="cargo-play" disabled>播放搬運</button><button class="chip" id="cargo-rewind" disabled>回到起點</button></div><div class="toggles" style="margin-top:6px"><select id="cargo-scale-mode" aria-label="反推方式"><option value="footprint">寬深同比例，固定高度</option><option value="all">寬深高同比例</option></select><button class="chip" id="cargo-max">反推可搬入尺寸</button><button class="chip" id="cargo-max-cancel" disabled>取消反推</button><button class="chip" id="cargo-max-apply" disabled>套用已驗證尺寸</button></div><output id="cargo-max-result" aria-live="polite"></output><p class="note">預設起點為模型大門外公共走廊中心（公共走廊非實測）；終點為對應家具目前位置。預設路線會忽略該件尚未搬入的家具；其他門扇仍按目前狀態。反推只代表已找到路徑的取樣尺寸，不是絕對最大值。預設尺寸為採購篩選／床墊示意值，請輸入含包裝實測尺寸。固定姿態、水平平移與轉向（10 cm／22.5°，中間姿態取樣），目前門扇及家具位置；不模擬傾斜、拆卸、搬運人員、樓梯或電梯。未找到路徑不等於無法搬入；須現場確認。</p></div>
-      </details>
-      <div class="toggles" id="ceiling-controls" hidden style="margin-top:6px"><button class="chip" id="ceil-under">仰視</button><button class="chip" id="ceil-above">俯視</button><button class="chip" id="ceil-labels" aria-pressed="true">高度標籤</button></div>
-      <div class="toggles" style="margin-top:6px"><button class="tog" id="sim-optimize">搜尋電視櫃門向</button><button class="tog" id="sim-guard" aria-pressed="true">碰撞停止：開</button><button class="tog" id="sim-export">匯出討論清單</button></div>
-      <div style="margin-top:6px"><label for="sim-ch">客餐廳平頂預覽（未定案）</label> <output id="sim-ch-value">CH260</output><input id="sim-ch" type="range" min="250" max="270" step="1" value="260" style="width:100%"><div class="toggles"><button class="chip" data-ch="250">CH250</button><button class="chip" data-ch="260">CH260</button><button class="chip" data-ch="270">CH270</button></div></div>
-      <p class="note" id="sim-stop" role="status" aria-live="polite">模型碰撞防護已開啟；不等同五金與施工安全驗證。</p>
-      <div id="sim-result" hidden style="max-height:320px;overflow:auto"></div>
-      <p class="note" id="inspection-note">依 AR05、AR07、AR08、AR09-1 及各立面圖；模型核對非現場丈量。</p>
       <div id="inspection-results" aria-live="polite" hidden></div>
-    </section>
-    <div data-edit>
-      <p class="grp-label">人物 · 直接拖曳到任意位置</p>
-      <div class="chips" id="people"></div>
-      <div class="body-edit" id="body-edit">
-        <p class="body-title" id="body-title">櫃高與走道檢查 · 男性</p>
-        <ul class="checks" id="checks" aria-label="櫃高與走道檢查"></ul>
-        <div class="toggles"><button class="tog" id="body-fps" aria-pressed="false">用這個身形走第一人稱</button></div>
-      </div>
+      <p class="note" id="inspection-note">依 AR05、AR07、AR08、AR09-1 及各立面圖；模型核對非現場丈量。</p>
+      <div class="toggles"><button class="chip" id="sim-export">匯出討論清單</button></div>
+    </div></details>
+    <details class="panel-group" id="panel-doors"><summary>04　房門、櫃門與碰撞</summary><div class="group-body">
+      <div class="toggles"><button class="tog" id="sim-guard" aria-pressed="true">碰撞停止：開</button><button class="tog" id="t-doors" aria-pressed="true">門全開</button><button class="tog" id="t-cab" aria-pressed="false">櫃門全開</button></div>
+      <p class="note" id="sim-stop" role="status" aria-live="polite">模型碰撞防護已開啟；不等同五金與施工安全驗證。</p>
+    <div>
+      <p class="grp-label">房門開關 · 點門扇或按鈕開關（第一人稱按 <kbd class="k">E</kbd>）</p>
+      <div class="toggles" id="door-list" role="group" aria-label="個別房門開關"></div>
     </div>
-    <div data-edit>
-      <p class="grp-label">風格 · 與設計師比較方案</p>
-      <div class="seg" id="styles" role="group" aria-label="裝潢風格">
-        <button id="st-designer" data-style="designer" aria-pressed="false">設計師提案</button>
-        <button id="st-nordic" data-style="nordic" aria-pressed="true">北歐奶油</button>
-        <button id="st-modern" data-style="modern" aria-pressed="false">現代風</button>
-        <button id="st-muji" data-style="muji" aria-pressed="false">日式無印</button>
-      </div>
+    <div>
+      <p class="grp-label">櫃門開關 · 開門後的走道（點櫃名開關，第一人稱按 <kbd class="k">E</kbd>）</p>
+      <ul class="checks cab-checks" id="cab-checks" aria-label="櫃門開啟後的走道"></ul>
     </div>
+      <div class="toggles"><button class="chip" id="sim-optimize">搜尋電視櫃門向</button></div>
+      <div id="sim-result" hidden style="max-height:320px;overflow:auto"></div>
+    </div></details>
+    <details class="panel-group" id="panel-ceiling"><summary>05　天花高度與檢視</summary><div class="group-body">
+      <div class="toggles" id="ceiling-controls" hidden style="margin-top:6px"><button class="chip" id="ceil-under">仰視</button><button class="chip" id="ceil-above">俯視</button><button class="chip" id="ceil-labels" aria-pressed="true">高度標籤</button></div>
+      <div style="margin-top:6px"><label for="sim-ch">客餐廳平頂預覽（未定案）</label> <output id="sim-ch-value">CH260</output><input id="sim-ch" type="range" min="250" max="270" step="1" value="260" style="width:100%"><div class="toggles"><button class="chip" data-ch="250">CH250</button><button class="chip" data-ch="260">CH260</button><button class="chip" data-ch="270">CH270</button></div></div>
+    </div></details>
+    <details class="panel-group" id="panel-cargo"><summary>06　大型家具搬運</summary><div class="group-body">
+      <div class="toggles"><button class="tog" id="cargo-toggle" aria-pressed="false">大型家具搬運</button></div>
+        <div id="cargo-controls" hidden style="margin-top:8px"><label>搬運物 <select id="cargo-preset"><option value="fridge">冰箱（60×65×180）</option><option value="washer">洗衣機（60×45×85）</option><option value="sofa">沙發（195×90×90）</option><option value="bed">雙人床墊側立（188×25×152）</option><option value="single">單人床墊側立（188×25×91）</option><option value="custom">自訂</option></select></label><div class="toggles" style="margin:6px 0"><label>寬／長 <input id="cargo-w" type="number" step="0.1" min="5" max="300" value="60" style="width:55px"></label><label>深 <input id="cargo-d" type="number" step="0.1" min="5" max="300" value="65" style="width:55px"></label><label>高 <input id="cargo-h" type="number" step="0.1" min="5" max="300" value="180" style="width:55px"></label><label>每側餘量 <input id="cargo-pad" type="number" step="0.1" min="0" max="20" value="2" style="width:55px"> cm</label></div><label><input id="cargo-skip" type="checkbox"> 忽略模型中同款家具（尚未搬入）</label><div class="toggles" style="margin:6px 0"><button class="chip" id="cargo-default">大門 → 預設目的地</button><button class="chip" id="cargo-a">選起點 A</button><button class="chip" id="cargo-b">選終點 B</button><button class="chip" id="cargo-run">搜尋搬運路徑</button></div><output id="cargo-result" aria-live="polite">先選起點與終點中心</output><input id="cargo-step" type="range" min="0" max="0" value="0" disabled style="width:100%" aria-label="搬運步驟"><div class="toggles"><button class="chip" id="cargo-play" disabled>播放搬運</button><button class="chip" id="cargo-rewind" disabled>回到起點</button></div><div class="toggles" style="margin-top:6px"><select id="cargo-scale-mode" aria-label="反推方式"><option value="footprint">寬深同比例，固定高度</option><option value="all">寬深高同比例</option></select><button class="chip" id="cargo-max">反推可搬入尺寸</button><button class="chip" id="cargo-max-cancel" disabled>取消反推</button><button class="chip" id="cargo-max-apply" disabled>套用已驗證尺寸</button></div><output id="cargo-max-result" aria-live="polite"></output><p class="note">預設起點為模型大門外公共走廊中心（公共走廊非實測）；終點為對應家具目前位置。預設路線會忽略該件尚未搬入的家具；其他門扇仍按目前狀態。反推只代表已找到路徑的取樣尺寸，不是絕對最大值。預設尺寸為採購篩選／床墊示意值，請輸入含包裝實測尺寸。固定姿態、水平平移與轉向（10 cm／22.5°，中間姿態取樣），目前門扇及家具位置；不模擬傾斜、拆卸、搬運人員、樓梯或電梯。未找到路徑不等於無法搬入；須現場確認。</p></div>
+    </div></details>
+    <details class="panel-group" id="panel-schemes"><summary>07　家具方案與儲存</summary><div class="group-body">
     <div>
       <p class="grp-label"><span data-edit>我的方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）· 可自訂名稱</span><span data-view>設計方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）</span></p>
       <div class="toggles" id="preset-choices" style="margin-bottom:8px"></div><ol class="slots" id="slots" aria-label="已儲存的方案"></ol>
@@ -363,29 +388,20 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
           <label for="out-code">方案代碼（包含全部已存方案）</label>
           <input id="out-code" type="text" readonly>
           <div class="toggles"><button class="chip" id="copy-code">複製代碼</button><button class="chip" id="copy-text">複製說明文字</button></div>
-          <p class="note">給設計師看：把這個雲端硬碟資料夾共用給對方（權限設「檢視者」），請對方用 Chrome 開啟「A01_3D展示版.html」，再按「開啟方案檔」選「A01_3D方案.json」。</p>
+          <p class="note">給設計師看：把這個雲端硬碟資料夾共用給對方（權限設「檢視者」），請對方用 Chrome 開啟「A01_3D.html」，再按「開啟方案檔」選「A01_3D方案.json」。</p>
           <label for="in-code">匯入對方的代碼</label>
           <div class="import-row"><input id="in-code" type="text" placeholder="貼上 zh3. 開頭的代碼" autocomplete="off" spellcheck="false"><button class="chip" id="do-import">匯入</button></div>
           <p class="note">也可以把「#代碼」加在網址最後再開啟，頁面會自動載入這些方案。</p>
         </div>
       </details>
     </div>
-    <div>
-      <p class="grp-label">房門開關 · 點門扇或按鈕開關（第一人稱按 <kbd class="k">E</kbd>）</p>
-      <div class="toggles" id="door-list" role="group" aria-label="個別房門開關"></div>
-    </div>
-    <div>
-      <p class="grp-label">櫃門開關 · 開門後的走道（點櫃名開關，第一人稱按 <kbd class="k">E</kbd>）</p>
-      <ul class="checks cab-checks" id="cab-checks" aria-label="櫃門開啟後的走道"></ul>
-    </div>
+    </div></details>
+    <details class="panel-group" id="panel-light"><summary>08　燈光、環境與風格</summary><div class="group-body">
     <div>
       <p class="grp-label">環境</p>
       <div class="toggles">
         <button class="tog" id="t-night" aria-pressed="false">夜晚</button>
         <button class="tog" id="t-lights" aria-pressed="true">室內燈</button>
-        <button class="tog" id="t-doors" aria-pressed="true">門全開</button>
-        <button class="tog" id="t-cab" aria-pressed="false">櫃門全開</button>
-        <button class="tog" id="t-walk" aria-pressed="false" hidden>走道尺寸</button>
         <button class="tog" id="t-quality" aria-pressed="true">畫質：自動</button>
       </div>
       <div class="ctemp">
@@ -395,8 +411,31 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <div class="toggles"><button class="chip" id="ct-plan">套用建議：主臥／玄關／電視牆 3000K・客餐廳／次臥 3500K・廚浴 4000K</button></div>
       </div>
     </div>
+    <div data-edit>
+      <p class="grp-label">風格 · 與設計師比較方案</p>
+      <div class="seg" id="styles" role="group" aria-label="裝潢風格">
+        <button id="st-designer" data-style="designer" aria-pressed="false">設計師提案</button>
+        <button id="st-nordic" data-style="nordic" aria-pressed="true">北歐奶油</button>
+        <button id="st-modern" data-style="modern" aria-pressed="false">現代風</button>
+        <button id="st-muji" data-style="muji" aria-pressed="false">日式無印</button>
+      </div>
+    </div>
+    </div></details>
+    <details class="panel-group" id="panel-people"><summary>09　人物與身形</summary><div class="group-body">
+    <div data-edit>
+      <p class="grp-label">人物 · 直接拖曳到任意位置</p>
+      <div class="chips" id="people"></div>
+      <div class="body-edit" id="body-edit">
+        <p class="body-title" id="body-title">櫃高與走道檢查 · 男性</p>
+        <ul class="checks" id="checks" aria-label="櫃高與走道檢查"></ul>
+        <div class="toggles"><button class="tog" id="body-fps" aria-pressed="false">用這個身形走第一人稱</button></div>
+      </div>
+    </div>
+    </div></details>
+    <details class="panel-group" id="panel-reference"><summary>10　圖面來源與說明</summary><div class="group-body">
     <p class="note" data-view>瀏覽模式可切換方案；需要拖曳家具時再開啟家具調整。</p>
     <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具與櫃體依 261123 平立面工程圖（AR05 平面配置、AR09 天花、AR11～AR20 立面）配置（「設計師提案」風格對照渲染圖材質）。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
+    </div></details>
   </div>
 </aside>
 
@@ -453,7 +492,7 @@ if(VIEWER) document.documentElement.classList.add('viewer');
 const PROPOSAL = true; 
 // 單一版本：保留全部建模及互動能力，家具位置編輯以獨立開關控制。
 const MOVABLE = true; 
-let EDIT_MODE=false, FURN_DIMS_ON=false;
+let EDIT_MODE=false, FURN_DIMS_ON=true;
 if(MOVABLE){
   document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span id="mode-badge" class="view-badge">瀏覽模式</span>');
   document.body.insertAdjacentHTML('beforeend','<div id="furn-bar" hidden><button type="button" id="furn-bar-tog" aria-expanded="false">🪑 家具工具</button><button type="button" id="furn-undo" disabled>↶ 上一步</button><button type="button" id="furn-redo" disabled>↷ 下一步</button><button type="button" id="furn-snap">自動貼牆：開</button><button type="button" id="furn-reset">⟲ 家具全部回原位</button><button type="button" id="furn-save">＋ 另存目前方案</button></div>');
@@ -2067,13 +2106,13 @@ for(const name of WALK_NAMES){const row=document.createElement('label'),input=do
 document.getElementById('walk-select-all').onclick=()=>{WALK_NAMES.forEach(n=>walkChosen.add(n));WALK_ON=true;syncMeasureUI();};
 document.getElementById('walk-select-none').onclick=()=>{walkChosen.clear();WALK_ON=false;syncMeasureUI();};
 function syncMeasureUI(){const visible=state.mode==='plan'||state.mode==='orbit';walkG.visible=visible&&WALK_ON;updateWalkChoices();rulerMeasureG.visible=visible;walkFab.hidden=measureFab.hidden=!visible;walkButton.disabled=!visible;document.getElementById('measure-toggle').disabled=!visible;document.getElementById('measure-clear').disabled=!visible;for(const b of [walkButton,walkFab])b.setAttribute('aria-pressed',String(WALK_ON));walkFab.textContent='📏 走道尺寸：'+(WALK_ON?'開':'關');for(const b of [measureFab,document.getElementById('measure-toggle')])b.setAttribute('aria-pressed',String(measureOn));measureFab.textContent=measureOn?'結束量尺':'任意兩點量尺';if(!visible){measureOn=false;measureTap=null;}}
-function flipWalk(){WALK_ON=!WALK_ON;if(WALK_ON){if(!walkChosen.size)WALK_NAMES.forEach(n=>walkChosen.add(n));refreshWalk();}syncMeasureUI();toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸');}
+function flipWalk(){WALK_ON=!WALK_ON;if(WALK_ON){document.getElementById('panel-measure').open=true;if(!walkChosen.size)WALK_NAMES.forEach(n=>walkChosen.add(n));refreshWalk();}syncMeasureUI();toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸');}
 walkButton.addEventListener('click',flipWalk);walkFab.addEventListener('click',flipWalk);
 function walkTick(now){if(now-walkTime<120||state.mode==='fps'||state.mode==='ceiling')return;walkTime=now;if(walkKey()!==walkSignature)refreshWalk();}
 function rulerStats(a,b){const x=Math.abs(a.x-b.x),y=Math.abs(a.y-b.y),z=Math.abs(a.z-b.z);return {x,y,z,h:Math.hypot(x,z),d:Math.hypot(x,y,z)};}
 function renderRuler(){clearMeasureGroup(rulerMeasureG);const out=document.getElementById('measure-result');if(!measurePoints.length){out.textContent=measureOn?'請點選第一個位置（A）':'尚未量測';return;}for(const [i,p] of measurePoints.entries()){const marker=new THREE.Mesh(new THREE.SphereGeometry(.024,10,8),new THREE.MeshBasicMaterial({color:0x00796b,depthTest:false,depthWrite:false}));marker.position.copy(p);marker.renderOrder=31;rulerMeasureG.add(marker);measureLabel(rulerMeasureG,p.clone().add(new THREE.Vector3(0,.09,0)),i?'B':'A','量尺端點');}if(measurePoints.length===1){out.textContent='請點選第二個位置（B）';return;}const [a,b]=measurePoints,q=rulerStats(a,b);measureSegment(rulerMeasureG,a,b,0x00796b,.018);const k=new THREE.Vector3(b.x,a.y,b.z);measureSegment(rulerMeasureG,a,k,0x779694,.009,true);measureSegment(rulerMeasureG,k,b,0x779694,.009,true);measureLabel(rulerMeasureG,a.clone().add(b).multiplyScalar(.5).add(new THREE.Vector3(0,.08,0)),`${walkCm(q.d)} cm`,`水平 ${walkCm(q.h)} / 高差 ${walkCm(q.y)} cm`);out.textContent=`直線 ${walkCm(q.d)} cm｜水平 ${walkCm(q.h)}｜高差 ${walkCm(q.y)}｜X ${walkCm(q.x)} / Z ${walkCm(q.z)} cm`;}
 function addRulerPoint(p){if(measurePoints.length===2)measurePoints=[];measurePoints.push(p.clone());renderRuler();if(measurePoints.length===1)toast('已選 A，請點選 B');}
-function setRuler(on){if(on)cancelCargoPick();measureOn=on;measureTap=null;if(on){if(state.mode!=='plan'&&state.mode!=='orbit')setMode('plan');showDims(null);measurePoints=[];renderRuler();toast('量尺：點兩個可見模型表面；滾輪縮放，Esc 結束');}else{if(measurePoints.length===1){measurePoints=[];renderRuler();}toast('已結束量尺');}syncMeasureUI();renderer.domElement.style.cursor=measureOn?'crosshair':'';}
+function setRuler(on){if(on){document.getElementById('panel-measure').open=true;cancelCargoPick();}measureOn=on;measureTap=null;if(on){if(state.mode!=='plan'&&state.mode!=='orbit')setMode('plan');showDims(null);measurePoints=[];renderRuler();toast('量尺：點兩個可見模型表面；滾輪縮放，Esc 結束');}else{if(measurePoints.length===1){measurePoints=[];renderRuler();}toast('已結束量尺');}syncMeasureUI();renderer.domElement.style.cursor=measureOn?'crosshair':'';}
 measureFab.addEventListener('click',()=>setRuler(!measureOn));document.getElementById('measure-toggle').addEventListener('click',()=>setRuler(!measureOn));document.getElementById('measure-clear').addEventListener('click',()=>{measurePoints=[];renderRuler();});
 const measureRay=new THREE.Raycaster();measureRay.layers.enable(DOOR_LAYER);
 function pickMeasurePoint(x,y){const rect=renderer.domElement.getBoundingClientRect();if(!rect.width||!rect.height)return null;scene.updateMatrixWorld(true);activeCam.updateMatrixWorld(true);measureRay.setFromCamera(new THREE.Vector2((x-rect.left)/rect.width*2-1,1-(y-rect.top)/rect.height*2),activeCam);const visible=o=>{for(let p=o;p;p=p.parent)if(!p.visible)return false;return o.isMesh;};const hit=measureRay.intersectObjects([staticG,dynG,doorG],true).find(h=>visible(h.object)&&Number.isFinite(h.point.y));return hit?.point.clone()||null;}
@@ -2383,7 +2422,7 @@ function setMode(m){
   document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
   const fps=m==='fps';
   const ceiling=m==='ceiling';
-  ceilingCtl.enabled=ceiling; ceilingLabelRenderer.domElement.hidden=!ceiling; $('#ceiling-controls').hidden=!ceiling;
+  ceilingCtl.enabled=ceiling; ceilingLabelRenderer.domElement.hidden=!ceiling; $('#ceiling-controls').hidden=!ceiling;if(ceiling)$('#panel-ceiling').open=true;
   electricG.visible=electricOn&&!ceiling;
   if(ceiling) showDims(null);
   renderer.domElement.style.cursor='';
@@ -2396,7 +2435,7 @@ function setMode(m){
   activeCam=ceiling?ceilingCam:m==='plan'?planCam:m==='orbit'?orbitCam:fpsCam;
   labelRenderer.domElement.hidden=fps||ceiling;
   ui.cross.hidden=ui.hud.hidden=!fps; ui.compass.hidden=m!=='plan';   // 指北針只在俯視顯示（俯視不能旋轉，方向固定）
-  ui.hint.innerHTML=(m==='plan'||m==='orbit')&&!EDIT_MODE?'瀏覽模式 · 點門扇可開關 · 開啟家具調整後可拖曳家具 · 尺寸與插座可獨立開關':HINTS[m];
+  ui.hint.innerHTML=(m==='plan'||m==='orbit')&&!EDIT_MODE?browseHint():HINTS[m];
   if(fps) enterFPS();
   syncMeasureUI(); syncEditUI(); syncExtraUI(); syncAuxLabels();
   if(state.mode==='plan'||state.mode==='orbit') refreshWalk();
@@ -3683,18 +3722,20 @@ if(MOVABLE&&!VIEWER){
 }
 
 // Unified runtime switches. The scene stays editable-capable while gestures are locked in browse mode.
+function browseHint(){return '瀏覽模式 · 點門扇可開關 · '+(FURN_DIMS_ON?'點家具查看尺寸':'開啟家具尺寸後可查看尺寸')+' · 開啟家具調整才可移動';}
 function syncEditUI(){
  const b=$('#edit-mode'),d=$('#furn-dim-toggle'),bar=$('#furn-bar');
  b.setAttribute('aria-pressed',String(EDIT_MODE)); b.textContent='家具調整：'+(EDIT_MODE?'開':'關');
  d.setAttribute('aria-pressed',String(FURN_DIMS_ON));d.textContent='家具尺寸：'+(FURN_DIMS_ON?'開':'關');
  $('#mode-badge').textContent=EDIT_MODE?'調整模式':'瀏覽模式';
  bar.hidden=!EDIT_MODE||!['plan','orbit'].includes(state.mode);
- $('#edit-mode-note').textContent=EDIT_MODE?'可選取後拖曳、旋轉家具。調整僅為預覽，請按「另存目前方案」保存。':'瀏覽模式：不會移動家具。需要調整時開啟家具調整，完成後可另存方案。';
+ $('#edit-mode-note').textContent=EDIT_MODE?'可選取後拖曳、旋轉家具。調整僅為預覽，請按「另存目前方案」保存。':(FURN_DIMS_ON?'瀏覽模式：點家具看尺寸；開啟家具調整才可移動。':'瀏覽模式：家具尺寸已關閉，仍可點家具操作門片。');
+ if(!EDIT_MODE&&['plan','orbit'].includes(state.mode))ui.hint.innerHTML=browseHint();
 }
-function setEditMode(on){ EDIT_MODE=!!on;if(!EDIT_MODE){SET_LINK=false;}syncEditUI();showDims(dimSel);if(state.mode==='plan'||state.mode==='orbit')ui.hint.innerHTML=EDIT_MODE?HINTS[state.mode]:'瀏覽模式 · 點門扇可開關 · 開啟家具調整後可拖曳家具 · 尺寸與插座可獨立開關'; }
+function setEditMode(on){ EDIT_MODE=!!on;if(!EDIT_MODE){SET_LINK=false;}syncEditUI();showDims(dimSel);if(state.mode==='plan'||state.mode==='orbit')ui.hint.innerHTML=EDIT_MODE?HINTS[state.mode]:browseHint(); }
 $('#edit-mode').addEventListener('click',()=>{setEditMode(!EDIT_MODE);toast(EDIT_MODE?'家具調整已開啟':'已鎖定家具位置；預覽仍保留，可另存方案');});
 $('#furn-dim-toggle').addEventListener('click',()=>{FURN_DIMS_ON=!FURN_DIMS_ON;syncEditUI();showDims(dimSel);});
-$('#furn-save')?.addEventListener('click',()=>{if(!EDIT_MODE)return;$('#save-next').click();$('#slots').scrollIntoView({block:'nearest'});});
+$('#furn-save')?.addEventListener('click',()=>{if(!EDIT_MODE)return;$('#panel-schemes').open=true;$('#save-next').click();$('#slots').scrollIntoView({block:'nearest'});});
 
 /* =========================================================
    12e. 櫃門開關與開門動線（門向照 261109 立面圖：左開／右開、上掀、抽屜）
@@ -3985,13 +4026,15 @@ function inspectionDoorReport(){
  return rows;
 }
 function renderDoorInspection(){const rows=inspectionDoorReport(); const count=k=>rows.filter(r=>r.severity===k).length;inspection.innerHTML=`<p>玄關、次臥、電視櫃逐片檢查｜${rows.length} 片：未見衝突 ${count('ok')}、注意 ${count('warn')}、干涉 ${count('bad')}。</p><p><b>工程圖已註明：</b>大門全開會擋鞋櫃門（AR11-1）、次臥房門會貼住衣櫃（AR14／AR13），須現場決定門擋及五金。即使模型未碰撞也不可取消此警示。</p><table><thead><tr><th>門片</th><th>結果／原因</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escH(r.name)}</td><td class="${r.severity}">${r.severity==='bad'?'干涉':r.severity==='warn'?'注意':'取樣未見衝突'}${r.left==null?'':`；前方估 ${Math.max(0,r.left)} cm`}<br>${escH(r.notes.join('；'))}</td></tr>`).join('')}</tbody></table><p>19 個開度取樣＋門板厚度、垂直重疊及原碰撞盒；把手、鉸鏈、細小五金、實際門擋、人體通行均非精密驗證。不改門片開啟狀態；移動家具後按此鍵重新計算。</p>`;return rows;}
-function selectInspection(tab){inspectionTab=tab;inspection.hidden=!tab;for(const n of ['dims','electric','doors'])$('#inspect-'+n).setAttribute('aria-pressed',String(n==='electric'?electricOn:tab===n));if(tab==='dims')renderAudit();else if(tab==='electric')renderElectric();else if(tab==='doors')renderDoorInspection();}
+function formatInspectionTable(){for(const table of inspection.querySelectorAll('table')){if(table.parentElement.classList.contains('inspection-table-scroll'))continue;const wrap=document.createElement('div');wrap.className='inspection-table-scroll';wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label','查核明細，可捲動');table.before(wrap);wrap.append(table);}}
+function selectInspection(tab){inspectionTab=tab;inspection.hidden=!tab;$('#inspect-close').hidden=!tab;for(const n of ['dims','electric','doors'])$('#inspect-'+n).setAttribute('aria-pressed',String(n==='electric'?electricOn:tab===n));if(tab){$('#panel-inspection').open=true;}if(tab==='dims')renderAudit();else if(tab==='electric')renderElectric();else if(tab==='doors')renderDoorInspection();if(tab)formatInspectionTable();}
+$('#inspect-close').addEventListener('click',()=>{if(inspectionTab==='electric'){electricOn=false;electricG.visible=false;}selectInspection('');});
 $('#inspect-dims').addEventListener('click',()=>selectInspection(inspectionTab==='dims'?'':'dims'));
 $('#inspect-electric').addEventListener('click',()=>{electricOn=!electricOn;if(electricOn&&state.mode==='ceiling')setMode('orbit');electricG.visible=electricOn&&state.mode!=='ceiling';selectInspection(electricOn?'electric':'');});
 $('#inspect-doors').addEventListener('click',()=>selectInspection('doors'));
 // CI calls this only in an injected test harness; no user layout or stored scheme is modified.
 window.__h3dInspectionSelfTest=()=>{
- if(EDIT_MODE||FURN_DIMS_ON||WALK_ON||electricOn||electricG.visible||!$('#furn-bar').hidden||!inspection.hidden)throw Error('default browse/dimension/electrical state failed');
+ if(EDIT_MODE||!FURN_DIMS_ON||WALK_ON||electricOn||electricG.visible||!$('#furn-bar').hidden||!inspection.hidden||dimSel||!dimCard.hidden||dimLines.visible||dimLabs.some(l=>l.visible)||$('#furn-dim-toggle').getAttribute('aria-pressed')!=='true')throw Error('default browse/selected-only dimensions/electrical state failed');
  const rows=auditRows();if(rows.length<30||!rows.every(r=>r.item&&r.area))throw Error('audit panel incomplete');
  if(electrical.length<30||!electrical.some(e=>e.pending)||CEIL_REGIONS.length<10)throw Error('inspection layers incomplete');
  const a=rectPanel(0,0,1,0,0,1,1,.04,0,1),b=rectPanel(0,0,0,1,1,0,1,.04,0,1),c=rectPanel(2,0,1,0,0,1,1,.04,0,1);
@@ -4087,7 +4130,7 @@ function applyHingePreview(useBest){
  for(const a of o.parts)a.m.position.x=a.x-diff; // preserve the closed face, including rounded corners
  for(const a of o.parts)if(a.handle&&diff)a.m.position.x=s*(d.w-.03);
  poseCab(d);syncCabCol(d);}
- scene.updateMatrixWorld(true);analyzeCab();refreshCabUI();if(inspectionTab==='doors')renderDoorInspection();toast(useBest?'已套用模擬門向，未修改工程圖。':'已還原工程圖門向。');renderSimSearch();return true;
+ scene.updateMatrixWorld(true);analyzeCab();refreshCabUI();if(inspectionTab==='doors'){renderDoorInspection();formatInspectionTable();}toast(useBest?'已套用模擬門向，未修改工程圖。':'已還原工程圖門向。');renderSimSearch();return true;
 }
 const sideName=s=>s===1?'左鉸':'右鉸';
 function renderSimSearch(){if(!simSearch)return;const {base,best,total,doors:rows}=simSearch;simResult.hidden=false;simResult.innerHTML=`<p><b>搜尋 ${total} 組電視櫃門向</b>（取樣模型）</p><table><thead><tr><th>指標（涉及可改向門）</th><th>圖面</th><th>建議</th></tr></thead><tbody>${[['固定障礙命中', 'fixed'],['全開碰撞對','full'],['一扇全開時的干涉對','held'],['掃掠重疊對','sweep'],['改鉸鏈數','changed']].map(([n,k])=>`<tr><td>${n}</td><td>${base[k]}</td><td>${best[k]}</td></tr>`).join('')}</tbody></table><table><thead><tr><th>門片</th><th>圖面</th><th>建議</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escH(r.name)}</td><td>${sideName(r.original)}</td><td>${sideName(r.best)}${r.original!==r.best?'（改）':''}</td></tr>`).join('')}</tbody></table><p>優先固定障礙、全開碰撞、已開門干涉、掃掠重疊、少改門向。只比較左右鉸，不改限位；把手、圓角、五金及工法須確認。搜尋為目前家具位置，移動後重算；抽屜固定。</p><div class="toggles"><button class="chip" id="sim-apply">套用建議預覽</button><button class="chip" id="sim-restore">還原圖面門向</button></div>`;$('#sim-apply').onclick=()=>applyHingePreview(true);$('#sim-restore').onclick=()=>applyHingePreview(false);}
@@ -4110,12 +4153,12 @@ const walkPreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{const report=walkPreviousTest();setMode('plan');refreshWalk();const initial=cabinetWalk();if(!initial||!Number.isFinite(initial.d)||walkFab.hidden||walkButton.hidden||walkG.visible)throw Error('walk overlay default off failed');
  const a=[[0,0],[1,0],[1,1],[0,1]],b=[[2,2],[3,2],[3,3],[2,3]],c=[[.5,.5],[1.5,.5],[1.5,1.5],[.5,1.5]],d=closestWalkPolys(a,b);if(Math.abs(d.d-Math.SQRT2)>1e-8||closestWalkPolys(a,c).d!==0)throw Error('closest polygon test failed');
  walkFab.click();if(!walkG.visible)throw Error('walk toggle on failed');walkFab.click();if(walkG.visible)throw Error('walk toggle off failed');walkFab.click();
- let moved=null;if(MOVABLE){const sample=FURN.find(f=>movable(f));if(canMove(sample))throw Error('browse movement unlocked');$('#edit-mode').click();if(!canMove(sample)||$('#furn-bar').hidden)throw Error('edit toggle failed');showDims(sample);if(!cardSize.hidden||dimLines.visible)throw Error('dimensions default off failed');$('#furn-dim-toggle').click();if(cardSize.hidden||!dimLines.visible)throw Error('furniture dimensions toggle failed');$('#furn-dim-toggle').click();showDims(null);const fs=FURN.filter(f=>walkSB.some(([n])=>n===f.name)),old=fs.map(f=>[f,f.p.x,f.p.z,f.rot]);const vx=initial.d>.001?(initial.b[0]-initial.a[0])/initial.d:.5,vz=initial.d>.001?(initial.b[1]-initial.a[1])/initial.d:.5;for(const [f,x,z,r] of old)placeFurn(f,x+vx*.2,z+vz*.2,r);walkTick(performance.now()+1000);moved=walkLast.d;if(Math.abs(moved-initial.d)<.02)throw Error('live moved distance unchanged');const slotIndex=slots.findIndex(s=>!s);if(slotIndex<0)throw Error('test requires clean browser profile');const beforeDraft=localStorage.getItem(LAYOUT_KEY),beforeSaved=slotsJSON();saveLayout();if(localStorage.getItem(LAYOUT_KEY)!==beforeDraft||slotsJSON()!==beforeSaved)throw Error('draft persisted unexpectedly');storeSlot(slotIndex);const saved=JSON.parse(localStorage.getItem(SLOT_KEY));if(!saved[slotIndex]?.furn||!Object.keys(saved[slotIndex].furn).length)throw Error('explicit scheme save failed');const savedLayout=JSON.stringify(saved[slotIndex].furn);clearSlot(slotIndex);if(!savedLayout)throw Error('scheme layout capture failed');for(const [f,x,z,r] of old)placeFurn(f,x,z,r);refreshWalk();if(Math.abs(walkLast.d-initial.d)>.001)throw Error('walk restore geometry failed');$('#edit-mode').click();if(canMove(sample)||!$('#furn-bar').hidden)throw Error('edit lock restore failed');}
+ let moved=null;if(MOVABLE){const sample=FURN.find(f=>movable(f));if(canMove(sample))throw Error('browse movement unlocked');$('#edit-mode').click();if(!canMove(sample)||$('#furn-bar').hidden)throw Error('edit toggle failed');showDims(sample);if(cardSize.hidden||!dimLines.visible)throw Error('selected furniture dimensions default on failed');$('#furn-dim-toggle').click();if(!cardSize.hidden||dimLines.visible)throw Error('furniture dimensions toggle off failed');$('#furn-dim-toggle').click();if(cardSize.hidden||!dimLines.visible)throw Error('furniture dimensions toggle on failed');showDims(null);const fs=FURN.filter(f=>walkSB.some(([n])=>n===f.name)),old=fs.map(f=>[f,f.p.x,f.p.z,f.rot]);const vx=initial.d>.001?(initial.b[0]-initial.a[0])/initial.d:.5,vz=initial.d>.001?(initial.b[1]-initial.a[1])/initial.d:.5;for(const [f,x,z,r] of old)placeFurn(f,x+vx*.2,z+vz*.2,r);walkTick(performance.now()+1000);moved=walkLast.d;if(Math.abs(moved-initial.d)<.02)throw Error('live moved distance unchanged');const slotIndex=slots.findIndex(s=>!s);if(slotIndex<0)throw Error('test requires clean browser profile');const beforeDraft=localStorage.getItem(LAYOUT_KEY),beforeSaved=slotsJSON();saveLayout();if(localStorage.getItem(LAYOUT_KEY)!==beforeDraft||slotsJSON()!==beforeSaved)throw Error('draft persisted unexpectedly');storeSlot(slotIndex);const saved=JSON.parse(localStorage.getItem(SLOT_KEY));if(!saved[slotIndex]?.furn||!Object.keys(saved[slotIndex].furn).length)throw Error('explicit scheme save failed');const savedLayout=JSON.stringify(saved[slotIndex].furn);clearSlot(slotIndex);if(!savedLayout)throw Error('scheme layout capture failed');for(const [f,x,z,r] of old)placeFurn(f,x,z,r);refreshWalk();if(Math.abs(walkLast.d-initial.d)>.001)throw Error('walk restore geometry failed');$('#edit-mode').click();if(canMove(sample)||!$('#furn-bar').hidden)throw Error('edit lock restore failed');}
  measureFab.click();if(!measureOn)throw Error('ruler toggle failed');const p=new THREE.Vector3(1,.2,1),q=new THREE.Vector3(1.3,.6,1.4),stats=rulerStats(p,q);addRulerPoint(p);addRulerPoint(q);if(Math.abs(stats.h-.5)>.00001||Math.abs(stats.y-.4)>.00001||!document.getElementById('measure-result').textContent.includes('64.0'))throw Error('ruler distance failed');
  planCam.updateMatrixWorld(true);const world=walkVec(initial.a).add(walkVec(initial.b)).multiplyScalar(.5),projected=world.clone().project(planCam),rect=renderer.domElement.getBoundingClientRect(),picked=pickMeasurePoint(rect.left+(projected.x+1)*rect.width/2,rect.top+(1-projected.y)*rect.height/2);if(!picked||!Number.isFinite(picked.y)||Math.abs(picked.x-world.x)>.02||Math.abs(picked.z-world.z)>.02)throw Error('surface picking failed');
  document.getElementById('measure-clear').click();if(measurePoints.length)throw Error('clear ruler failed');
  for(const [i,w] of [world,world.clone().add(new THREE.Vector3(.06,0,0))].entries()){const n=w.clone().project(planCam),o={pointerId:10+i,button:0,pointerType:'mouse',bubbles:true,cancelable:true,clientX:rect.left+(n.x+1)*rect.width/2,clientY:rect.top+(1-n.y)*rect.height/2};renderer.domElement.dispatchEvent(new PointerEvent('pointerdown',o));renderer.domElement.dispatchEvent(new PointerEvent('pointerup',o));if(measurePoints.length!==i+1)throw Error('ruler pointer interaction failed');}if(Math.abs(rulerStats(...measurePoints).x-.06)>.02)throw Error('ruler pointer measurement failed');document.getElementById('measure-clear').click();setRuler(false);setMode('ceiling');if(walkG.visible||!walkFab.hidden)throw Error('walk ceiling visibility failed');setMode('orbit');
- walkFab.click();report.unified={defaultBrowse:true,defaultWalkOff:true,defaultFurnitureDimsOff:true,defaultElectricOff:true,editToggle:true,slotCapture:true,draftNotPersisted:true,explicitSave:true};report.measurement={initialCm:+walkCm(initial.d),xCm:+walkCm(initial.dx),zCm:+walkCm(initial.dz),movedCm:moved===null?null:+walkCm(moved),rulerCm:+walkCm(stats.d),surfacePick:true,walkLabels:walkG.children.filter(o=>o.userData.walkDimension).length};return report;};
+ walkFab.click();report.unified={defaultBrowse:true,defaultWalkOff:true,defaultFurnitureDimsOnSelectedOnly:true,defaultElectricOff:true,editToggle:true,slotCapture:true,draftNotPersisted:true,explicitSave:true};report.measurement={initialCm:+walkCm(initial.d),xCm:+walkCm(initial.dx),zCm:+walkCm(initial.dz),movedCm:moved===null?null:+walkCm(moved),rulerCm:+walkCm(stats.d),surfacePick:true,walkLabels:walkG.children.filter(o=>o.userData.walkDimension).length};return report;};
 
 /* ---------- 搬運模擬、已儲存量尺、走道熱區（統一版） ---------- */
 const savedMeasureG=new THREE.Group(), clearanceHeatG=new THREE.Group(), cargoG=new THREE.Group();
@@ -4271,6 +4314,21 @@ window.__h3dInspectionSelfTest=()=>{
  scene.updateMatrixWorld(true);activeCam.updateMatrixWorld(true);syncMeasurementDom();labelRenderer.render(scene,activeCam);layoutDimensionLabels(performance.now(),true);
  const saved=JSON.stringify(savedRulers),slotsBefore=slotsJSON();$('#inspect-electric').click();savedRulersOn=true;heatOn=true;cargoOn=true;syncExtraUI();$('#clear-overlays').click();if(WALK_ON||electricOn||FURN_DIMS_ON||savedRulersOn||heatOn||cargoOn||measureOn||walkG.visible||electricG.visible||savedMeasureG.visible||clearanceHeatG.visible||cargoG.visible||cabVizG.visible||roomLabelsOn||saved!==JSON.stringify(savedRulers)||slotsBefore!==slotsJSON())throw Error('clear overlays failed');
  setMode('orbit');syncAuxLabels();if(roomLabelObjects.some(o=>o.visible)||cabVizG.visible)throw Error('clear lost on view switch');report.auxiliary={individual:true,all:true,clear:true,savedRetained:true,labelAvoidance:true,walkItems:WALK_NAMES.length};return report;
+};
+
+/* Panel organization and click-to-measure default regression. */
+const panelPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{
+ const panelIds=['panel-view','panel-measure','panel-inspection','panel-doors','panel-ceiling','panel-cargo','panel-schemes','panel-light','panel-people','panel-reference'];
+ if(JSON.stringify([...$('#pbody').querySelectorAll(':scope > details')].map(e=>e.id))!==JSON.stringify(panelIds))throw Error('panel section order');
+ if($('#inspection-toolbar').nextElementSibling!==inspection||!$('#panel-inspection').contains(inspection)||!$('#panel-doors').contains(simResult)||!$('#panel-ceiling').contains($('#sim-ch'))||!$('#panel-cargo').contains($('#cargo-result'))||!$('#panel-measure').contains($('#measure-result')))throw Error('panel control/result adjacency');
+ if(!FURN_DIMS_ON||EDIT_MODE||dimSel||!dimCard.hidden||dimLines.visible||dimLabs.some(l=>l.visible))throw Error('initial selected-only dimensions');
+ const f=FURN.find(v=>v.name==='餐桌')||FURN.find(v=>movable(v));if(!f)throw Error('no sample furniture');
+ showDims(f);syncMeasurementDom();if(canMove(f)||dimCard.hidden||cardSize.hidden||!dimLines.visible||dimLabs.slice(0,3).some(l=>!l.visible||l.element.hidden))throw Error('browse furniture dimensions');
+ showDims(null);syncMeasurementDom();if(!dimCard.hidden||dimLines.visible||dimLabs.some(l=>!l.element.hidden))throw Error('deselect hides furniture dimensions');
+ $('#inspect-doors').click();if(inspection.hidden||!inspection.querySelector('.inspection-table-scroll table')||$('#inspect-close').hidden)throw Error('adjacent collision report');
+ $('#inspect-close').click();if(!inspection.hidden||!$('#inspect-close').hidden)throw Error('close report');
+ const result=panelPreviousTest();result.panelLayout={groups:panelIds.length,adjacentInspection:true,selectedOnlyDefault:true,reportClose:true};return result;
 };
 
 /* =========================================================
