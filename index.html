@@ -271,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="645eecb6c232f8cf720e2c914638b494d34b7d02cdd05dbac365233a4a01b78d" data-commit="817d9fdc5519bb1e3f592af97644630e5a6f9d20" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 817d9fdc5519bb1e3f592af97644630e5a6f9d20 | SHA-256 645eecb6c232f8cf720e2c914638b494d34b7d02cdd05dbac365233a4a01b78d">版本 v1-645eecb6c232 · Commit 817d9fdc5519</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="03d2506d28fa39789fe8386179f3149b747030b04672071c30c46780066568c2" data-commit="94bf4a73d556919e3ccdd7e02f912a92156d45d9" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 94bf4a73d556919e3ccdd7e02f912a92156d45d9 | SHA-256 03d2506d28fa39789fe8386179f3149b747030b04672071c30c46780066568c2">版本 v1-03d2506d28fa · Commit 94bf4a73d556</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -366,7 +366,10 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
     </div>
       <div class="toggles"><button class="chip" id="sim-optimize">搜尋電視櫃門向</button></div>
       <div id="sim-result" hidden style="max-height:320px;overflow:auto"></div>
-      <details class="sub-group" id="tv-mount-controls"><summary>LOOPLOOP H90 電視壁掛架</summary>
+
+    </div></details>
+      <details class="panel-group" id="tv-mount-controls"><summary>05　電視與 H90 壁掛架</summary><div class="group-body">
+        <div class="toggles"><button class="tog" id="tvm-drag" aria-pressed="false">直接拖曳電視：關</button></div><p class="note">開啟拖曳後，在鳥瞰或平面視角拖電視：左右轉向、向上拉出、向下收回。拖曳其他位置仍可轉視角。按 Esc 結束拖曳模式。</p>
         <p class="note">65 吋電視 · 雙臂伸縮 · 點選電視也可進入調整。機構示意，非原廠 CAD。</p>
         <div style="display:grid;gap:7px;margin-top:8px">
           <label for="tvm-d">離牆距離 <output id="tvm-d-val">6.5 cm</output><input id="tvm-d" type="range" min="6.5" max="42.6" step="0.1" value="6.5" style="width:100%"></label>
@@ -378,17 +381,16 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <div class="toggles"><button class="chip" id="tvm-focus">壁掛架近看</button><button class="tog" id="tvm-hide-screen" aria-pressed="false">暫時隱藏電視面板</button></div>
         <p class="note" id="tvm-status" role="status" aria-live="polite">目前收合。角度為壁掛架標稱範圍，模型將限制穿牆／櫃體干涉。預覽不自動儲存。</p>
         <p class="note">壁板 43.5×32.6 cm；掛板 67.2×42 cm；適用 40–90 吋、最大標稱荷重 55 kg、VESA 100×100～600×400 mm。實際螺孔、轉軸、線材與承重仍須確認。</p>
-      </details>
-    </div></details>
-    <details class="panel-group" id="panel-ceiling"><summary>05　天花高度與檢視</summary><div class="group-body">
+      </div></details>
+    <details class="panel-group" id="panel-ceiling"><summary>06　天花高度與檢視</summary><div class="group-body">
       <div class="toggles" id="ceiling-controls" hidden style="margin-top:6px"><button class="chip" id="ceil-under">仰視</button><button class="chip" id="ceil-above">俯視</button><button class="chip" id="ceil-labels" aria-pressed="true">高度標籤</button></div>
       <div style="margin-top:6px"><label for="sim-ch">客餐廳平頂預覽（未定案）</label> <output id="sim-ch-value">CH260</output><input id="sim-ch" type="range" min="250" max="270" step="1" value="260" style="width:100%"><div class="toggles"><button class="chip" data-ch="250">CH250</button><button class="chip" data-ch="260">CH260</button><button class="chip" data-ch="270">CH270</button></div></div>
     </div></details>
-    <details class="panel-group" id="panel-cargo"><summary>06　大型家具搬運</summary><div class="group-body">
+    <details class="panel-group" id="panel-cargo"><summary>07　大型家具搬運</summary><div class="group-body">
       <div class="toggles"><button class="tog" id="cargo-toggle" aria-pressed="false">大型家具搬運</button></div>
         <div id="cargo-controls" hidden style="margin-top:8px"><label>搬運物 <select id="cargo-preset"><option value="fridge">冰箱（60×65×180）</option><option value="washer">洗衣機（60×45×85）</option><option value="sofa">沙發（195×90×90）</option><option value="bed">雙人床墊側立（188×25×152）</option><option value="single">單人床墊側立（188×25×91）</option><option value="custom">自訂</option></select></label><div class="toggles" style="margin:6px 0"><label>寬／長 <input id="cargo-w" type="number" step="0.1" min="5" max="300" value="60" style="width:55px"></label><label>深 <input id="cargo-d" type="number" step="0.1" min="5" max="300" value="65" style="width:55px"></label><label>高 <input id="cargo-h" type="number" step="0.1" min="5" max="300" value="180" style="width:55px"></label><label>每側餘量 <input id="cargo-pad" type="number" step="0.1" min="0" max="20" value="2" style="width:55px"> cm</label></div><label><input id="cargo-skip" type="checkbox"> 忽略模型中同款家具（尚未搬入）</label><div class="toggles" style="margin:6px 0"><button class="chip" id="cargo-default">大門 → 預設目的地</button><button class="chip" id="cargo-a">選起點 A</button><button class="chip" id="cargo-b">選終點 B</button><button class="chip" id="cargo-run">搜尋搬運路徑</button></div><output id="cargo-result" aria-live="polite">先選起點與終點中心</output><input id="cargo-step" type="range" min="0" max="0" value="0" disabled style="width:100%" aria-label="搬運步驟"><div class="toggles"><button class="chip" id="cargo-play" disabled>播放搬運</button><button class="chip" id="cargo-rewind" disabled>回到起點</button></div><div class="toggles" style="margin-top:6px"><select id="cargo-scale-mode" aria-label="反推方式"><option value="footprint">寬深同比例，固定高度</option><option value="all">寬深高同比例</option></select><button class="chip" id="cargo-max">反推可搬入尺寸</button><button class="chip" id="cargo-max-cancel" disabled>取消反推</button><button class="chip" id="cargo-max-apply" disabled>套用已驗證尺寸</button></div><output id="cargo-max-result" aria-live="polite"></output><p class="note">預設起點為模型大門外公共走廊中心（公共走廊非實測）；終點為對應家具目前位置。預設路線會忽略該件尚未搬入的家具；其他門扇仍按目前狀態。反推只代表已找到路徑的取樣尺寸，不是絕對最大值。預設尺寸為採購篩選／床墊示意值，請輸入含包裝實測尺寸。固定姿態、水平平移與轉向（10 cm／22.5°，中間姿態取樣），目前門扇及家具位置；不模擬傾斜、拆卸、搬運人員、樓梯或電梯。未找到路徑不等於無法搬入；須現場確認。</p></div>
     </div></details>
-    <details class="panel-group" id="panel-schemes"><summary>07　家具方案與儲存</summary><div class="group-body">
+    <details class="panel-group" id="panel-schemes"><summary>08　家具方案與儲存</summary><div class="group-body">
     <div>
       <p class="grp-label"><span data-edit>我的方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）· 可自訂名稱</span><span data-view>設計方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）</span></p>
       <div class="toggles" id="preset-choices" style="margin-bottom:8px"></div><ol class="slots" id="slots" aria-label="已儲存的方案"></ol>
@@ -409,7 +411,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       </details>
     </div>
     </div></details>
-    <details class="panel-group" id="panel-light"><summary>08　燈光、環境與風格</summary><div class="group-body">
+    <details class="panel-group" id="panel-light"><summary>09　燈光、環境與風格</summary><div class="group-body">
     <div>
       <p class="grp-label">環境</p>
       <div class="toggles">
@@ -434,7 +436,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       </div>
     </div>
     </div></details>
-    <details class="panel-group" id="panel-people"><summary>09　人物與身形</summary><div class="group-body">
+    <details class="panel-group" id="panel-people"><summary>10　人物與身形</summary><div class="group-body">
     <div data-edit>
       <p class="grp-label">人物 · 直接拖曳到任意位置</p>
       <div class="chips" id="people"></div>
@@ -445,7 +447,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
       </div>
     </div>
     </div></details>
-    <details class="panel-group" id="panel-reference"><summary>10　圖面來源與說明</summary><div class="group-body">
+    <details class="panel-group" id="panel-reference"><summary>11　圖面來源與說明</summary><div class="group-body">
     <p class="note" data-view>瀏覽模式可切換方案；需要拖曳家具時再開啟家具調整。</p>
     <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具與櫃體依 261123 平立面工程圖（AR05 平面配置、AR09 天花、AR11～AR20 立面）配置（「設計師提案」風格對照渲染圖材質）。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
     </div></details>
@@ -1525,7 +1527,8 @@ for(const c of [40,200]) {const d=cabLeaf(cabP(TVLOW),{cab:TV_NAMES[0],kind:'dra
   for(let i=0;i<20;i++) B(d.sw,.02,.356,.018,TVWOOD,.02+i*.04,.02,-.009);
   B(TVLOW,.22,.035,.15,M.blackMetal,tvX(120),.08,TVF-.20); for(const x of [-.085,.085]) B(TVLOW,.009,.12,.009,M.blackMetal,tvX(120)+x,.115,TVF-.25);
 }
-RM(TVLOW,TVW.xa,TVW.z0,TVW.xh,TVW.z0+cmP(1),.46,1.90,M.specialPaint); // S002 背板厚度暫用 1 cm
+const TVBACK=new THREE.Group(); TVLOW.add(TVBACK);
+RM(TVBACK,TVW.xa,TVW.z0,TVW.xh,TVW.z0+cmP(1),.46,1.90,M.specialPaint); // S002 背板厚度暫用 1 cm
 colM(TVW.xa,TVW.z0,TVW.xh,TVW.z1,0,.46); const TVLOW_WALK_COL=colliders.at(-1); TVLOW.userData.cols=[TVLOW_WALK_COL];
 // 上櫃 240×32×50；左、右、左、右鉸鏈，外左角 R 暫用 18 mm。
 for(let i=0;i<4;i++){
@@ -1582,7 +1585,7 @@ const TVM_COL={minX:0,maxX:0,minZ:0,maxZ:0,minY:0,maxY:0};
 function tvmBox(){TV_PANEL.updateWorldMatrix(true,false);return new THREE.Box3().setFromObject(TV_PANEL);}
 function syncTVMCol(){const b=tvmBox();Object.assign(TVM_COL,{minX:b.min.x,maxX:b.max.x,minY:b.min.y,maxY:b.max.y,minZ:b.min.z,maxZ:b.max.z});}
 syncTVMCol();colliders.push(TVM_COL);TVSET.userData.cols=[TVM_COL];
-if(MOVABLE){furn(TVLOW,TV_NAMES[0]);furn(TVHANG,TV_NAMES[1]);furn(TVR,TV_NAMES[2]);furn(TVSET,'壁掛電視 65 吋');for(const g of [TVLOW,TVSET,TVR,TVHANG])g.userData.set='電視牆';}
+if(MOVABLE){furn(TVLOW,TV_NAMES[0]);const low=FURN.at(-1);low.min.set(MX(TVW.xa),0,MZ(TVW.z0));low.max.set(MX(TVW.xh),.46,MZ(TVW.z1));furn(TVBACK,'電視背板（S002・厚度暫估 1 cm）');furn(TVHANG,TV_NAMES[1]);furn(TVR,TV_NAMES[2]);furn(TVSET,'壁掛電視 65 吋');for(const g of [TVLOW,TVSET,TVR,TVHANG])g.userData.set='電視牆';}
 else{furnM(TV_NAMES[0],TVW.xa,TVW.z0,TVW.xh,TVW.z1,0,.46);furnM(TV_NAMES[1],TVW.xa,TVW.z0,TVW.xh,TVW.zd,1.9,2.4);furnM(TV_NAMES[2],TVW.xh,TVW.z0,TVW.x1,TVW.z1,0,2.4);}
 // AR09 / AR09-1：平頂 CH 待現場量，暫用 260；低天花 240。短向 278 / 283 差異以既有平面為準。
 const LOWC=2.40, FLAT_CH=2.60, LOWC_X=211.5+cmP(20+478), SOFFIT_Z=TVW.z0+cmP(40);
@@ -2057,7 +2060,7 @@ const AUDIT_FURN=FURN.map(f=>({name:f.name,min:f.min.clone(),max:f.max.clone(),p
 mergeGroup(staticG); mergeGroup(ceilG);
 // 家具調整版：將每件獨立家具內部的靜態子零件（如吊衣、書本、床具、櫃身板材）以該家具自身座標按材質合併，保留獨立移動與櫃門動畫，大幅減少 draw call
 if(MOVABLE){
-  const skip=new Set(CAB_DOORS.map(d=>d.pivot)); skip.add(TVM_ROOT);
+  const skip=new Set(CAB_DOORS.map(d=>d.pivot)); skip.add(TVM_ROOT); skip.add(TVBACK);
   if(SOFA_OBJ) skip.add(SOFA_OBJ.userData.slide.seat);
   if(TABLE_OBJ) skip.add(TABLE_OBJ.userData.slide.body);
   if(DESK_OBJ) skip.add(DESK_OBJ.userData.lift.top);
@@ -3352,6 +3355,7 @@ function showDims(f){
     if(!lb.hidden){ lb.textContent=`整組${f.obj.userData.set}一起動：${SET_LINK?'開':'關'}`; lb.setAttribute('aria-pressed',String(SET_LINK)); } }
   const warn=MOVABLE&&f.bind?warnText(groupOf(f).length>1?groupOverlap(groupOf(f)):markOverlap(f)):MOVABLE?warnText(markOverlap(f)):'';
   measure(f);
+  if(f.obj===TVBACK){TVBACK.updateWorldMatrix(true,false);TVBACK.getWorldPosition(f.p);f.rot=TVLOW.rotation.y;}
   const isTV=f.obj===TVSET; const a=isTV?new THREE.Vector3(-.725,-.42,0):f.min, b=isTV?new THREE.Vector3(.725,.42,.03):f.max, o=.14, t=.05, y=a.y+.005, mx=(a.x+b.x)/2, mz=(a.z+b.z)/2;
   if(isTV){TVM_HEAD.getWorldPosition(dimG.position);TVM_HEAD.getWorldQuaternion(dimG.quaternion);}else{dimG.position.copy(f.p);dimG.rotation.set(0,f.rot,0);}
   const box=[], ln=[], seg=(arr,x0,y0,z0,x1,y1,z1)=>arr.push(x0,y0,z0,x1,y1,z1);
@@ -3385,17 +3389,28 @@ function showDims(f){
 
 /* ---------- 點選判定：按下後沒拖動才算「點」，拖曳照常轉視角／拖人物 ---------- */
 const _inv=new THREE.Matrix4(), _ray=new THREE.Ray(), _box=new THREE.Box3(), _hit=new THREE.Vector3();
-function pickFurnHit(e){
-  if(state.mode==='ceiling') return null;
-  toNDC(e); let best=null, bd=Infinity;
-  for(const f of FURN){
-    if(f.obj&&!f.obj.visible) continue;   // 收起來的 180 加椅
-    _inv.makeRotationY(-f.rot);
-    _ray.origin.copy(ray.ray.origin).sub(f.p).applyMatrix4(_inv); _ray.direction.copy(ray.ray.direction).transformDirection(_inv);
-    if(_ray.intersectBox(_box.set(f.min,f.max),_hit)){ const d=_hit.distanceToSquared(_ray.origin); if(d<bd){ bd=d; best=f; } }
-  }
-  return best?{furn:best,d2:bd}:null;
+const _tvPickRay=new THREE.Raycaster(); _tvPickRay.layers.enableAll();
+function tvWallMeshHit(f){
+ const root=f.obj, meshes=[]; root.updateWorldMatrix(true,true);
+ const walk=o=>{if(!o.visible||(root===TVLOW&&o===TVBACK))return;if(o.isMesh)meshes.push(o);for(const c of o.children)walk(c);};
+ // For the TV only the screen/frame counts; mount parts should not steal backing selections.
+ if(root===TVSET){if(TV_PANEL.visible)meshes.push(TV_PANEL);for(const o of TVM_HEAD.children)if(o.visible&&o.material===M.tvScreen)meshes.push(o);}else walk(root);
+ _tvPickRay.ray.copy(ray.ray);return _tvPickRay.intersectObjects(meshes,false)[0]||null;
 }
+function pickFurnRay(){
+ let best=null, bd=Infinity;
+ for(const f of FURN){
+   if(f.obj&&!f.obj.visible)continue;
+   if([TVSET,TVLOW,TVBACK,TVR,TVHANG].includes(f.obj)){
+     const h=tvWallMeshHit(f);if(h&&h.distance*h.distance<bd){bd=h.distance*h.distance;best=f;}continue;
+   }
+   _inv.makeRotationY(-f.rot);
+   _ray.origin.copy(ray.ray.origin).sub(f.p).applyMatrix4(_inv);_ray.direction.copy(ray.ray.direction).transformDirection(_inv);
+   if(_ray.intersectBox(_box.set(f.min,f.max),_hit)){const d=_hit.distanceToSquared(_ray.origin);if(d<bd){bd=d;best=f;}}
+ }
+ return best?{furn:best,d2:bd}:null;
+}
+function pickFurnHit(e){if(state.mode==='ceiling')return null;toNDC(e);return pickFurnRay();}
 function pickFurn(e){ const h=pickFurnHit(e); return h?h.furn:null; }
 const _dCenter=new THREE.Vector3();
 function pickDoor(e){
@@ -3434,7 +3449,7 @@ addEventListener('pointerup',e=>{
   if(e.target!==renderer.domElement||Math.hypot(e.clientX-t.x,e.clientY-t.y)>6||performance.now()-t.t>600) return;
   const dh=pickDoor(e), fh=pickFurnHit(e);
   if(dh&&(!fh||state.mode==='plan'||dh.d2<=fh.d2)){ toggleDoor(dh.door); return; }
-  const f=fh?fh.furn:null; showDims(f===dimSel?null:f);
+  const f=fh?fh.furn:null; if(f?.obj===TVSET){showDims(f);openTVMControls();return;} showDims(f===dimSel?null:f);
 });
 addEventListener('pointermove',e=>{
   if(pdrag||downIds.size||e.buttons||(state.mode==='fps'||state.mode==='ceiling')||e.pointerType!=='mouse'||e.target!==renderer.domElement||renderer.domElement.style.cursor==='grabbing') return;
@@ -3442,7 +3457,7 @@ addEventListener('pointermove',e=>{
   if(EDIT_MODE&&!VIEWER&&pickPerson(e)){ renderer.domElement.style.cursor='grab'; return; }
   if(typeof canMove==='function'&&canMove(dimSel)&&pickFurn(e)===dimSel){ renderer.domElement.style.cursor='move'; return; }
   const dh=pickDoor(e), fh=pickFurnHit(e);
-  renderer.domElement.style.cursor=(dh&&(!fh||state.mode==='plan'||dh.d2<=fh.d2))?'pointer':'';
+  renderer.domElement.style.cursor=fh?.furn.obj===TVSET?(tvmDragOn?'grab':'pointer'):(dh&&(!fh||state.mode==='plan'||dh.d2<=fh.d2))?'pointer':'';
 });
 addEventListener('keydown',e=>{ if(e.code==='Escape'&&dimSel&&state.mode!=='fps') showDims(null); });
 
@@ -3644,6 +3659,7 @@ function placeFurn(f,x,z,rot){
 // 碰撞提醒：家具目前外框壓到哪些牆／家具（不算自己的碰撞盒；高度沒重疊的不算，例如床上方的吊櫃）
 function overlapCols(f){
   const o=f.obj; o.updateWorldMatrix(true,true); const me=new THREE.Box3().setFromObject(o), b=f.bind, e=.01;   // 貼齊 1cm 內不算壓到
+  if(o===TVLOW){me.min.y=0;me.max.y=.46;}
   if(b.cols.length){ me.min.x=Math.min(...b.cols.map(k=>k.minX)); me.max.x=Math.max(...b.cols.map(k=>k.maxX)); me.min.z=Math.min(...b.cols.map(k=>k.minZ)); me.max.z=Math.max(...b.cols.map(k=>k.maxZ)); }   // 有碰撞盒就用碰撞盒（比外框準）
   return colliders.filter(c=>!b.cols.includes(c)&&!b.ok.has(c)&&c.maxY>.02&&c.minX<me.max.x-e&&c.maxX>me.min.x+e&&c.minZ<me.max.z-e&&c.maxZ>me.min.z+e&&c.minY<me.max.y-e&&c.maxY>me.min.y+e);
 }
@@ -3749,7 +3765,7 @@ if(MOVABLE&&!VIEWER){
   // 拖曳：只拖「已選取」的那件，其他地方照常轉視角
   let fdrag=null;
   stage.addEventListener('pointerdown',e=>{
-    if(pdrag||state.mode==='fps'||!canMove(dimSel)||(e.pointerType==='mouse'&&e.button!==0)||pickFurn(e)!==dimSel) return;
+    if(pdrag||(tvmDragOn&&dimSel?.obj===TVSET)||state.mode==='fps'||!canMove(dimSel)||(e.pointerType==='mouse'&&e.button!==0)||pickFurn(e)!==dimSel) return;
     const f=dimSel, h=planeHit(e,0); if(!h) return;
     fdrag={f,id:e.pointerId,off:[f.p.x-h.x,f.p.z-h.z],moved:false,list:groupOf(f)};
     activeCtl().enabled=false; renderer.domElement.style.cursor='grabbing';
@@ -4331,7 +4347,7 @@ function syncAuxLabels(){for(const o of roomLabelObjects){o.visible=roomLabelsOn
 $('#room-label-toggle').onclick=()=>{roomLabelsOn=!roomLabelsOn;ceilingLabelsOn=roomLabelsOn;syncAuxLabels();};
 $('#cab-label-toggle').onclick=()=>{cabLabelsOn=!cabLabelsOn;syncAuxLabels();};
 const clearOverlaysFab=document.createElement('button');clearOverlaysFab.id='clear-overlays-fab';clearOverlaysFab.type='button';clearOverlaysFab.textContent='清除輔助標示';document.body.append(clearOverlaysFab);
-function clearAuxOverlays(){WALK_ON=false;walkChosen.clear();FURN_DIMS_ON=false;showDims(null);syncEditUI();measureOn=false;measureTap=null;measurePoints=[];renderRuler();cancelCargoPick();cargoOn=false;cargoStop();clearCargoMax('');cargoEnds=[null,null];cargoInvalidate();drawCargo();savedRulersOn=false;heatOn=false;electricOn=false;electricG.visible=false;selectInspection('');simResult.hidden=true;roomLabelsOn=false;cabLabelsOn=false;ceilingLabelsOn=false;select(null);ruler.visible=false;ring.visible=false;syncMeasureUI();syncExtraUI();syncAuxLabels();syncMeasurementDom();syncOverlayDom(ruler);toast('輔助標示已清除；已儲存量尺及方案保留');}
+function clearAuxOverlays(){setTVMDrag(false);WALK_ON=false;walkChosen.clear();FURN_DIMS_ON=false;showDims(null);syncEditUI();measureOn=false;measureTap=null;measurePoints=[];renderRuler();cancelCargoPick();cargoOn=false;cargoStop();clearCargoMax('');cargoEnds=[null,null];cargoInvalidate();drawCargo();savedRulersOn=false;heatOn=false;electricOn=false;electricG.visible=false;selectInspection('');simResult.hidden=true;roomLabelsOn=false;cabLabelsOn=false;ceilingLabelsOn=false;select(null);ruler.visible=false;ring.visible=false;syncMeasureUI();syncExtraUI();syncAuxLabels();syncMeasurementDom();syncOverlayDom(ruler);toast('輔助標示已清除；已儲存量尺及方案保留');}
 $('#clear-overlays').onclick=clearAuxOverlays;clearOverlaysFab.onclick=clearAuxOverlays;
 const labelRect=(x,y,w,h)=>({left:x,top:y,right:x+w,bottom:y+h});
 function rectTouches(a,b,pad=3){return a.left<b.right+pad&&a.right>b.left-pad&&a.top<b.bottom+pad&&a.bottom>b.top-pad;}
@@ -4364,7 +4380,7 @@ window.__h3dInspectionSelfTest=()=>{
 /* Panel organization and click-to-measure default regression. */
 const panelPreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{
- const panelIds=['panel-view','panel-measure','panel-inspection','panel-doors','panel-ceiling','panel-cargo','panel-schemes','panel-light','panel-people','panel-reference'];
+ const panelIds=['panel-view','panel-measure','panel-inspection','panel-doors','tv-mount-controls','panel-ceiling','panel-cargo','panel-schemes','panel-light','panel-people','panel-reference'];
  if(JSON.stringify([...$('#pbody').querySelectorAll(':scope > details')].map(e=>e.id))!==JSON.stringify(panelIds))throw Error('panel section order');
  if($('#inspection-toolbar').nextElementSibling!==inspection||!$('#panel-inspection').contains(inspection)||!$('#panel-doors').contains(simResult)||!$('#panel-ceiling').contains($('#sim-ch'))||!$('#panel-cargo').contains($('#cargo-result'))||!$('#panel-measure').contains($('#measure-result')))throw Error('panel control/result adjacency');
  if(!FURN_DIMS_ON||EDIT_MODE||dimSel||!dimCard.hidden||dimLines.visible||dimLabs.some(l=>l.visible))throw Error('initial selected-only dimensions');
@@ -4385,7 +4401,7 @@ function tvmConflict(){const pts=tvmCorners(),inv=TVM_ROOT.matrixWorld.clone().i
 function syncTVMSelection(){syncTVMCol();if(TVM_F){const inv=TVSET.matrixWorld.clone().invert(),b=new THREE.Box3().setFromPoints(tvmCorners().map(v=>v.applyMatrix4(inv)));TVM_F.min.copy(b.min);TVM_F.max.copy(b.max);if(TVM_F.bind){const c=TVM_COL,p=TVM_F.p,r=TVM_F.rot,cs=Math.cos(r),sn=Math.sin(r);TVM_F.bind.loc[0]=[[c.minX,c.minZ],[c.maxX,c.minZ],[c.maxX,c.maxZ],[c.minX,c.maxZ]].map(([x,z])=>[(x-p.x)*cs-(z-p.z)*sn,(x-p.x)*sn+(z-p.z)*cs]);}}if(dimSel===TVM_F)showDims(TVM_F);}
 function syncTVMUI(msg=''){for(const k of tvmKeys){$('#tvm-'+k).value=String(tvmPose[k]);$('#tvm-'+k+'-val').textContent=(k==='d'?tvmPose[k].toFixed(1)+' cm':tvmPose[k].toFixed(1)+'°');}$('#tvm-status').textContent=msg||'已套用模型預覽；標稱角度不等於 65 吋電視可達角度。';}
 function setTVM(next){const target={...tvmPose};for(const k of tvmKeys)if(Number.isFinite(next[k]))target[k]=Math.max(TVM_LIMITS[k][0],Math.min(TVM_LIMITS[k][1],next[k]));const old={...tvmPose};const steps=Math.max(1,...tvmKeys.map(k=>Math.ceil(Math.abs(target[k]-old[k])/(k==='d'?.5:1))));let reason='';for(let i=1;i<=steps;i++){const p=Object.fromEntries(tvmKeys.map(k=>[k,old[k]+(target[k]-old[k])*i/steps]));poseTVM(p);reason=tvmConflict();if(reason){poseTVM(tvmPose);break;}tvmPose=p;}syncTVMSelection();syncTVMUI(reason?'已停在前一個可行姿態：'+reason:'');for(const l of interior)if(l.castShadow)l.shadow.needsUpdate=true;if(cargoResult||cargoMaxBusy)cargoInvalidate();return !reason;}
-function openTVMControls(){ $('#panel-doors').open=true;$('#tv-mount-controls').open=true;setPanelOpen(true);$('#tv-mount-controls').scrollIntoView({block:'nearest',behavior:'smooth'}); }
+function openTVMControls(){ $('#tv-mount-controls').open=true;setPanelOpen(true);$('#tv-mount-controls').scrollIntoView({block:'nearest',behavior:'smooth'}); }
 for(const k of tvmKeys)$('#tvm-'+k).addEventListener('input',e=>setTVM({[k]:Number(e.target.value)}));
 $('#tvm-out').onclick=()=>setTVM({d:42.6});
 $('#tvm-left').onclick=()=>{setTVM({d:42.6});setTVM({yaw:-60});};$('#tvm-right').onclick=()=>{setTVM({d:42.6});setTVM({yaw:60});};
@@ -4393,8 +4409,43 @@ $('#tvm-reset').onclick=()=>{setTVM({yaw:0,pitch:0,roll:0});setTVM({d:6.5});};
 $('#tvm-focus').onclick=()=>{setMode('orbit');tween=null;const c=TVM_ROOT.getWorldPosition(new THREE.Vector3()),n=new THREE.Vector3(.8,.45,1.65).transformDirection(TVSET.matrixWorld);orbit.target.copy(c);orbitCam.position.copy(c).addScaledVector(n,2.4);orbit.update();};
 let tvmHide=false;$('#tvm-hide-screen').onclick=()=>{tvmHide=!tvmHide;TV_PANEL.visible=!tvmHide;for(const o of TVM_HEAD.children)if(o.material===M.tvScreen)o.visible=!tvmHide;$('#tvm-hide-screen').setAttribute('aria-pressed',String(tvmHide));};
 syncTVMSelection();syncTVMUI('目前收合；僅為模型預覽，未定義實機 VESA 偏心與牆體強度。');
+// H90 screen gesture: never moves cabinet group or writes a furniture scheme.
+let tvmDragOn=false,tvmDrag=null;
+function setTVMDrag(on){
+ tvmDragOn=!!on; const b=$('#tvm-drag');b.setAttribute('aria-pressed',String(tvmDragOn));b.textContent='直接拖曳電視：'+(tvmDragOn?'開':'關');
+ if(!tvmDragOn&&tvmDrag)endTVMDrag(null);
+ if(tvmDragOn){if(measureOn)setRuler(false);cancelCargoPick();if(!['orbit','plan'].includes(state.mode))setMode('orbit');if(tvmHide)$('#tvm-hide-screen').click();openTVMControls();}
+}
+$('#tvm-drag').onclick=()=>setTVMDrag(!tvmDragOn);
+function tvmDragTarget(start,dx,dy){return {yaw:start.yaw+dx*.35,d:start.d-dy*.15};}
+function beginTVMDrag(e){
+ if(!tvmDragOn||tvmDrag||measureOn||cargoPick!==null||pdrag||e.target!==renderer.domElement||e.button!==0||!['orbit','plan'].includes(state.mode))return;
+ const h=pickFurnHit(e);if(h?.furn!==TVM_F)return;
+ e.preventDefault();e.stopImmediatePropagation();tap=null;const ctl=activeCtl();tvmDrag={id:e.pointerId,x:e.clientX,y:e.clientY,pose:{...tvmPose},ctl,enabled:ctl.enabled,moved:false};ctl.enabled=false;
+ try{renderer.domElement.setPointerCapture(e.pointerId);}catch(_){}showDims(TVM_F);renderer.domElement.style.cursor='grabbing';
+}
+function moveTVMDrag(e){if(!tvmDrag||e.pointerId!==tvmDrag.id)return;e.preventDefault();e.stopImmediatePropagation();const t=tvmDrag,dx=e.clientX-t.x,dy=e.clientY-t.y;if(!t.moved&&Math.hypot(dx,dy)<4)return;t.moved=true;setTVM(tvmDragTarget(t.pose,dx,dy));}
+function endTVMDrag(e){if(!tvmDrag||(e&&e.pointerId!==tvmDrag.id))return;const t=tvmDrag;tvmDrag=null;if(e){e.preventDefault();e.stopImmediatePropagation();}try{renderer.domElement.releasePointerCapture(t.id);}catch(_){}if(activeCtl()===t.ctl&&['orbit','plan'].includes(state.mode))t.ctl.enabled=t.enabled;renderer.domElement.style.cursor='';tap=null;if(e&&!t.moved&&e.type==='pointerup')openTVMControls();}
+addEventListener('pointerdown',beginTVMDrag,{capture:true});addEventListener('pointermove',moveTVMDrag,{capture:true});addEventListener('pointerup',endTVMDrag,{capture:true});addEventListener('pointercancel',endTVMDrag,{capture:true});
+addEventListener('blur',()=>endTVMDrag(null));addEventListener('keydown',e=>{if(e.code==='Escape'&&tvmDragOn){setTVMDrag(false);e.stopImmediatePropagation();}},{capture:true});
 const tvmPreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{const r=tvmPreviousTest();if(!TVM_F||!TVM_ROOT.parent||TVM_HEAD.parent!==TVM_ROOT||TVM_LINKS.length!==4)throw Error('H90 geometry missing');if(Math.abs(tvmPose.d-6.5)>.001||Math.abs(TVM_HEAD.position.z-.065)>.001)throw Error('H90 folded range');$('#tvm-out').click();if(Math.abs(tvmPose.d-42.6)>.001||Math.abs(TVM_HEAD.position.z-.426)>.001)throw Error('H90 extension');$('#tvm-right').click();if(tvmPose.yaw<=0||tvmPose.yaw>=60||tvmConflict())throw Error('H90 wall limit');const yaw=tvmPose.yaw;setTVM({yaw:0});if(!setTVM({pitch:-12,roll:3})||Math.abs(tvmPose.pitch+12)>.001||Math.abs(tvmPose.roll-3)>.001)throw Error('H90 tilt/level');if(!setTVM({pitch:5,roll:-3})||Math.abs(tvmPose.pitch-5)>.001||Math.abs(tvmPose.roll+3)>.001)throw Error('H90 opposite tilt/level');$('#tvm-reset').click();if(Math.abs(tvmPose.d-6.5)>.001||Math.abs(tvmPose.yaw)>.001)throw Error('H90 reset');$('#tvm-hide-screen').click();if(TV_PANEL.visible)throw Error('H90 hide screen');$('#tvm-hide-screen').click();if(!TV_PANEL.visible)throw Error('H90 restore screen');showDims(TVM_F);if(cardBtn.hidden||!cardBtn.textContent.includes('H90'))throw Error('H90 selection');showDims(null);r.tvMount={extension:true,rotationLimited:yaw,tilt:true,level:true,reset:true,screenToggle:true};return r;};
+
+const tvmPickPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{
+ const r=tvmPickPreviousTest(),low=FURN.find(f=>f.obj===TVLOW),back=FURN.find(f=>f.obj===TVBACK);
+ if(!low||!back||Math.abs(low.max.y-low.min.y-.46)>1e-6||Math.abs(back.max.y-back.min.y-1.44)>1e-6)throw Error('TV lower/back separation');
+ const expectRay=(local,expected)=>{const world=TVM_ROOT.localToWorld(new THREE.Vector3(...local));ray.ray.origin.copy(world).add(new THREE.Vector3(0,0,.7).transformDirection(TVM_ROOT.matrixWorld).multiplyScalar(.7));ray.ray.direction.copy(world).sub(ray.ray.origin).normalize();if(pickFurnRay()?.furn!==expected)throw Error('TV mesh selection '+expected.name);};
+ expectRay([0,0,.10],TVM_F);expectRay([.80,0,.01],back);expectRay([0,-.91,.39],low);
+ setTVM({d:42.6});setTVM({yaw:20});const center=TVM_HEAD.localToWorld(new THREE.Vector3(0,0,.031));ray.ray.origin.copy(center).add(new THREE.Vector3(0,0,.7).transformDirection(TVM_HEAD.matrixWorld).multiplyScalar(.7));ray.ray.direction.copy(center).sub(ray.ray.origin).normalize();if(pickFurnRay()?.furn!==TVM_F)throw Error('TV moved selection');$('#tvm-reset').click();
+ setMode('orbit');tween=null;const c=TVM_HEAD.localToWorld(new THREE.Vector3(0,0,.031));orbit.target.copy(c);orbitCam.position.copy(c).add(new THREE.Vector3(0,0,1.4).transformDirection(TVM_ROOT.matrixWorld).multiplyScalar(1.4));orbit.update();orbitCam.updateMatrixWorld(true);
+ const rect=renderer.domElement.getBoundingClientRect(),n=c.clone().project(orbitCam),x=rect.left+(n.x+1)*rect.width/2,y=rect.top+(1-n.y)*rect.height/2;
+ const event=(type,px,py)=>renderer.domElement.dispatchEvent(new PointerEvent(type,{pointerId:41,button:0,buttons:type==='pointerup'?0:1,pointerType:'mouse',bubbles:true,cancelable:true,clientX:px,clientY:py}));
+ // Synthetic PointerEvents do not register an active browser pointer; prevent OrbitControls from attempting native pointer capture during the tap test only.
+ orbit.enabled=false;try{event('pointerdown',x,y);event('pointerup',x,y);}finally{orbit.enabled=true;}if(dimSel!==TVM_F||!$('#tv-mount-controls').open||cardBtn.hidden)throw Error('TV real pointer tap');
+ const before=JSON.stringify(furnLayout());$('#tvm-drag').click();event('pointerdown',x,y);if(!tvmDrag||activeCtl().enabled)throw Error('TV drag capture');event('pointermove',x+18,y-150);event('pointerup',x+18,y-150);if(tvmDrag||!activeCtl().enabled||tvmPose.d<=6.5||tvmPose.yaw<=0||JSON.stringify(furnLayout())!==before||tvmConflict())throw Error('TV drag pose/lock');
+ setTVMDrag(false);$('#tvm-reset').click();showDims(null);$('#tv-mount-controls').open=false; if(tvmDragOn)throw Error('TV drag reset');r.tvPick={screen:true,lower:true,back:true,moved:true,pointerTap:true,pointerDrag:true,independentPanel:true};return r;
+};
 
 /* =========================================================
    13. 主迴圈
