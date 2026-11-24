@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A01 住宅 3D 展示</title>
+<title>A01 住宅 3D 漫遊</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap">
@@ -249,14 +249,14 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="f120f960ed6bed34f38f6857f1da5c244cd2eeb26686fdb15f91b4a36c5e8674" data-commit="90963a01d98e8c272e92611cfdca82de05f22836" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 90963a01d98e8c272e92611cfdca82de05f22836 | SHA-256 f120f960ed6bed34f38f6857f1da5c244cd2eeb26686fdb15f91b4a36c5e8674">版本 v1-f120f960ed6b · Commit 90963a01d98e</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="02da051a374fc8cdaf6bccb6becc8add7feac4d813c68cc45c73214b658c5b66" data-commit="7dd6526187e5078345beb82558de4c6caac7f035" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 7dd6526187e5078345beb82558de4c6caac7f035 | SHA-256 02da051a374fc8cdaf6bccb6becc8add7feac4d813c68cc45c73214b658c5b66">版本 v1-02da051a374f · Commit 7dd6526187e5</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
   const status=document.getElementById('h3d-version-status');
   const reload=document.getElementById('h3d-version-reload');
   if(!label||!status||!reload)return;
-  const publicPage=location.protocol==='https:' && location.hostname==='peijeng.github.io' && /^\/h3d-site\/(?:index\.html|arrange\.html)?$/.test(location.pathname);
+  const publicPage=location.protocol==='https:' && location.hostname==='peijeng.github.io' && /^\/h3d-site\/(?:index\.html)?$/.test(location.pathname);
   if(!publicPage){status.textContent='本機／非公開站：未連線比對';return;}
   const digest=label.dataset.sourceSha, commit=label.dataset.commit;
   let busy=false;
@@ -296,6 +296,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
     <div><dt>樓層</dt><dd>1F 單層</dd></div>
   </dl>
   <div class="pbody" id="pbody">
+    <section aria-label="操作模式"><p class="grp-label">操作模式</p><div class="toggles"><button type="button" class="tog" id="edit-mode" aria-pressed="false">家具調整：關</button><button type="button" class="tog" id="furn-dim-toggle" aria-pressed="false">家具尺寸：關</button></div><p class="note" id="edit-mode-note">瀏覽模式：不會移動家具。需要調整時開啟家具調整，完成後可另存方案。</p></section>
     <div class="seg" role="group" aria-label="視角模式">
       <button id="m-plan" data-mode="plan" aria-pressed="false">1F 平面俯視</button>
       <button id="m-orbit" data-mode="orbit" aria-pressed="true">3D 鳥瞰</button>
@@ -313,7 +314,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <button class="tog" id="inspect-electric" aria-pressed="false">插座／開關</button>
         <button class="tog" id="inspect-doors" aria-pressed="false">櫃門碰撞</button>
       </div>
-      <div style="margin-top:8px"><p class="grp-label">量尺與走道 · 單位 cm</p><div class="toggles"><button class="tog" id="measure-toggle" aria-pressed="false">任意兩點量尺</button><button class="chip" id="measure-clear">清除量尺</button></div><output id="walk-current"></output><output id="measure-result">尚未量測</output><p class="note">最短淨距為高度重疊櫃體的平面外框距離；X／Z 為其平面橫向／縱向分量，不是獨立可通行寬度。量尺點選模型表面，含垂直高差；不等同現場丈量。</p></div>
+      <div style="margin-top:8px"><p class="grp-label">量尺與走道 · 單位 cm</p><div class="toggles"><button class="tog" id="measure-toggle" aria-pressed="false">任意兩點量尺</button><button class="chip" id="measure-clear">清除量尺</button></div><output id="walk-current" hidden></output><output id="measure-result">尚未量測</output><p class="note">最短淨距為高度重疊櫃體的平面外框距離；X／Z 為其平面橫向／縱向分量，不是獨立可通行寬度。量尺點選模型表面，含垂直高差；不等同現場丈量。</p></div>
       <div class="toggles" id="ceiling-controls" hidden style="margin-top:6px"><button class="chip" id="ceil-under">仰視</button><button class="chip" id="ceil-above">俯視</button><button class="chip" id="ceil-labels" aria-pressed="true">高度標籤</button></div>
       <div class="toggles" style="margin-top:6px"><button class="tog" id="sim-optimize">搜尋電視櫃門向</button><button class="tog" id="sim-guard" aria-pressed="true">碰撞停止：開</button><button class="tog" id="sim-export">匯出討論清單</button></div>
       <div style="margin-top:6px"><label for="sim-ch">客餐廳平頂預覽（未定案）</label> <output id="sim-ch-value">CH260</output><input id="sim-ch" type="range" min="250" max="270" step="1" value="260" style="width:100%"><div class="toggles"><button class="chip" data-ch="250">CH250</button><button class="chip" data-ch="260">CH260</button><button class="chip" data-ch="270">CH270</button></div></div>
@@ -342,7 +343,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
     </div>
     <div>
       <p class="grp-label"><span data-edit>我的方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）· 可自訂名稱</span><span data-view>設計方案 · 點一下切換（鍵盤 <kbd class="k">1</kbd>–<kbd class="k">5</kbd>）</span></p>
-      <ol class="slots" id="slots" aria-label="已儲存的方案"></ol>
+      <div class="toggles" id="preset-choices" style="margin-bottom:8px"></div><ol class="slots" id="slots" aria-label="已儲存的方案"></ol>
       <div class="toggles" data-edit style="margin-top:8px"><button class="tog" id="save-next" aria-pressed="false">＋ 儲存目前設定</button></div>
       <div class="store" data-edit><p class="store-status" id="store-status" data-mode="local"></p><div class="toggles" id="store-actions"></div></div>
       <div class="store" data-view><p class="store-status" id="view-status" data-mode="local"></p><div class="toggles" id="view-actions"></div></div>
@@ -374,7 +375,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <button class="tog" id="t-lights" aria-pressed="true">室內燈</button>
         <button class="tog" id="t-doors" aria-pressed="true">門全開</button>
         <button class="tog" id="t-cab" aria-pressed="false">櫃門全開</button>
-        <button class="tog" id="t-walk" aria-pressed="true" hidden>走道尺寸</button>
+        <button class="tog" id="t-walk" aria-pressed="false" hidden>走道尺寸</button>
         <button class="tog" id="t-quality" aria-pressed="true">畫質：自動</button>
       </div>
       <div class="ctemp">
@@ -384,8 +385,8 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <div class="toggles"><button class="chip" id="ct-plan">套用建議：主臥／玄關／電視牆 3000K・客餐廳／次臥 3500K・廚浴 4000K</button></div>
       </div>
     </div>
-    <p class="note" data-view>這是唯讀展示版：可以切換設計方案，並用俯視、鳥瞰或第一人稱觀看；不會修改任何方案或檔案。</p>
-    <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具與櫃體依 261109 平立面工程圖（AR05 平面配置、AR09 天花、AR11～AR20 立面）與 261109 渲染圖（17 張）配置（「設計師提案」風格對照渲染圖材質）。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
+    <p class="note" data-view>瀏覽模式可切換方案；需要拖曳家具時再開啟家具調整。</p>
+    <p class="note">牆體門窗依 261014 實測格局尺寸圖（AR00）1:40 向量尺寸建模，家具與櫃體依 261123 平立面工程圖（AR05 平面配置、AR09 天花、AR11～AR20 立面）配置（「設計師提案」風格對照渲染圖材質）。本案為單層住宅，故只有 1F 俯視。座向坐北朝南：大門朝北、客廳與主臥窗朝南（俯視圖右方為北）。第一人稱模式下，門會在靠近時自動開啟。</p>
   </div>
 </aside>
 
@@ -436,18 +437,17 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 window.__ready = true;
-const VIEWER = true;                          // true = 唯讀展示版（只能切換方案）
+const VIEWER = false;                         // true = 唯讀展示版（只能切換方案）
 if(VIEWER) document.documentElement.classList.add('viewer');
 // true = 261016 討論版：業主修改意見（電視櫃落地＋上方吊櫃、主臥床頭板／全身鏡／開放掛區／化妝桌層板與崁燈、衣櫃上方行李箱櫃、取消茶鏡）
-const PROPOSAL = false;
-if(PROPOSAL){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">討論版</span>');
-  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin','<p class="note"><b>討論版（10/16 業主修改意見）</b>：電視櫃落地＋電視上方吊櫃；取消玄關茶鏡；主臥改 8cm 床頭板（只做床寬）、衣櫃最右門貼全身鏡、衣櫃上方行李箱櫃（點它可開合）、房門旁開放掛區、化妝桌靠牆加層板與崁燈；床頭不設夜燈。</p>'); }
-// true = 家具調整版（以討論版為底）：全室家具點選後可拖曳、一次轉 90°，位置存在這台電腦的瀏覽器
-const MOVABLE = false;
-if(MOVABLE){ document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span class="view-badge">家具調整</span>');
-  [...document.querySelectorAll('aside p.note')].pop()?.insertAdjacentHTML('beforebegin',VIEWER?'<p class="note"><b>家具調整展示版</b>：切換方案時，家具位置也會換成該方案的配置。</p>':'<p class="note"><b>家具調整版</b>：在「1F 平面俯視」或「3D 鳥瞰」點一下家具選取，再按住它拖曳移動；卡片上「轉 90°」或按 R 鍵旋轉。壓到牆或其他家具時框線變紅。電視牆、餐邊櫃、餐桌組可在卡片上切「整組一起動」。按錯可按右下角「↶ 上一步」（Ctrl+Z）復原、「↷ 下一步」（Ctrl+Y）重做，「⟲ 家具全部回原位」也在右下角。調整自動存在這台電腦的瀏覽器，存成方案就會一起寫進方案檔。</p>');
-  // 右下角固定工具列（走道尺寸按鈕上方）：上一步、自動貼牆、全部回原位
-  if(!VIEWER) document.body.insertAdjacentHTML('beforeend','<div id="furn-bar"><button type="button" id="furn-bar-tog" aria-expanded="false">🪑 家具工具</button><button type="button" id="furn-undo" disabled>↶ 上一步</button><button type="button" id="furn-redo" disabled>↷ 下一步</button><button type="button" id="furn-snap">自動貼牆：開</button><button type="button" id="furn-reset">⟲ 家具全部回原位</button></div>'); }
+const PROPOSAL = true; 
+// 單一版本：保留全部建模及互動能力，家具位置編輯以獨立開關控制。
+const MOVABLE = true; 
+let EDIT_MODE=false, FURN_DIMS_ON=false;
+if(MOVABLE){
+  document.querySelector('h1')?.insertAdjacentHTML('beforeend','<span id="mode-badge" class="view-badge">瀏覽模式</span>');
+  document.body.insertAdjacentHTML('beforeend','<div id="furn-bar" hidden><button type="button" id="furn-bar-tog" aria-expanded="false">🪑 家具工具</button><button type="button" id="furn-undo" disabled>↶ 上一步</button><button type="button" id="furn-redo" disabled>↷ 下一步</button><button type="button" id="furn-snap">自動貼牆：開</button><button type="button" id="furn-reset">⟲ 家具全部回原位</button><button type="button" id="furn-save">＋ 另存目前方案</button></div>');
+}
 
 /* =========================================================
    0. 基本設定：圖面座標（PDF pt）→ 公尺
@@ -2015,7 +2015,7 @@ for(const rm of ROOMS){
 }
 // 兩版共用走道尺寸；固定採樣走道使用當前碰撞盒，電視牆與餐邊櫃採實際櫃體平面外框。
 const walkG=new THREE.Group(), rulerMeasureG=new THREE.Group(); labelG.add(walkG,rulerMeasureG);
-let WALK_ON=true, walkSignature='', walkTime=-Infinity, walkLast=null, measureOn=false, measurePoints=[], measureTap=null;
+let WALK_ON=false, walkSignature='', walkTime=-Infinity, walkLast=null, measureOn=false, measurePoints=[], measureTap=null;
 const walkRect=c=>[[c.minX,c.minZ],[c.maxX,c.minZ],[c.maxX,c.maxZ],[c.minX,c.maxZ]];
 const walkSolid=c=>c.maxY>.1&&c.minY<2&&[c.minX,c.maxX,c.minZ,c.maxZ].every(Number.isFinite);
 const walkTV=[[TV_NAMES[0],TVLOW_WALK_COL],[TV_NAMES[1],TVHANG_WALK_COL],[TV_NAMES[2],TVR_WALK_COL]], walkSB=[[SB_NAMES[0],SBL_WALK_COL],[SB_NAMES[1],SBU_WALK_COL]];
@@ -2037,7 +2037,7 @@ function refreshWalk(){walkSignature=walkKey();clearMeasureGroup(walkG);walkLast
  const span=(x,z,ax,n,off)=>drawWalk(walkSpan(x,z,ax),n,off);
  span(MX(780),MZ(515),'z','玄關走道');span(MX(380),MZ(560),'z','電視牆↔餐桌椅');span(MX(243),MZ(490),'x','主臥門前');const cz=Z(CHAIR_Y[0]);span(X(DINE_X+42)+.25,cz,'x','餐椅↔餐邊櫃');span(X(DINE_X-42)-.25,cz,'x','沙發↔餐椅');span(.6,1.5,'x','主臥 床↔窗牆');span(1.35,2.6,'z','主臥 床尾↔牆');span(3.1,1.2,'x','主臥 床↔衣櫃');span(CHAIR_COL.maxX+.03,(CHAIR_COL.minZ+CHAIR_COL.maxZ)/2,'x','客房 椅子拉開後↔牆',[0,-.8]);const [x0,y0,x1,y1]=DOOR_OPENINGS[2].r,zc=(Z(y0)+Z(y1))/2;drawWalk([[X(x0),zc],[X(x1),zc]],'廚房門洞（冰箱進出）',[0,.3]);}
 const walkButton=document.getElementById('t-walk'),walkFab=document.createElement('button'),measureFab=document.createElement('button');walkFab.id='walk-fab';measureFab.id='measure-fab';walkFab.type=measureFab.type='button';document.body.append(walkFab,measureFab);walkButton.hidden=false;
-function syncMeasureUI(){const visible=state.mode==='plan'||state.mode==='orbit';walkG.visible=visible&&WALK_ON;rulerMeasureG.visible=visible;walkFab.hidden=measureFab.hidden=!visible;walkButton.disabled=!visible;document.getElementById('measure-toggle').disabled=!visible;document.getElementById('measure-clear').disabled=!visible;for(const b of [walkButton,walkFab])b.setAttribute('aria-pressed',String(WALK_ON));walkFab.textContent='📏 走道尺寸：'+(WALK_ON?'開':'關');for(const b of [measureFab,document.getElementById('measure-toggle')])b.setAttribute('aria-pressed',String(measureOn));measureFab.textContent=measureOn?'結束量尺':'任意兩點量尺';if(!visible){measureOn=false;measureTap=null;}}
+function syncMeasureUI(){const visible=state.mode==='plan'||state.mode==='orbit';walkG.visible=visible&&WALK_ON;document.getElementById('walk-current').hidden=!WALK_ON;rulerMeasureG.visible=visible;walkFab.hidden=measureFab.hidden=!visible;walkButton.disabled=!visible;document.getElementById('measure-toggle').disabled=!visible;document.getElementById('measure-clear').disabled=!visible;for(const b of [walkButton,walkFab])b.setAttribute('aria-pressed',String(WALK_ON));walkFab.textContent='📏 走道尺寸：'+(WALK_ON?'開':'關');for(const b of [measureFab,document.getElementById('measure-toggle')])b.setAttribute('aria-pressed',String(measureOn));measureFab.textContent=measureOn?'結束量尺':'任意兩點量尺';if(!visible){measureOn=false;measureTap=null;}}
 function flipWalk(){WALK_ON=!WALK_ON;if(WALK_ON)refreshWalk();syncMeasureUI();toast(WALK_ON?'顯示走道尺寸':'已隱藏走道尺寸');}
 walkButton.addEventListener('click',flipWalk);walkFab.addEventListener('click',flipWalk);
 function walkTick(now){if(now-walkTime<120||state.mode==='fps'||state.mode==='ceiling')return;walkTime=now;if(walkKey()!==walkSignature)refreshWalk();}
@@ -2367,9 +2367,9 @@ function setMode(m){
   activeCam=ceiling?ceilingCam:m==='plan'?planCam:m==='orbit'?orbitCam:fpsCam;
   labelRenderer.domElement.hidden=fps||ceiling;
   ui.cross.hidden=ui.hud.hidden=!fps; ui.compass.hidden=m!=='plan';   // 指北針只在俯視顯示（俯視不能旋轉，方向固定）
-  ui.hint.innerHTML=HINTS[m];
+  ui.hint.innerHTML=(m==='plan'||m==='orbit')&&!EDIT_MODE?'瀏覽模式 · 點門扇可開關 · 開啟家具調整後可拖曳家具 · 尺寸與插座可獨立開關':HINTS[m];
   if(fps) enterFPS();
-  syncMeasureUI();
+  syncMeasureUI(); syncEditUI();
   if(state.mode==='plan'||state.mode==='orbit') refreshWalk();
   placeSun();
 }
@@ -2642,7 +2642,7 @@ function dropPerson(d){
   refreshPeopleChips();
 }
 stage.addEventListener('pointerdown',e=>{
-  if(VIEWER||(state.mode==='fps'||state.mode==='ceiling')||(e.pointerType==='mouse'&&e.button!==0)) return;
+  if(!EDIT_MODE||VIEWER||(state.mode==='fps'||state.mode==='ceiling')||(e.pointerType==='mouse'&&e.button!==0)) return;
   const hit=pickPerson(e);
   if(!hit){ if(selected) select(null); return; }
   e.stopPropagation(); e.preventDefault();
@@ -2658,7 +2658,7 @@ const endPersonDrag=e=>{ if(!pdrag||e.pointerId!==pdrag.id) return; const d=pdra
 addEventListener('pointerup',endPersonDrag); addEventListener('pointercancel',endPersonDrag);
 
 function rotateSelected(){ if(!selected||selected.seat) return; selected.obj.rotation.y+=Math.PI/4; }
-addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return; if(!VIEWER&&state.mode!=='fps'&&state.mode!=='ceiling'&&(e.code==='KeyR')&&!e.ctrlKey&&!e.metaKey) rotateSelected(); });
+addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return; if(EDIT_MODE&&!VIEWER&&state.mode!=='fps'&&state.mode!=='ceiling'&&(e.code==='KeyR')&&!e.ctrlKey&&!e.metaKey) rotateSelected(); });
 
 PEOPLE.forEach((P,i)=>{
   const b=document.createElement('button'); b.className='chip'; b.id='person-'+i; b.dataset.person=i;
@@ -3096,7 +3096,7 @@ async function initFile(){
   if(!FS) return;
   try{ const h=await kv('slotsFile');
     if(h){ store.file=h;
-      if(await h.queryPermission({mode:'readwrite'})==='granted') await adoptFile(h,!bootFromHash);
+      if(await h.queryPermission({mode:'readwrite'})==='granted') await adoptFile(h,false);
       else store.needPerm=true; }
   }catch(e){ store.needPerm=!!store.file; }
 }
@@ -3193,9 +3193,10 @@ $('#do-import').addEventListener('click',()=>{ if(importSlots(slotUI.inp.value))
 slotUI.inp.addEventListener('keydown',e=>{ if(e.key==='Enter') $('#do-import').click(); });
 
 /* ---------- 啟動 ---------- */
-// 網址帶 #代碼 就載入分享的方案；否則有方案 1 就顯示方案 1，沒有就用設計師提案＋建議色溫
+// 開頁使用工程圖基準；網址帶 #代碼 時才主動載入分享方案。
 const bootFromHash=location.hash.length>1&&!!decodeSlots(decodeURIComponent(location.hash));
-{ const s=slots[0]||{style:'designer',ct:{...CT_PLAN}}; if(s.style!==styleKey) applyStyle(s.style); Object.assign(state.ct,s.ct); applyLighting(); }
+{ const s={style:'designer',ct:{...CT_PLAN}}; if(s.style!==styleKey) applyStyle(s.style); Object.assign(state.ct,s.ct); applyLighting(); }
+for(const p of PRESET_SLOTS){const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=p.name;b.addEventListener('click',()=>applySettings(p,'已載入預設：'+p.name));$('#preset-choices').append(b);}
 setStatus(); renderStoreActions();
 (async()=>{
   if(VIEWER){ renderViewStore(); await initViewFile(); if(bootFromHash) importSlots(decodeURIComponent(location.hash),true); renderViewStore();
@@ -3234,7 +3235,7 @@ function showDims(f){
   dimSel=f||null;
   if(MOVABLE&&!f){ dimMat.color.setHex(0x9a6b45); dimBoxMat.color.setHex(0x9a6b45); }
   const on=!!f;
-  dimLines.visible=dimBox.visible=on; dimCard.hidden=!on; dimLabs.forEach(l=>l.visible=on);
+  dimLines.visible=on&&FURN_DIMS_ON; dimBox.visible=on&&(FURN_DIMS_ON||EDIT_MODE); dimCard.hidden=!on; cardSize.hidden=!FURN_DIMS_ON; dimLabs.forEach(l=>l.visible=on&&FURN_DIMS_ON);
   if(!f) return;
   if(moveBtns){ moveBtns.hidden=!canMove(f); const lb=moveBtns.children[2]; lb.hidden=!f.obj||!f.obj.userData.set;
     if(!lb.hidden){ lb.textContent=`整組${f.obj.userData.set}一起動：${SET_LINK?'開':'關'}`; lb.setAttribute('aria-pressed',String(SET_LINK)); } }
@@ -3259,7 +3260,7 @@ function showDims(f){
   if(f.obj===SOFA_OBJ){   // 坐深：靠墊前緣到座墊前緣（真正能坐的深度）
     const sb=SOFA.seatBack, sf=SOFA.depth/2+SOFA.seat.position.z, sx=a.x+.55, sy=.48;
     seg(ln,sx,sy,sb,sx,sy,sf); seg(ln,sx-.05,sy,sb,sx+.05,sy,sb); seg(ln,sx-.05,sy,sf,sx+.05,sy,sf);
-    dimLabs[3].position.set(sx,sy,(sb+sf)/2); dimLabs[3].element.textContent=`坐深 ${cm(sf-sb)}`; dimLabs[3].visible=true;
+    dimLabs[3].position.set(sx,sy,(sb+sf)/2); dimLabs[3].element.textContent=`坐深 ${cm(sf-sb)}`; dimLabs[3].visible=FURN_DIMS_ON;
     seatTxt=`・坐深 ${cm(sf-sb)} cm`;
     dimLines.geometry.dispose(); dimLines.geometry=new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(ln,3));
   }
@@ -3326,7 +3327,7 @@ addEventListener('pointerup',e=>{
 addEventListener('pointermove',e=>{
   if(pdrag||downIds.size||e.buttons||(state.mode==='fps'||state.mode==='ceiling')||e.pointerType!=='mouse'||e.target!==renderer.domElement||renderer.domElement.style.cursor==='grabbing') return;
   const now=performance.now(); if(now-lastHoverT<36) return; lastHoverT=now;
-  if(!VIEWER&&pickPerson(e)){ renderer.domElement.style.cursor='grab'; return; }
+  if(EDIT_MODE&&!VIEWER&&pickPerson(e)){ renderer.domElement.style.cursor='grab'; return; }
   if(typeof canMove==='function'&&canMove(dimSel)&&pickFurn(e)===dimSel){ renderer.domElement.style.cursor='move'; return; }
   const dh=pickDoor(e), fh=pickFurnHit(e);
   renderer.domElement.style.cursor=(dh&&(!fh||state.mode==='plan'||dh.d2<=fh.d2))?'pointer':'';
@@ -3499,7 +3500,7 @@ function updateFurn(dt){
    ========================================================= */
 // shortcut: 只移動家具本身＋碰撞盒＋上面的座位；伸縮沙發／升降桌推椅子的動畫仍以原位計算，之後要準可改成相對位置
 const movable=f=>MOVABLE&&!!f&&!!f.obj&&f.obj.parent===dynG;
-const canMove=f=>!VIEWER&&state.mode!=='ceiling'&&movable(f);
+const canMove=f=>EDIT_MODE&&!VIEWER&&(state.mode==='plan'||state.mode==='orbit')&&movable(f);
 const LAYOUT_KEY='zheng3d-furn-layout-v2';
 const _b3=new THREE.Box3();
 // 第一次動某件家具時，記下它的碰撞盒與座位（座位用家具自己的座標記，之後跟著轉）
@@ -3601,12 +3602,13 @@ function saveLayout(){
   const now=JSON.stringify(furnLayout());
   if(lastLay!==null&&!undoing&&now!==lastLay){ HIST.push(lastLay); if(HIST.length>50) HIST.shift(); FUT.length=0; }
   lastLay=now; refreshUndo();
-  if(!VIEWER) try{ localStorage.setItem(LAYOUT_KEY,now); }catch(e){} refreshPressed(); }
+  // 草稿僅在本頁記憶體內；明確另存方案才持久化。保留舊快取但不自動套用。
+  refreshPressed(); }
 function refreshUndo(){
   const u=$('#furn-undo'), r=$('#furn-redo');
   if(u){ u.disabled=!HIST.length; u.textContent=HIST.length?`↶ 上一步（${HIST.length}）`:'↶ 上一步'; }
   if(r){ r.disabled=!FUT.length; r.textContent=FUT.length?`↷ 下一步（${FUT.length}）`:'↷ 下一步'; } }
-function stepLayout(from,to,msg){
+function stepLayout(from,to,msg){ if(!EDIT_MODE)return;
   const p=from.pop(); if(!p){ toast(from===HIST?'沒有可以復原的步驟':'沒有可以重做的步驟'); return; }
   to.push(lastLay); undoing=true; applyFurnLayout(JSON.parse(p)); undoing=false; if(dimSel) showDims(dimSel); toast(msg);
 }
@@ -3618,17 +3620,17 @@ if(MOVABLE){ const area=f=>(f.max.x-f.min.x)*(f.max.z-f.min.z);
     own.slice(1).forEach(f=>f.bind.seats=f.bind.seats.filter(q=>q.st!==st)); } }
 if(MOVABLE&&!VIEWER){
   const [rotBtn,homeBtn,linkBtn]=moveBtns.querySelectorAll('button');
-  linkBtn.addEventListener('click',()=>{ SET_LINK=!SET_LINK; if(dimSel) showDims(dimSel); toast(SET_LINK?`整組${dimSel.obj.userData.set}一起動：拖曳、轉 90° 都整組一起`:'改回單件移動'); });
+  linkBtn.addEventListener('click',()=>{ if(!EDIT_MODE)return; SET_LINK=!SET_LINK; if(dimSel) showDims(dimSel); toast(SET_LINK?`整組${dimSel.obj.userData.set}一起動：拖曳、轉 90° 都整組一起`:'改回單件移動'); });
   rotBtn.addEventListener('click',()=>{ if(canMove(dimSel)) rotateFurn(dimSel); });
   homeBtn.addEventListener('click',()=>{ const f=dimSel; if(!canMove(f)) return; const h=bindFurn(f).home; placeFurn(f,h.x,h.z,h.rot); saveLayout(); showDims(f); toast(`${f.name}已回原位`); });
   const snapBtn=$('#furn-snap'), snapTxt=()=>{ if(snapBtn){ snapBtn.textContent=`自動貼牆：${SNAP_ON?'開':'關'}`; snapBtn.setAttribute('aria-pressed',String(SNAP_ON)); } }; snapTxt();
   snapBtn?.addEventListener('click',()=>{ SNAP_ON=!SNAP_ON; try{ localStorage.setItem('zheng3d-snap',SNAP_ON?'1':'0'); }catch(e){} snapTxt(); toast(SNAP_ON?'自動貼牆已開：轉 90° 或拖曳放開時，30cm 內的牆會自動貼上':'自動貼牆已關：放在哪就在哪'); });
   $('#furn-undo')?.addEventListener('click',undoLayout);
   $('#furn-redo')?.addEventListener('click',redoLayout);
-  addEventListener('keydown',e=>{ if(!(e.ctrlKey||e.metaKey)||(e.target.closest&&e.target.closest('input,textarea'))) return;   // Ctrl+Z 上一步；Ctrl+Y 或 Ctrl+Shift+Z 下一步
+  addEventListener('keydown',e=>{ if(!EDIT_MODE||!(e.ctrlKey||e.metaKey)||(e.target.closest&&e.target.closest('input,textarea'))) return;   // Ctrl+Z 上一步；Ctrl+Y 或 Ctrl+Shift+Z 下一步
     if(e.code==='KeyZ'&&!e.shiftKey){ e.preventDefault(); undoLayout(); } else if(e.code==='KeyY'||(e.code==='KeyZ'&&e.shiftKey)){ e.preventDefault(); redoLayout(); } });
   $('#furn-bar-tog')?.addEventListener('click',()=>{ const bar=$('#furn-bar'), open=bar.classList.toggle('open'); $('#furn-bar-tog').textContent=open?'✕ 收起':'🪑 家具工具'; $('#furn-bar-tog').setAttribute('aria-expanded',String(open)); });
-  $('#furn-reset')?.addEventListener('click',()=>{ applyFurnLayout({}); toast('全部家具已回原位'); });
+  $('#furn-reset')?.addEventListener('click',()=>{ if(!EDIT_MODE)return; applyFurnLayout({}); toast('全部家具已回原位'); });
   addEventListener('keydown',e=>{ if(e.target.closest&&e.target.closest('input,textarea')) return;
     if(e.code==='KeyR'&&!e.ctrlKey&&!e.metaKey&&!selected&&state.mode!=='fps'&&canMove(dimSel)) rotateFurn(dimSel); });
   // 拖曳：只拖「已選取」的那件，其他地方照常轉視角
@@ -3640,17 +3642,30 @@ if(MOVABLE&&!VIEWER){
     activeCtl().enabled=false; renderer.domElement.style.cursor='grabbing';
   },{capture:true});
   addEventListener('pointermove',e=>{ if(!fdrag||e.pointerId!==fdrag.id) return; const h=planeHit(e,0); if(!h) return;
-    const f=fdrag.f, x=Math.round((h.x+fdrag.off[0])*100)/100, z=Math.round((h.z+fdrag.off[1])*100)/100;   // 以 1cm 為單位
+    if(!EDIT_MODE)return; const f=fdrag.f, x=Math.round((h.x+fdrag.off[0])*100)/100, z=Math.round((h.z+fdrag.off[1])*100)/100;   // 以 1cm 為單位
     if(x===f.p.x&&z===f.p.z) return;
     const dx=x-f.p.x, dz=z-f.p.z; for(const k of fdrag.list) placeFurn(k,k.p.x+dx,k.p.z+dz,k.rot);
     dimG.position.copy(f.p); fdrag.moved=true; if(fdrag.list.length>1) groupOverlap(fdrag.list); else markOverlap(f); });
   const endFurnDrag=e=>{ if(!fdrag||e.pointerId!==fdrag.id) return; const d=fdrag; fdrag=null; activeCtl().enabled=true; renderer.domElement.style.cursor='';
     if(!d.moved) return; const gap=SNAP_ON?snapToWall(d.list):0; if(gap) dimG.position.copy(d.f.p); saveLayout(); tap=null; showDims(d.f); const n=d.list.length>1?groupOverlap(d.list):markOverlap(d.f); if(n.length) toast(`${d.list.length>1?`整組${d.f.obj.userData.set}`:d.f.name}${gap?'已貼齊牆，但':''}${warnText(n)}，現場可能放不下`); else if(gap) toast(`已貼齊牆（${gap>0?'移近':'推出'} ${cm(Math.abs(gap))} cm）`); };
   addEventListener('pointerup',endFurnDrag,{capture:true}); addEventListener('pointercancel',endFurnDrag);
-  // 上次的調整：開頁時套回去
-  try{ const d=JSON.parse(localStorage.getItem(LAYOUT_KEY)||'{}'); for(const f of FURN){ const v=d[furnKey(f)]; if(canMove(f)&&Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)) placeFurn(f,...v); } }catch(e){}
+  // 不自動套用舊的未儲存草稿；舊資料仍留在瀏覽器，正式方案可主動載入。
   lastLay=JSON.stringify(furnLayout()); refreshUndo(); refreshPressed();
 }
+
+// Unified runtime switches. The scene stays editable-capable while gestures are locked in browse mode.
+function syncEditUI(){
+ const b=$('#edit-mode'),d=$('#furn-dim-toggle'),bar=$('#furn-bar');
+ b.setAttribute('aria-pressed',String(EDIT_MODE)); b.textContent='家具調整：'+(EDIT_MODE?'開':'關');
+ d.setAttribute('aria-pressed',String(FURN_DIMS_ON));d.textContent='家具尺寸：'+(FURN_DIMS_ON?'開':'關');
+ $('#mode-badge').textContent=EDIT_MODE?'調整模式':'瀏覽模式';
+ bar.hidden=!EDIT_MODE||!['plan','orbit'].includes(state.mode);
+ $('#edit-mode-note').textContent=EDIT_MODE?'可選取後拖曳、旋轉家具。調整僅為預覽，請按「另存目前方案」保存。':'瀏覽模式：不會移動家具。需要調整時開啟家具調整，完成後可另存方案。';
+}
+function setEditMode(on){ EDIT_MODE=!!on;if(!EDIT_MODE){SET_LINK=false;}syncEditUI();showDims(dimSel);if(state.mode==='plan'||state.mode==='orbit')ui.hint.innerHTML=EDIT_MODE?HINTS[state.mode]:'瀏覽模式 · 點門扇可開關 · 開啟家具調整後可拖曳家具 · 尺寸與插座可獨立開關'; }
+$('#edit-mode').addEventListener('click',()=>{setEditMode(!EDIT_MODE);toast(EDIT_MODE?'家具調整已開啟':'已鎖定家具位置；預覽仍保留，可另存方案');});
+$('#furn-dim-toggle').addEventListener('click',()=>{FURN_DIMS_ON=!FURN_DIMS_ON;syncEditUI();showDims(dimSel);});
+$('#furn-save')?.addEventListener('click',()=>{if(!EDIT_MODE)return;$('#save-next').click();$('#slots').scrollIntoView({block:'nearest'});});
 
 /* =========================================================
    12e. 櫃門開關與開門動線（門向照 261109 立面圖：左開／右開、上掀、抽屜）
@@ -3947,6 +3962,7 @@ $('#inspect-electric').addEventListener('click',()=>{electricOn=!electricOn;if(e
 $('#inspect-doors').addEventListener('click',()=>selectInspection('doors'));
 // CI calls this only in an injected test harness; no user layout or stored scheme is modified.
 window.__h3dInspectionSelfTest=()=>{
+ if(EDIT_MODE||FURN_DIMS_ON||WALK_ON||electricOn||electricG.visible||!$('#furn-bar').hidden||!inspection.hidden)throw Error('default browse/dimension/electrical state failed');
  const rows=auditRows();if(rows.length<30||!rows.every(r=>r.item&&r.area))throw Error('audit panel incomplete');
  if(electrical.length<30||!electrical.some(e=>e.pending)||CEIL_REGIONS.length<10)throw Error('inspection layers incomplete');
  const a=rectPanel(0,0,1,0,0,1,1,.04,0,1),b=rectPanel(0,0,0,1,1,0,1,.04,0,1),c=rectPanel(2,0,1,0,0,1,1,.04,0,1);
@@ -4062,15 +4078,15 @@ window.__h3dInspectionSelfTest=()=>{const data=simPreviousTest();
 
 // CI: both variants, current cabinet geometry, simulated relocation, and ruler UI.
 const walkPreviousTest=window.__h3dInspectionSelfTest;
-window.__h3dInspectionSelfTest=()=>{const report=walkPreviousTest();setMode('plan');refreshWalk();const initial=cabinetWalk();if(!initial||!Number.isFinite(initial.d)||walkFab.hidden||walkButton.hidden||!walkG.visible)throw Error('walk overlay unavailable');
+window.__h3dInspectionSelfTest=()=>{const report=walkPreviousTest();setMode('plan');refreshWalk();const initial=cabinetWalk();if(!initial||!Number.isFinite(initial.d)||walkFab.hidden||walkButton.hidden||walkG.visible)throw Error('walk overlay default off failed');
  const a=[[0,0],[1,0],[1,1],[0,1]],b=[[2,2],[3,2],[3,3],[2,3]],c=[[.5,.5],[1.5,.5],[1.5,1.5],[.5,1.5]],d=closestWalkPolys(a,b);if(Math.abs(d.d-Math.SQRT2)>1e-8||closestWalkPolys(a,c).d!==0)throw Error('closest polygon test failed');
- walkFab.click();if(walkG.visible)throw Error('walk toggle failed');walkFab.click();if(!walkG.visible)throw Error('walk restore failed');
- let moved=null;if(MOVABLE){const fs=FURN.filter(f=>walkSB.some(([n])=>n===f.name)),old=fs.map(f=>[f,f.p.x,f.p.z,f.rot]);const vx=initial.d>.001?(initial.b[0]-initial.a[0])/initial.d:.5,vz=initial.d>.001?(initial.b[1]-initial.a[1])/initial.d:.5;for(const [f,x,z,r] of old)placeFurn(f,x+vx*.2,z+vz*.2,r);walkTick(performance.now()+1000);moved=walkLast.d;if(Math.abs(moved-initial.d)<.02)throw Error('live moved distance unchanged');for(const [f,x,z,r] of old)placeFurn(f,x,z,r);refreshWalk();if(Math.abs(walkLast.d-initial.d)>.001)throw Error('walk restore geometry failed');}
+ walkFab.click();if(!walkG.visible)throw Error('walk toggle on failed');walkFab.click();if(walkG.visible)throw Error('walk toggle off failed');walkFab.click();
+ let moved=null;if(MOVABLE){const sample=FURN.find(f=>movable(f));if(canMove(sample))throw Error('browse movement unlocked');$('#edit-mode').click();if(!canMove(sample)||$('#furn-bar').hidden)throw Error('edit toggle failed');showDims(sample);if(!cardSize.hidden||dimLines.visible)throw Error('dimensions default off failed');$('#furn-dim-toggle').click();if(cardSize.hidden||!dimLines.visible)throw Error('furniture dimensions toggle failed');$('#furn-dim-toggle').click();showDims(null);const fs=FURN.filter(f=>walkSB.some(([n])=>n===f.name)),old=fs.map(f=>[f,f.p.x,f.p.z,f.rot]);const vx=initial.d>.001?(initial.b[0]-initial.a[0])/initial.d:.5,vz=initial.d>.001?(initial.b[1]-initial.a[1])/initial.d:.5;for(const [f,x,z,r] of old)placeFurn(f,x+vx*.2,z+vz*.2,r);walkTick(performance.now()+1000);moved=walkLast.d;if(Math.abs(moved-initial.d)<.02)throw Error('live moved distance unchanged');const slotIndex=slots.findIndex(s=>!s);if(slotIndex<0)throw Error('test requires clean browser profile');const beforeDraft=localStorage.getItem(LAYOUT_KEY),beforeSaved=slotsJSON();saveLayout();if(localStorage.getItem(LAYOUT_KEY)!==beforeDraft||slotsJSON()!==beforeSaved)throw Error('draft persisted unexpectedly');storeSlot(slotIndex);const saved=JSON.parse(localStorage.getItem(SLOT_KEY));if(!saved[slotIndex]?.furn||!Object.keys(saved[slotIndex].furn).length)throw Error('explicit scheme save failed');const savedLayout=JSON.stringify(saved[slotIndex].furn);clearSlot(slotIndex);if(!savedLayout)throw Error('scheme layout capture failed');for(const [f,x,z,r] of old)placeFurn(f,x,z,r);refreshWalk();if(Math.abs(walkLast.d-initial.d)>.001)throw Error('walk restore geometry failed');$('#edit-mode').click();if(canMove(sample)||!$('#furn-bar').hidden)throw Error('edit lock restore failed');}
  measureFab.click();if(!measureOn)throw Error('ruler toggle failed');const p=new THREE.Vector3(1,.2,1),q=new THREE.Vector3(1.3,.6,1.4),stats=rulerStats(p,q);addRulerPoint(p);addRulerPoint(q);if(Math.abs(stats.h-.5)>.00001||Math.abs(stats.y-.4)>.00001||!document.getElementById('measure-result').textContent.includes('64.0'))throw Error('ruler distance failed');
  planCam.updateMatrixWorld(true);const world=walkVec(initial.a).add(walkVec(initial.b)).multiplyScalar(.5),projected=world.clone().project(planCam),rect=renderer.domElement.getBoundingClientRect(),picked=pickMeasurePoint(rect.left+(projected.x+1)*rect.width/2,rect.top+(1-projected.y)*rect.height/2);if(!picked||!Number.isFinite(picked.y)||Math.abs(picked.x-world.x)>.02||Math.abs(picked.z-world.z)>.02)throw Error('surface picking failed');
  document.getElementById('measure-clear').click();if(measurePoints.length)throw Error('clear ruler failed');
  for(const [i,w] of [world,world.clone().add(new THREE.Vector3(.06,0,0))].entries()){const n=w.clone().project(planCam),o={pointerId:10+i,button:0,pointerType:'mouse',bubbles:true,cancelable:true,clientX:rect.left+(n.x+1)*rect.width/2,clientY:rect.top+(1-n.y)*rect.height/2};renderer.domElement.dispatchEvent(new PointerEvent('pointerdown',o));renderer.domElement.dispatchEvent(new PointerEvent('pointerup',o));if(measurePoints.length!==i+1)throw Error('ruler pointer interaction failed');}if(Math.abs(rulerStats(...measurePoints).x-.06)>.02)throw Error('ruler pointer measurement failed');document.getElementById('measure-clear').click();setRuler(false);setMode('ceiling');if(walkG.visible||!walkFab.hidden)throw Error('walk ceiling visibility failed');setMode('orbit');
- report.measurement={initialCm:+walkCm(initial.d),xCm:+walkCm(initial.dx),zCm:+walkCm(initial.dz),movedCm:moved===null?null:+walkCm(moved),rulerCm:+walkCm(stats.d),surfacePick:true,walkLabels:walkG.children.filter(o=>o.isCSS2DObject).length};return report;};
+ walkFab.click();report.unified={defaultBrowse:true,defaultWalkOff:true,defaultFurnitureDimsOff:true,defaultElectricOff:true,editToggle:true,slotCapture:true,draftNotPersisted:true,explicitSave:true};report.measurement={initialCm:+walkCm(initial.d),xCm:+walkCm(initial.dx),zCm:+walkCm(initial.dz),movedCm:moved===null?null:+walkCm(moved),rulerCm:+walkCm(stats.d),surfacePick:true,walkLabels:walkG.children.filter(o=>o.isCSS2DObject).length};return report;};
 
 /* =========================================================
    13. 主迴圈
