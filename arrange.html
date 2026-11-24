@@ -236,7 +236,42 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit a48045895c2f36b0bf71bd0fa5684d8395946af6 | SHA-256 e9600ca1e0979bfe7215f0d1daded89771036eaad7a55fd9c17451eeafaa4829">版本 v1-e9600ca1e097 · Commit a48045895c2f</div>
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="dba43223663b417be1f08238a791499921a1c2f6e6f9bc15f48e0a78304c8d43" data-commit="232bc86c4f730c1381f3fe7877e32168046da0aa" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 232bc86c4f730c1381f3fe7877e32168046da0aa | SHA-256 dba43223663b417be1f08238a791499921a1c2f6e6f9bc15f48e0a78304c8d43">版本 v1-dba43223663b · Commit 232bc86c4f73</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+(()=>{
+  'use strict';
+  const label=document.getElementById('h3d-version');
+  const status=document.getElementById('h3d-version-status');
+  const reload=document.getElementById('h3d-version-reload');
+  if(!label||!status||!reload)return;
+  const publicPage=location.protocol==='https:' && location.hostname==='peijeng.github.io' && /^\/h3d-site\/(?:index\.html|arrange\.html)?$/.test(location.pathname);
+  if(!publicPage){status.textContent='本機／非公開站：未連線比對';return;}
+  const digest=label.dataset.sourceSha, commit=label.dataset.commit;
+  let busy=false;
+  function set(text,kind,show=false){status.textContent=text;status.dataset.state=kind;status.style.color=kind==='different'?'var(--warn)':kind==='current'?'var(--ok)':'var(--muted)';reload.hidden=!show;}
+  async function check(){
+    if(busy)return;busy=true;
+    const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),8000);
+    try{
+      const url=new URL('version.json',location.href);url.searchParams.set('_v',String(Date.now()));
+      const response=await fetch(url,{cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal});
+      if(!response.ok)throw Error('manifest unavailable');
+      const m=await response.json();
+      if(!m||!/^[0-9a-f]{64}$/.test(m.source_sha256)||!/^[0-9a-f]{40}$/.test(m.source_commit)||m.version!=='v1-'+m.source_sha256.slice(0,12))throw Error('invalid manifest');
+      if(m.source_sha256===digest&&m.source_commit===commit)set('已確認最新版','current');
+      else if(m.source_sha256===digest)set('內容相同，線上提交不同','different',true);
+      else set('與線上版本不同（'+m.version+'），建議重新載入','different',true);
+    }catch(e){set('無法確認線上版本，稍後重試','unknown');}
+    finally{clearTimeout(timeout);busy=false;}
+  }
+  reload.addEventListener('click',()=>{
+    if(!confirm('重新載入可能遺失尚未儲存的調整，確定繼續？'))return;
+    const url=new URL(location.href);url.searchParams.set('_h3d_refresh',String(Date.now()));location.assign(url.href);
+  });
+  check();setInterval(check,300000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check();});
+  window.addEventListener('online',check);
+})();
+</script>
       <h1>A01 住宅<span class="view-badge" data-view>唯讀展示版</span></h1>
     </div>
     <button class="tb-toggle" id="collapse" aria-expanded="true" aria-controls="pbody">收合</button>
