@@ -247,7 +247,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="1ec37f2fa040b73757f7fc3dbab53e2330cbd6c71019000e411d788def252b75" data-commit="2826e1bb9992e7557da4a68c756f03f5a7236a0f" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 2826e1bb9992e7557da4a68c756f03f5a7236a0f | SHA-256 1ec37f2fa040b73757f7fc3dbab53e2330cbd6c71019000e411d788def252b75">版本 v1-1ec37f2fa040 · Commit 2826e1bb9992</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="b29076c38dc46d4c9febe67c245a20abe981dfd927759723539f3ca1e95bcc96" data-commit="965050cb1351e8be10041420a22210a1225b7de8" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 965050cb1351e8be10041420a22210a1225b7de8 | SHA-256 b29076c38dc46d4c9febe67c245a20abe981dfd927759723539f3ca1e95bcc96">版本 v1-b29076c38dc4 · Commit 965050cb1351</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -312,6 +312,10 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
         <button class="tog" id="inspect-doors" aria-pressed="false">櫃門碰撞</button>
       </div>
       <div class="toggles" id="ceiling-controls" hidden style="margin-top:6px"><button class="chip" id="ceil-under">仰視</button><button class="chip" id="ceil-above">俯視</button><button class="chip" id="ceil-labels" aria-pressed="true">高度標籤</button></div>
+      <div class="toggles" style="margin-top:6px"><button class="tog" id="sim-optimize">搜尋電視櫃門向</button><button class="tog" id="sim-guard" aria-pressed="true">碰撞停止：開</button><button class="tog" id="sim-export">匯出討論清單</button></div>
+      <div style="margin-top:6px"><label for="sim-ch">客餐廳平頂預覽（未定案）</label> <output id="sim-ch-value">CH260</output><input id="sim-ch" type="range" min="250" max="270" step="1" value="260" style="width:100%"><div class="toggles"><button class="chip" data-ch="250">CH250</button><button class="chip" data-ch="260">CH260</button><button class="chip" data-ch="270">CH270</button></div></div>
+      <p class="note" id="sim-stop" role="status" aria-live="polite">模型碰撞防護已開啟；不等同五金與施工安全驗證。</p>
+      <div id="sim-result" hidden style="max-height:320px;overflow:auto"></div>
       <p class="note" id="inspection-note">依 AR05、AR07、AR08、AR09-1 及各立面圖；模型核對非現場丈量。</p>
       <div id="inspection-results" aria-live="polite" hidden></div>
     </section>
@@ -1492,7 +1496,7 @@ const CEIL_N=TVW.z0, CEIL_S=675.3, CEIL_W=211.5, CEIL_E=768.5;
 const CEIL_REGIONS=[];
 function ceilingRegion(r,y,kind,label,mat=M.ceiling){
   const mesh=R(ceilG,NR(r),y,H,mat);
-  CEIL_REGIONS.push({mesh,kind,label}); return mesh;
+  CEIL_REGIONS.push({mesh,kind,label}); if(label.startsWith('客餐廳平頂')||kind==='gap')mesh.userData.noMerge=true; return mesh;
 }
 CEIL_REGIONS.push({mesh:ENTRY_BEAM,kind:'beam',label:'入口樑 CH240'});
 for(const r of [[CEIL_W+cmP(20),CEIL_N,LOWC_X,SOFFIT_Z],[LOWC_X,CEIL_N,CEIL_E,554.1],[LOWC_X,554.1,586.7,CEIL_S],[732,554.1,CEIL_E,582.4]]) ceilingRegion(r,LOWC,'low','低天花 CH240');
@@ -1813,7 +1817,7 @@ function pLight(room,xPt,yPt,y,intensity,dist,shadow,color=0xffe2bd){
 const LP={};                                                              // 各房燈面材質（色溫可分開設定）
 const lpMat=room=>LP[room]||(LP[room]=M.lightPanel.clone());
 const CEIL_FIXTURES=[];
-function panel(room,xPt,yPt,r,y=H){ const m=mk(new THREE.CylinderGeometry(r,r,.03,32),lpMat(room),false,false); m.position.set(X(xPt),y-.015,Z(yPt)); ceilG.add(m); CEIL_FIXTURES.push(m); }
+function panel(room,xPt,yPt,r,y=H){ const m=mk(new THREE.CylinderGeometry(r,r,.03,32),lpMat(room),false,false); m.position.set(X(xPt),y-.015,Z(yPt)); ceilG.add(m); CEIL_FIXTURES.push(m); if(y===FLAT_CH&&['living','dining'].includes(room)){m.userData.noMerge=true;m.userData.chAdjust=true;} }
 // AR08：9cm 防眩崁燈；位置依平面圖比例換算，施工放樣待確認。
 pLight('living',330,560,2.45,16,9,true);
 for(const [x,z] of [[315,552],[337,552],[357,552],[453,522],[491,554],[534,523]])panel('living',...NPM(x,z),.045,FLAT_CH);
@@ -1831,6 +1835,7 @@ for(const z of [SB.z0+cmP(28),SB.z0+cmP(84)]){const x=SB.x1-cmP(15);C(SBU,.0175,
 for(const y of [.198,1.248])B(staticG,.84,.006,.012,fixedWarm,MX((SHOE.x0+SHOE.x1)/2),y,MZ(SHOE.zf)+.02,false);
 pLight('fixed3000',...NPM((SHOE.x0+SHOE.x1)/2,SHOE.zf),1.18,.6,2,false);
 CEIL_FIXTURES.push(R(ceilG,NR([CEIL_W+cmP(20),CEIL_S-cmP(29),LOWC_X,CEIL_S-cmP(27)]),FLAT_CH+.025,FLAT_CH+.035,lpMat('livingInd'),false));
+CEIL_FIXTURES.at(-1).userData.noMerge=true; CEIL_FIXTURES.at(-1).userData.chAdjust=true;
 pLight('livingInd',...NPM((CEIL_W+LOWC_X)/2,CEIL_S-cmP(26)),FLAT_CH-.1,2,4,false);
 pLight('kitchenInd',795,400,1.42,1.5,2.5,false);                                  // 廚房：吊櫃下燈
 R(staticG,[787,347,804,456],1.494,1.5,lpMat('kitchenInd'),false);
@@ -1839,6 +1844,7 @@ B(staticG,.6,.02,.02,lpMat('bathInd'),BATH.x,1.185,BATH.zs-.13,false);   // 鏡�
 panel('entry',715,228,.06,2.26);                                                        // 陽台
 panel('entry',850,508,.12);                                                       // 走廊
 R(ceilG,[680,570,694,584],2.26,2.28,M.lacquer,false);                      // 浴室排風扇
+const PENDANT_ADJUST=[];
 { // 餐桌吊燈（渲染_客廳_01、渲染_餐廳_01、_02）：Ø48 白色百褶筒燈罩＋黑色吸頂座，下緣離地 150cm（離桌面 74cm）；放在 staticG，鳥瞰與俯視也看得到
   const y=1.5, hh=.17, g=new THREE.Group(); g.position.set(X(DINE_X),0,Z(DINE_Y)); staticG.add(g);
   const pleat=(r0,r1)=>{ const geo=new THREE.CylinderGeometry(r0,r1,hh,96,1,true), p=geo.attributes.position;   // 百褶：半徑沿圓周起伏
@@ -1850,8 +1856,8 @@ R(ceilG,[680,570,694,584],2.26,2.28,M.lacquer,false);                      // �
   const b=mk(new THREE.SphereGeometry(.045,16,10),M.bulb,false,false); b.position.y=y+.1; g.add(b);   // 燈泡收在燈罩內
   if(MOVABLE) g.attach(interior.find(l=>l.userData.room==='dining'));   // 家具調整版：光源跟著燈具移動
   furn(g,'餐桌吊燈'); g.userData.set='餐桌組';                                                                // 尺寸只算燈罩，不含吊線
-  C(g,.003,.003,FLAT_CH-y-hh-.03,M.blackMetal,0,y+hh,0,6,false);                          // 黑色吊線
-  C(g,.06,.06,.03,M.blackMetal,0,FLAT_CH-.03,0,24,false);                                 // 吸頂座
+  const wire=C(g,.003,.003,FLAT_CH-y-hh-.03,M.blackMetal,0,y+hh,0,6,false); wire.userData.noMerge=true; PENDANT_ADJUST.push({mesh:wire,wire:true});
+  const cap=C(g,.06,.06,.03,M.blackMetal,0,FLAT_CH-.03,0,24,false); cap.userData.noMerge=true; PENDANT_ADJUST.push({mesh:cap,wire:false});
 }
 
 /* =========================================================
@@ -2267,9 +2273,9 @@ function syncDoorsUI(){
   });
 }
 function setDoor(d,open,quiet){
-  d.open=!!open; d.target=d.open?1:0;
+  d.open=!!open; d.target=d.open?1:0;d.simBlockedTarget=null;d.simRequestedTarget=d.target;
   if(state.mode==='fps'){ d.fpsManual=d.open; d.fpsKeep=true; }
-  if(REDUCED){ d.t=d.target; d.pivot.rotation.y=d.thc+d.delta*(d.t*d.t*(3-2*d.t)); }
+  if(REDUCED)stepRoomSafely(d,d.target);
   syncDoorsUI();
   if(!quiet) toast(`${d.name}：已${d.open?'打開':'關上'}`);
 }
@@ -2525,10 +2531,10 @@ function updateDoors(dt){
       else if(dist<d.openR) d.target=1;
     } else d.target=d.open?1:0;
     if(d.target!==prev) chg=true;
+    d.simRequestedTarget=d.target;if(simGuard&&d.simBlockedTarget===d.target){d.target=d.t;continue;}if(d.simBlockedTarget!==d.target)d.simBlockedTarget=null;
     if(d.t===d.target) continue;
-    if(REDUCED) d.t=d.target;
-    else { const s=dt*1.7; d.t=d.t<d.target?Math.min(d.target,d.t+s):Math.max(d.target,d.t-s); }
-    d.pivot.rotation.y=d.thc+d.delta*(d.t*d.t*(3-2*d.t));
+    const s=REDUCED?1:dt*1.7; const next=d.t<d.target?Math.min(d.target,d.t+s):Math.max(d.target,d.t-s);
+    stepRoomSafely(d,next);
   }
   if(chg) syncDoorsUI();
 }
@@ -3656,7 +3662,7 @@ for(const d of CAB_DOORS){ d.col={minX:0,maxX:0,minZ:0,maxZ:0,minY:0,maxY:-1,cab
 const _cb=new THREE.Box3();
 function poseCab(d){ const e=smooth(d.v);
   if(d.kind==='hinge') d.sw.rotation.y=-d.s*d.ang*e; else if(d.kind==='flip') d.sw.rotation.x=-d.ang*e; else d.sw.position.z=d.ext*e; }
-function syncCabCol(d){ const c=d.col; if(d.v<.5){ c.maxY=-1; return; }
+function syncCabCol(d){ const c=d.col; if(d.v<.001){ c.maxY=-1; return; }
   d.sw.updateWorldMatrix(true,true); _cb.setFromObject(d.sw); c.minX=_cb.min.x; c.maxX=_cb.max.x; c.minZ=_cb.min.z; c.maxZ=_cb.max.z; c.minY=_cb.min.y; c.maxY=_cb.max.y; }
 
 /* ---------- 開門幾何（世界座標，俯視 2D）：鉸鏈門用 90° 算，實際門片開到約 93° ---------- */
@@ -3764,7 +3770,7 @@ function refreshCabBtn(f){ const ds=CAB_BY.get(f.name), open=ds.some(d=>d.want);
 function refreshCabUI(){ renderCabList(); drawCabViz(); if(dimSel&&cabOf(dimSel)) refreshCabBtn(dimSel);
   const any=CAB_DOORS.some(d=>d.want); if(cabAllBtn) cabAllBtn.setAttribute('aria-pressed',String(any)); }
 function setCab(name,open,quiet){ const ds=CAB_BY.get(name); if(!ds) return;
-  ds.forEach(d=>{ d.want=open?1:0; if(REDUCED){ d.v=d.want; poseCab(d); syncCabCol(d); } });
+  ds.forEach(d=>{ d.want=open?1:0; if(REDUCED)stepCabSafely(d,d.want); });
   analyzeCab(); refreshCabUI(); cabDirty=true;
   if(quiet) return; const s=cabSum(name);
   toast(open?`${cabShort(name)}打開：${s.left!=null?`開門後前方剩 ${Math.max(0,cm(s.left))} cm（${CAB_LV[s.lv]}）`:ds.every(d=>d.kind==='flip')?'上掀門，不佔走道':`門在檯面上方（${CAB_LV[s.lv]}）`}${s.notes.length?'；'+s.notes[0]:''}`:`${cabShort(name)}已關上`); }
@@ -3779,7 +3785,7 @@ cabAllBtn?.addEventListener('click',()=>setAllCab(!CAB_DOORS.some(d=>d.want)));
 let cabDirty=false, cabSyncT=0;
 function updateCabDoors(dt){
   let moving=false;
-  for(const d of CAB_DOORS){ if(d.v===d.want) continue; moving=true; const st=dt*1.5; d.v=d.v<d.want?Math.min(d.want,d.v+st):Math.max(d.want,d.v-st); poseCab(d); if(d.v===d.want) syncCabCol(d); }
+  for(const d of CAB_DOORS){ if(d.v===d.want) continue; moving=true; const st=REDUCED?1:dt*1.5; const next=d.v<d.want?Math.min(d.want,d.v+st):Math.max(d.want,d.v-st); stepCabSafely(d,next); syncCabCol(d); }
   if(!moving&&cabDirty){ cabDirty=false; refreshWalk(); }
   cabVizG.visible=state.mode!=='fps';
   if(MOVABLE&&CAB_DOORS.some(d=>d.want)&&(cabSyncT+=dt)>1){ cabSyncT=0; for(const d of CAB_DOORS) if(d.want) syncCabCol(d); analyzeCab(); refreshCabUI(); }   // 家具調整版：櫃子搬動後重算
@@ -3876,12 +3882,12 @@ const ceilColors={flat:0xe5d9c4,low:0x9fb6c5,beam:0xb99772,gap:0xdeb85b,window:0
 function addInspectLabel(group,txt,x,y,z,cls=''){const el=document.createElement('div');el.className='inspect-label '+cls;el.textContent=txt;const o=new CSS2DObject(el);o.position.set(x,y,z);group.add(o);return o;}
 for(const r of CEIL_REGIONS){const b=AUDIT_GEOMETRY.get(r.mesh), d=b.max.clone().sub(b.min), c=b.min.clone().addScaledVector(d,.5);
  // Thin slab at real underside: height differences remain true; no RC volume obscuring view.
- const mat=new THREE.MeshBasicMaterial({color:ceilColors[r.kind],side:THREE.DoubleSide});const o=new THREE.Mesh(new THREE.BoxGeometry(d.x,.035,d.z),mat);o.position.set(c.x,b.min.y+.0175,c.z);ceilingScene.add(o);
+ const mat=new THREE.MeshBasicMaterial({color:ceilColors[r.kind],side:THREE.DoubleSide});const o=new THREE.Mesh(new THREE.BoxGeometry(d.x,.035,d.z),mat);o.position.set(c.x,b.min.y+.0175,c.z);ceilingScene.add(o);r.previewMesh=o;
  const edge=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry),new THREE.LineBasicMaterial({color:0x6d6b65}));o.add(edge);
  // Avoid repeated labels for narrow continuation strips.
- if(r.kind!=='low'||d.x*d.z>1.3)addInspectLabel(ceilingLabels,r.label,c.x,b.min.y-.06,c.z);
+ if(r.kind!=='low'||d.x*d.z>1.3)r.previewLabel=addInspectLabel(ceilingLabels,r.label,c.x,b.min.y-.06,c.z);
 }
-for(const m of CEIL_FIXTURES){const b=AUDIT_GEOMETRY.get(m), d=b.max.clone().sub(b.min), c=b.min.clone().addScaledVector(d,.5),o=new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:0xfff8df,side:THREE.DoubleSide}));o.position.copy(c);o.position.y=b.min.y-.025;ceilingScene.add(o);}
+for(const m of CEIL_FIXTURES){const b=AUDIT_GEOMETRY.get(m), d=b.max.clone().sub(b.min), c=b.min.clone().addScaledVector(d,.5),o=new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:0xfff8df,side:THREE.DoubleSide}));o.position.copy(c);o.position.y=b.min.y-.025;ceilingScene.add(o);m.userData.previewMesh=o;}
 function ceilingView(above=false){ceilingCtl.target.set((MX(CEIL_W)+MX(792.6))/2,2.52,(MZ(275.5)+MZ(CEIL_S))/2);const t=ceilingCtl.target;const scale=Math.max(1,1/aspect());ceilingCam.position.set(t.x-3*scale,t.y+(above?9:-8)*scale,t.z+4*scale);ceilingCtl.update();}
 ceilingView(false);
 $('#ceil-under').addEventListener('click',()=>ceilingView(false));$('#ceil-above').addEventListener('click',()=>ceilingView(true));$('#ceil-labels').addEventListener('click',()=>{ceilingLabels.visible=!ceilingLabels.visible;$('#ceil-labels').setAttribute('aria-pressed',String(ceilingLabels.visible));});
@@ -3948,6 +3954,104 @@ window.__h3dInspectionSelfTest=()=>{
  const data={audit:rows.map(r=>({area:r.area,item:r.item,drawing:r.drawing,model:r.model,status:auditStatus(r)[1]})),doors:report,points:electrical.length,regions:CEIL_REGIONS.length};
  selectInspection('');setMode('orbit');return data;
 };
+
+/* 施工方案模擬：只預覽，不改圖面、方案儲存或發佈基準。 */
+const simStatus=$('#sim-stop'),simResult=$('#sim-result');
+let simGuard=true,simCH=260,simSearch=null;
+const tvHinges=CAB_DOORS.filter(d=>TV_NAMES.includes(d.cab)&&d.kind==='hinge');
+const originalHinges=new Map(tvHinges.map(d=>[d,{s:d.s,pos:d.pivot.position.clone(),parts:d.sw.children.map(m=>({m,x:m.position.x,handle:m.material===M.blackMetal}))}]));
+// Signed overlap depth: <=0 is separated. Existing overlaps can be escaped, not deepened.
+function simDepth(a,b){
+ if(!a||!b)return 0;
+ let v=Math.min(a.y1,b.y1)-Math.max(a.y0,b.y0); if(v<=.004)return 0;
+ const dx=b.x-a.x,dz=b.z-a.z;
+ for(const [x,z] of [[a.ux,a.uz],[a.nx,a.nz],[b.ux,b.uz],[b.nx,b.nz]]){const rad=o=>Math.abs(o.ux*x+o.uz*z)*o.w/2+Math.abs(o.nx*x+o.nz*z)*o.t/2;v=Math.min(v,rad(a)+rad(b)-Math.abs(dx*x+dz*z));if(v<=.003)return 0;}
+ return v;
+}
+function boxPanel(c){return rectPanel((c.minX+c.maxX)/2,(c.minZ+c.maxZ)/2,1,0,0,1,c.maxX-c.minX,c.maxZ-c.minZ,c.minY,c.maxY);}
+function simCabPanel(d,g,t){
+ if(d.kind!=='flip')return cabPanel(d,g,t);
+ // Upward door projected enclosing box, intentionally conservative.
+ const a=d.ang*t,h=d.h,th=d.t||.018,reach=h*Math.sin(a),dy=h*Math.cos(a);
+ return rectPanel(g.C[0]+g.n[0]*reach/2,g.C[1]+g.n[1]*reach/2,g.ex[0],g.ex[1],g.n[0],g.n[1],d.w-.003,Math.max(th,reach+th),g.y1-dy-th,g.y1+th);
+}
+const simName=d=>cabShort(d.cab)+'／'+d.label;
+function simObstacles(d,g){
+ return cabObstacles(g,g.y0-.025,g.y1+.025).filter(c=>!c.soft&&c.maxY>c.minY).map(c=>({p:boxPanel(c),name:cabNameAt((c.minX+c.maxX)/2,(c.minZ+c.maxZ)/2,c.minY,c.maxY,d.cab)}));
+}
+function simCabCurrent(d){return simCabPanel(d,cabGeo(d),smooth(d.v));}
+function guardStep(from,to,make,obstacles){
+ const steps=Math.max(1,Math.ceil(Math.abs(to-from)/.008));let last=from,old=make(from);const initial=obstacles.map(o=>simDepth(old,o.p));
+ for(let i=1;i<=steps;i++){const t=from+(to-from)*i/steps,next=make(t);const hit=obstacles.find((o,k)=>{const now=simDepth(next,o.p),prev=simDepth(old,o.p);return now>0&&(prev===0||now>Math.min(initial[k],prev)+.0003);});if(hit)return {value:last,hit:hit.name};last=t;old=next;}
+ return {value:to,hit:null};
+}
+function reportStop(name,hit){const s=`已停止：${name} ／ ${hit}；請關閉相鄰門扇或調整位置。`;if(simStatus.textContent!==s){simStatus.textContent=s;toast(s);}}
+function stepCabSafely(d,next){
+ let r={value:next,hit:null};
+ if(simGuard&&d.v!==next){const g=cabGeo(d),obs=simObstacles(d,g);for(const o of CAB_DOORS)if(o!==d)obs.push({p:simCabCurrent(o),name:simName(o)});for(const o of doors)obs.push({p:roomPanel(o,smooth(o.t)),name:o.name});r=guardStep(d.v,next,t=>simCabPanel(d,g,smooth(t)),obs);}
+ d.v=r.value;poseCab(d);syncCabCol(d);
+ if(r.hit){d.want=d.v;cabDirty=true;reportStop(simName(d),r.hit);}
+ return r;
+}
+function stepRoomSafely(d,next){
+ let r={value:next,hit:null};if(simGuard&&d.t!==next){const obs=CAB_DOORS.map(o=>({p:simCabCurrent(o),name:simName(o)}));r=guardStep(d.t,next,t=>roomPanel(d,smooth(t)),obs);}
+ d.t=r.value;d.pivot.rotation.y=d.thc+d.delta*smooth(d.t);
+ if(r.hit){d.target=d.t;d.simBlockedTarget=d.simRequestedTarget;reportStop(d.name,r.hit);}
+ return r;
+}
+$('#sim-guard').addEventListener('click',()=>{simGuard=!simGuard;for(const d of doors)d.simBlockedTarget=null;$('#sim-guard').setAttribute('aria-pressed',String(simGuard));$('#sim-guard').textContent='碰撞停止：'+(simGuard?'開':'關');simStatus.textContent=simGuard?'模型碰撞防護已開啟；不等同施工安全驗證。':'防護已暫停：僅供檢查原始開門動線，可能穿透。';});
+// Real ceiling mesh and isolated view move together. Keep fixed CH240, bedroom, beam and slab top unchanged.
+const simCeilRegions=CEIL_REGIONS.filter(r=>r.mesh===MAIN_CEIL||r.kind==='gap').map(r=>({r,y:r.mesh.position.y,sy:r.mesh.scale.y,lo:AUDIT_GEOMETRY.get(r.mesh).min.y,hi:AUDIT_GEOMETRY.get(r.mesh).max.y,py:r.previewMesh.position.y,ly:r.previewLabel?.position.y}));
+const simFixtures=CEIL_FIXTURES.filter(m=>m.userData.chAdjust).map(m=>({m,y:m.position.y,py:m.userData.previewMesh.position.y}));
+const simLights=interior.filter(l=>['living','livingInd'].includes(l.userData.room)).map(l=>({l,y:l.position.y}));
+const simPendant=PENDANT_ADJUST.map(x=>({...x,y:x.mesh.position.y,sy:x.mesh.scale.y,h:x.mesh.geometry.parameters.height}));
+function setSimCH(v){
+ simCH=Math.max(250,Math.min(270,Math.round(Number(v)||260)));const delta=simCH/100-FLAT_CH;
+ for(const a of simCeilRegions){const {r,lo,hi}=a;r.mesh.position.y=a.y+delta/2;r.mesh.scale.y=a.sy*(hi-lo-delta)/(hi-lo);r.previewMesh.position.y=a.py+delta;
+ if(r.previewLabel){r.previewLabel.position.y=a.ly+delta;r.previewLabel.element.textContent=r.kind==='gap'?`脫縫 D15・CH${simCH+6} 暫估`:`客餐廳平頂 CH${simCH} 預覽`;}}
+ for(const {m,y,py} of simFixtures){m.position.y=y+delta;m.userData.previewMesh.position.y=py+delta;}
+ for(const {l,y} of simLights)l.position.y=y+delta;
+ for(const a of simPendant){a.mesh.position.y=a.y+(a.wire?delta/2:delta);if(a.wire)a.mesh.scale.y=a.sy*(a.h+delta)/a.h;}
+ $('#sim-ch').value=simCH;$('#sim-ch-value').textContent='CH'+simCH;document.querySelectorAll('[data-ch]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.ch===simCH)));scene.updateMatrixWorld(true);ceilingScene.updateMatrixWorld(true);
+}
+$('#sim-ch').addEventListener('input',e=>setSimCH(e.target.value));document.querySelectorAll('[data-ch]').forEach(b=>b.addEventListener('click',()=>setSimCH(b.dataset.ch)));
+// Candidate geometry in world coordinates. Change hinge side without mirroring the closed door face.
+function hingeGeo(d,side){const g=cabGeo(d);if(d.s!==side){g.P=[g.P[0]+g.u[0]*d.w,g.P[1]+g.u[1]*d.w];g.u=g.u.map(v=>-v);}return g;}
+function simCandidate(d,side){const g=d.kind==='hinge'?hingeGeo(d,side):cabGeo(d);const p=samples.map(t=>simCabPanel(d,g,t));const obs=simObstacles(d,g);let fixed=0;for(const o of obs)if(p.slice(1).some(a=>simDepth(a,o.p)>Math.max(.003,simDepth(p[0],o.p)+.001)))fixed++;return {d,side,g,p,fixed};}
+function pairCost(a,b){const x=a.p,y=b.p;return {full:panelsOverlap(x.at(-1),y.at(-1))?1:0,held:(doorHit(x,[y.at(-1)])||doorHit(y,[x.at(-1)]))?1:0,sweep:doorHit(x,y)?1:0};}
+function optimizeHinges(){
+ const targets=tvHinges, choices=targets.map(d=>[simCandidate(d,originalHinges.get(d).s),simCandidate(d,-originalHinges.get(d).s)]);
+ const others=CAB_DOORS.filter(d=>!targets.includes(d)).map(d=>simCandidate(d,d.s));for(const d of doors)others.push({d,p:samples.map(t=>roomPanel(d,t))});
+ const costs=choices.map(arr=>arr.map(a=>{const z={fixed:a.fixed,full:0,held:0,sweep:0};for(const b of others){const q=pairCost(a,b);for(const k of ['full','held','sweep'])z[k]+=q[k];}return z;}));
+ const pairs=[];for(let i=0;i<choices.length;i++)for(let j=i+1;j<choices.length;j++)pairs.push({i,j,c:choices[i].map(a=>choices[j].map(b=>pairCost(a,b)))});
+ const rank=x=>[x.fixed,x.full,x.held,x.sweep,x.changed];const better=(a,b)=>{const ar=rank(a),br=rank(b);return ar.some((v,i)=>v<br[i]&&ar.slice(0,i).every((q,j)=>q===br[j]));};
+ function score(mask){const bits=choices.map((_,i)=>(mask>>i)&1),r={mask,bits,fixed:0,full:0,held:0,sweep:0,changed:bits.reduce((a,b)=>a+b,0)};for(let i=0;i<bits.length;i++)for(const k of ['fixed','full','held','sweep'])r[k]+=costs[i][bits[i]][k];for(const {i,j,c} of pairs)for(const k of ['full','held','sweep'])r[k]+=c[bits[i]][bits[j]][k];return r;}
+ const base=score(0);let best=base;for(let i=1;i<(1<<targets.length);i++){const r=score(i);if(better(r,best))best=r;}
+ return {base,best,total:1<<targets.length,doors:targets.map((d,i)=>({name:simName(d),original:originalHinges.get(d).s,best:choices[i][best.bits[i]].side}))};
+}
+function applyHingePreview(useBest){
+ if(tvHinges.some(d=>d.v>.001||d.want>.001)){toast('請先關閉所有電視櫃側開門，再套用／還原門向。');return false;}
+ if(useBest&&!simSearch)return false;
+ for(let i=0;i<tvHinges.length;i++){const d=tvHinges[i],o=originalHinges.get(d),s=useBest?simSearch.doors[i].best:o.s;d.pivot.position.copy(o.pos);const diff=s!==o.s?o.s*d.w:0;d.pivot.position.x+=Math.cos(d.pivot.rotation.y)*diff;d.pivot.position.z-=Math.sin(d.pivot.rotation.y)*diff;d.s=s;
+ for(const a of o.parts)a.m.position.x=a.x-diff; // preserve the closed face, including rounded corners
+ for(const a of o.parts)if(a.handle&&diff)a.m.position.x=s*(d.w-.03);
+ poseCab(d);syncCabCol(d);}
+ scene.updateMatrixWorld(true);analyzeCab();refreshCabUI();if(inspectionTab==='doors')renderDoorInspection();toast(useBest?'已套用模擬門向，未修改工程圖。':'已還原工程圖門向。');renderSimSearch();return true;
+}
+const sideName=s=>s===1?'左鉸':'右鉸';
+function renderSimSearch(){if(!simSearch)return;const {base,best,total,doors:rows}=simSearch;simResult.hidden=false;simResult.innerHTML=`<p><b>搜尋 ${total} 組電視櫃門向</b>（取樣模型）</p><table><thead><tr><th>指標（涉及可改向門）</th><th>圖面</th><th>建議</th></tr></thead><tbody>${[['固定障礙命中', 'fixed'],['全開碰撞對','full'],['一扇全開時的干涉對','held'],['掃掠重疊對','sweep'],['改鉸鏈數','changed']].map(([n,k])=>`<tr><td>${n}</td><td>${base[k]}</td><td>${best[k]}</td></tr>`).join('')}</tbody></table><table><thead><tr><th>門片</th><th>圖面</th><th>建議</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escH(r.name)}</td><td>${sideName(r.original)}</td><td>${sideName(r.best)}${r.original!==r.best?'（改）':''}</td></tr>`).join('')}</tbody></table><p>優先固定障礙、全開碰撞、已開門干涉、掃掠重疊、少改門向。只比較左右鉸，不改限位；把手、圓角、五金及工法須確認。搜尋為目前家具位置，移動後重算；抽屜固定。</p><div class="toggles"><button class="chip" id="sim-apply">套用建議預覽</button><button class="chip" id="sim-restore">還原圖面門向</button></div>`;$('#sim-apply').onclick=()=>applyHingePreview(true);$('#sim-restore').onclick=()=>applyHingePreview(false);}
+$('#sim-optimize').addEventListener('click',()=>{simSearch=optimizeHinges();renderSimSearch();});
+function discussionRows(){const ver=$('#h3d-version')?.textContent||'本機預覽';const a=[['施工討論清單','2026/11/23 工程圖','模型比較，非施工驗收'],['版本',ver],['客餐廳平頂預覽','CH'+simCH,'圖面高度待定；低天花 CH240 不變'],['門向狀態',tvHinges.some(d=>d.s!==originalHinges.get(d).s)?'建議預覽':'原圖'],[],['圖號／區域','尺寸項目','圖面 cm','初始模型 cm','結果','備註','師傅確認']];for(const r of auditRows())a.push([r.area,r.item,fmt(r.drawing),fmt(r.model),auditStatus(r)[1],r.detail,'']);a.push([],['櫃門','結果','前方估 cm','原因','師傅確認']);for(const r of inspectionDoorReport())a.push([r.name,r.severity==='bad'?'干涉':r.severity==='warn'?'注意':'取樣未見衝突',r.left??'',r.notes.join('；'),'']);a.push(['玄關 AR11-1','必須確認','','大門全開擋鞋櫃'],['次臥 AR14','必須確認','','房門貼衣櫃'],[],['門向搜尋（目前家具位置）','原圖','建議','師傅確認']);const q=optimizeHinges();a.push(['全開碰撞對',q.base.full,q.best.full],['固定障礙命中',q.base.fixed,q.best.fixed],['一扇全開時干涉對',q.base.held,q.best.held],['掃掠重疊對',q.base.sweep,q.best.sweep]);for(const r of q.doors)a.push([r.name,sideName(r.original),sideName(r.best),'']);a.push(['限制','取樣及簡化模型；未包含精密五金、現場門擋、施工允差。']);return a;}
+function csvText(rows){return '\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/^[=+@\-]/,m=>"'"+m).replaceAll('"','""')+'"').join(',')).join('\r\n');}
+$('#sim-export').addEventListener('click',()=>{const blob=new Blob([csvText(discussionRows())],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='工程圖尺寸與櫃門碰撞討論清單.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+// Extend existing browser CI to exercise the real controls and verify restored state.
+const simPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{const data=simPreviousTest();
+ for(const h of [250,270,260]){$(`[data-ch="${h}"]`).click();const bb=new THREE.Box3().setFromObject(MAIN_CEIL);if(Math.abs(bb.min.y-h/100)>.001||Math.abs(simCeilRegions[0].r.previewMesh.position.y-(h/100+.0175))>.001||Math.abs(bottomOf(ceilBy('low'))-240)>.01)throw Error('ceiling height geometry failed');}
+ $('#sim-optimize').click();if(!simSearch||simSearch.total!==(1<<tvHinges.length)||!simResult.querySelector('table'))throw Error('hinge search failed');const before=tvHinges.map(d=>d.s).join(',');if(!applyHingePreview(true)||!applyHingePreview(false)||tvHinges.map(d=>d.s).join(',')!==before)throw Error('hinge preview restore failed');
+ const block=rectPanel(.5,0,1,0,0,1,.10,.1,0,1),make=t=>rectPanel(t,0,1,0,0,1,.1,.1,0,1),stop=guardStep(0,1,make,[{p:block,name:'test'}]);if(!stop.hit||stop.value>=.5||simDepth(make(stop.value),block)>0)throw Error('collision stop failed');
+ const shoe=CAB_DOORS.find(d=>d.cab.startsWith('鞋櫃')&&d.kind==='hinge');const saved=shoe&&{v:shoe.v,want:shoe.want};let realStop=null;if(shoe){const attempt=stepCabSafely(shoe,1);realStop={value:attempt.value,hit:attempt.hit};shoe.v=saved.v;shoe.want=saved.want;poseCab(shoe);syncCabCol(shoe);}const csv=csvText(discussionRows());if(!csv.includes('工程圖')||!csv.includes('師傅確認')||csv.charCodeAt(0)!==0xfeff)throw Error('discussion export failed');
+ data.simulation={search:simSearch,guardStop:stop.value,realStop,heights:[250,260,270],csvRows:discussionRows().length};simResult.hidden=true;return data;};
 
 /* =========================================================
    13. 主迴圈
