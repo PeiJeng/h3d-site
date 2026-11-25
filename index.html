@@ -271,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="2719653680fdd88352c9a7fd7ba75cbc50dd9bef34a8c11c93250929f404c97b" data-commit="58ad598c4c7638b721206b2f76be0548998a2034" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 58ad598c4c7638b721206b2f76be0548998a2034 | SHA-256 2719653680fdd88352c9a7fd7ba75cbc50dd9bef34a8c11c93250929f404c97b">版本 v1-2719653680fd · Commit 58ad598c4c76</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="24006670585be90b2718f9383f36785e11957ac2026723066f8c264cb6a6db05" data-commit="3c60cec4bef18005fe3e1505998b648c5fadcf01" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 3c60cec4bef18005fe3e1505998b648c5fadcf01 | SHA-256 24006670585be90b2718f9383f36785e11957ac2026723066f8c264cb6a6db05">版本 v1-24006670585b · Commit 3c60cec4bef1</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -1900,12 +1900,10 @@ function balconyPipe(g,a,b,r,mat=pipeMat,obstacle=true){
  const f=FURN.at(-1);f.rot=HP;const a=f.min.x,b=f.max.x;f.min.x=f.min.z;f.max.x=f.max.z;f.min.z=a;f.max.z=b;
  furnM('陽台上方熱水器（原模型保留・尺寸待核）',759.3-cmP(18),222-cmP(18),759.3,222+cmP(18),1.45,2.05);
 }
-{ // 入口左側照片可見的保溫直管；貼管道間凹角，不虛構精確管徑。
- const x=MX(652),z=MZ(269),r=.045,g=BAL_PIPE_GROUP;
- balconyPipe(g,[x,BAL_FLOOR,z],[x,2.26,z],r,std({color:0xc8b894,roughness:.9}));
+{ // 依業主 2026-11-25 指示，模型移除入口保溫直管及其碰撞盒；保留左側給水龍頭。
+ const g=BAL_PIPE_GROUP;
  const zf=MZ(239);balconyPipe(g,[MX(643.7),.73,zf],[MX(643.7)+.06,.73,zf],.012,M.chrome);
  B(g,.02,.025,.045,M.chrome,MX(643.7)+.045,.745,zf,false);
- furnM('陽台入口保溫直管（直徑約9 cm・照片估算）',652-cmP(4.5),269-cmP(4.5),652+cmP(4.5),269+cmP(4.5),BAL_FLOOR,2.26);
 }
 BAL_PIPE_GROUP.traverse(o=>{if(o.isMesh)o.userData.noMerge=true;}); // 保留管線零件與點選／驗證模型
 R(staticG,[650,181,775,184.5],-.05,.3,M.concrete); R(staticG,[650,184.5,654.6,250.4],-.05,.3,M.concrete);
@@ -4522,6 +4520,7 @@ function setWasherYaw(deg){if(![0,90,180,270].includes(deg))return false;const f
 }
 const washerPreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{const r=washerPreviousTest();if(!WASHER_F||washerDeg()!==90||WASH_DOOR.angle!==0||WASH_DOOR.col.maxY!==-1||BAL_PIPE_GROUP.children.length<10||WASH_DOOR.pivot.children.length<3)throw Error('washer balcony defaults '+JSON.stringify({yaw:washerDeg(),angle:WASH_DOOR.angle,col:WASH_DOOR.col.maxY,pipes:BAL_PIPE_GROUP.children.length,doorParts:WASH_DOOR.pivot.children.length}));
+ if(FURN.some(f=>f.name.startsWith('陽台入口保溫直管'))||!FURN.some(f=>f.name.startsWith('陽台右牆外露管線'))||!FURN.some(f=>f.name.startsWith('陽台上方熱水器')))throw Error('balcony pipe removal regression');
  showDims(WASHER_F);if(washerCard.hidden||cardBtn.hidden||!cardBtn.textContent.includes('滾筒門')||canMove(WASHER_F))throw Error('washer browse controls');
  cardBtn.click();for(let i=0;i<80;i++)updateWasherDoor(.04);const opened=WASH_DOOR.angle;if(opened<10||WASH_DOOR.col.maxY<0)throw Error('washer opening failed');
  cardBtn.click();for(let i=0;i<80;i++)updateWasherDoor(.04);if(WASH_DOOR.angle!==0||WASH_DOOR.col.maxY!==-1)throw Error('washer closing failed');
