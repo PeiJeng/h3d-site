@@ -271,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="ff94e437226e614c5bd005baf81f80ab190bee0256f1727f4d324cb49028aa39" data-commit="5fcba8f89da3f4c4b5f6b82d3d2cee352c505213" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 5fcba8f89da3f4c4b5f6b82d3d2cee352c505213 | SHA-256 ff94e437226e614c5bd005baf81f80ab190bee0256f1727f4d324cb49028aa39">版本 v1-ff94e437226e · Commit 5fcba8f89da3</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="97392a051cad867483a4489fa7bced1757de7c4207094a4e99fba66b18465685" data-commit="f7f96e3b79a5e8fe9223e1bb2c809810c0bd6944" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit f7f96e3b79a5e8fe9223e1bb2c809810c0bd6944 | SHA-256 97392a051cad867483a4489fa7bced1757de7c4207094a4e99fba66b18465685">版本 v1-97392a051cad · Commit f7f96e3b79a5</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -1806,7 +1806,8 @@ function applianceCab(w,d,h){                                                   
   return g;
 }
 furn(put(applianceCab((345.5-303.25)*S,.54,2.4),PX(MX(638.1)+.27),PZ(MZ(324.4)),HP),'電器櫃');   // 電器櫃 60 寬 × 54 深
-furn(put(fridge(),...NPM(662.35,375.9),HP),'冰箱');                                  // 冰箱 70×70
+const FRIDGE_OBJ=furn(put(fridge(),...NPM(662.35,375.9),HP),'冰箱');
+FRIDGE_OBJ.userData.cols=[colliders.at(-1)];                                  // 冰箱 70×70
 RM(staticG,638.1,403.6,681.3,406,0,2.4,M.lacquer);                                  // 冰箱旁側板
 RM(staticG,638.1,345.5,681.3,403.6,1.93,1.95,M.lacquer);                            // 冰箱上方開放格底板
 RM(staticG,638.1,303.2,681.3,406,2.4,H,M.lacquer);                                  // 冰箱凹上方封板
@@ -3375,6 +3376,9 @@ washerCard.addEventListener('click',e=>{const b=e.target.closest('[data-wash-yaw
 const washerSizeUI=document.createElement('div');washerSizeUI.style.cssText='width:100%;max-width:340px;display:grid;gap:4px;white-space:normal';
 washerSizeUI.innerHTML='<span>機身外徑 cm（含關閉門片）・本頁預覽</span>'+[['w','寬',45,100],['d','深',40,100],['h','高',70,130]].map(([k,n,a,b])=>`<label style="display:flex;align-items:center;gap:6px">${n}<input aria-label="洗衣機${n}度" id="wash-${k}-range" type="range" min="${a}" max="${b}" step="0.25" style="flex:1;min-width:80px"><input aria-label="洗衣機${n}度數值" id="wash-${k}" type="number" min="${a}" max="${b}" step="0.25" style="width:68px"></label>`).join('')+'<div class="dim-btns" style="flex-wrap:wrap"><button type="button" id="wash-reset" class="alt">原尺寸</button><button type="button" id="wash-test">檢查安裝／搬運</button><button type="button" id="wash-max">搜尋較大尺寸</button></div><span id="wash-fit" style="font-size:11px;white-space:normal"></span><span id="wash-result" style="font-size:11px;white-space:pre-line;max-height:110px;overflow:auto"></span>';
 washerCard.appendChild(washerSizeUI);
+const fridgeCard=document.createElement('div');fridgeCard.className='dim-btns';fridgeCard.hidden=true;fridgeCard.style.cssText='flex-direction:column;gap:4px;max-width:340px;white-space:normal';
+fridgeCard.innerHTML='<span>冰箱關門外徑（含把手）cm・本頁預覽</span>'+[['w','寬',45,100],['d','深',40,100],['h','高',100,220]].map(([k,n,a,b])=>`<label style="display:flex;align-items:center;gap:6px">${n}<input aria-label="冰箱${n}度" id="fridge-${k}-range" type="range" min="${a}" max="${b}" step="0.25" style="flex:1;min-width:80px"><input aria-label="冰箱${n}度數值" id="fridge-${k}" type="number" min="${a}" max="${b}" step="0.25" style="width:68px"></label>`).join('')+'<div class="dim-btns" style="flex-wrap:wrap"><button type="button" id="fridge-reset" class="alt">原尺寸</button><button type="button" id="fridge-test">檢查安裝／搬運</button></div><span id="fridge-fit" style="font-size:11px;white-space:normal"></span><span id="fridge-result" style="font-size:11px;white-space:pre-line;max-height:110px;overflow:auto"></span>';dimCard.appendChild(fridgeCard);
+
 
 // 家具調整版：卡片多一排「轉 90°／回原位」
 const moveBtns=MOVABLE?(()=>{ const d=document.createElement('div'); d.className='dim-btns'; d.innerHTML='<button type="button">轉 90°（R）</button><button type="button" class="alt">回原位</button><button type="button" class="alt" hidden></button>'; dimCard.appendChild(d); return d; })():null;
@@ -3393,7 +3397,7 @@ function showDims(f){
   if(MOVABLE&&!f){ dimMat.color.setHex(0x9a6b45); dimBoxMat.color.setHex(0x9a6b45); }
   const on=!!f;
   dimLines.visible=on&&FURN_DIMS_ON; dimBox.visible=on&&(FURN_DIMS_ON||EDIT_MODE); dimCard.hidden=!on; cardSize.hidden=!FURN_DIMS_ON; dimLabs.forEach(l=>l.visible=on&&FURN_DIMS_ON);
-  washerCard.hidden=f?.obj!==WASHER_OBJ;
+  washerCard.hidden=f?.obj!==WASHER_OBJ;fridgeCard.hidden=f?.obj!==FRIDGE_OBJ;
   if(!f) return;
   if(moveBtns){ moveBtns.hidden=!canMove(f); const lb=moveBtns.children[2]; lb.hidden=!f.obj||!f.obj.userData.set;
     if(!lb.hidden){ lb.textContent=`整組${f.obj.userData.set}一起動：${SET_LINK?'開':'關'}`; lb.setAttribute('aria-pressed',String(SET_LINK)); } }
@@ -3428,6 +3432,7 @@ function showDims(f){
   cardSize.textContent=`寬 ${W} × 深 ${D} × 高 ${Hh} cm`+seatTxt+(a.y>.05?`・離地 ${cm(a.y)} cm`:'')+(f.obj===DESK_OBJ?`・可升降 ${cm(DESK.h0)}～${cm(DESK.h0+DESK.ext)}`:'')+(warn?`　${warn}`:'');
   if(isTV){cardSize.textContent=`機身寬 145 × 高 84 × 深 3 cm・離牆 ${tvmPose.d.toFixed(1)} cm`;cardBtn.hidden=false;cardBtn.textContent="調整 H90 壁掛架";cardBtn.setAttribute("aria-pressed","false");poseBtn.hidden=true;return;}
   if(f.obj===WASHER_OBJ){refreshWasherCard();return;}
+  if(f.obj===FRIDGE_OBJ){cardBtn.hidden=poseBtn.hidden=true;syncFridgeSizeUI();return;}
   cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&!(LUG_OBJ&&f.obj===LUG_OBJ)&&!(LAUNDRY.obj&&f.obj===LAUNDRY.obj)&&!cabOf(f);
   if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else if(LAUNDRY.obj&&f.obj===LAUNDRY.obj) refreshLaundryBtn(); else if(cabOf(f)) refreshCabBtn(f); else refreshSofaBtn();
 }
@@ -3446,7 +3451,7 @@ function pickFurnRay(){
  let best=null, bd=Infinity;
  for(const f of FURN){
    if(f.obj&&!f.obj.visible)continue;
-   if([TVSET,TVLOW,TVBACK,TVR,TVHANG,WASHER_OBJ].includes(f.obj)){
+   if([TVSET,TVLOW,TVBACK,TVR,TVHANG,WASHER_OBJ,FRIDGE_OBJ].includes(f.obj)){
      const h=tvWallMeshHit(f);if(h&&h.distance*h.distance<bd){bd=h.distance*h.distance;best=f;}continue;
    }
    _inv.makeRotationY(-f.rot);
@@ -3493,7 +3498,7 @@ addEventListener('pointerup',e=>{
   const t=tap; if(!t||e.pointerId!==t.id) return; tap=null;
   if(e.target!==renderer.domElement||Math.hypot(e.clientX-t.x,e.clientY-t.y)>6||performance.now()-t.t>600) return;
   const dh=pickDoor(e), fh=pickFurnHit(e);
-  if(fh?.furn.obj===WASHER_OBJ){showDims(fh.furn);return;}
+  if(fh?.furn.obj===WASHER_OBJ||fh?.furn.obj===FRIDGE_OBJ){showDims(fh.furn);return;}
   if(dh&&(!fh||state.mode==='plan'||dh.d2<=fh.d2)){ toggleDoor(dh.door); return; }
   const f=fh?fh.furn:null; if(f?.obj===TVSET){showDims(f);openTVMControls();return;} showDims(f===dimSel?null:f);
 });
@@ -4562,6 +4567,27 @@ $('#wash-test').onclick=()=>{if(washBusy)return;const a=[...washerSize],q=washIn
 $('#wash-max').onclick=async()=>{if(washBusy)return;washBusy=true;const token=washSizeToken,sig=spaceKey(),rows=[];try{for(const a of WASH_TRIALS){await new Promise(r=>setTimeout(r,0));if(token!==washSizeToken||sig!==spaceKey())return;$('#wash-result').textContent='搜尋朝右配置 '+a.join('×')+'…';rows.push(washProbe(a,1100));$('#wash-result').textContent=rows.map(washResultText).join('\n');}const best=rows.filter(q=>q.install&&q.route==='found').sort((a,b)=>b.size[0]*b.size[1]-a.size[0]*a.size[1])[0];$('#wash-result').textContent=(best?'已找到的最大受測底面積：'+best.size.join('×')+' cm（另有適用位置；未自動移動）':'本批未找到同時符合條件的尺寸')+'\n'+rows.map(washResultText).join('\n');}finally{washBusy=false;}};
 const washerSizePreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{const r=washerSizePreviousTest();showDims(WASHER_F);const original=[...washerSize];if(!setWasherSize([65,65,95]))throw Error('washer resize');const b=WASHER_F.max.clone().sub(WASHER_F.min);if(Math.abs(b.x-.65)+Math.abs(b.z-.65)+Math.abs(b.y-.95)>.00001||Math.abs(WASHER_F.bind.cols[0].maxY-.95)>.00001||Math.abs(WASHER_F.bind.cols[0].maxX-WASHER_F.bind.cols[0].minX-.65)>.00001)throw Error('washer size/collider mismatch');if(!setWasherSize(original))throw Error('washer reset');showDims(null);const probes=WASH_TRIALS.map(a=>washProbe(a,650));r.washerSize={original,preview:true,fitRules:{rear:5,side:2,front:60,door:110,transportMargin:2,positionGrid:5},probes};return r;};
+
+/* 冰箱外徑預覽：按原模型外框縮放，保留把手、原始位置和家具方案鍵；非特定品牌 CAD。 */
+const FRIDGE_F=FURN.find(f=>f.obj===FRIDGE_OBJ), FRIDGE_BASE=new THREE.Box3(FRIDGE_F.min.clone(),FRIDGE_F.max.clone());
+const FRIDGE_BASE_M=FRIDGE_BASE.getSize(new THREE.Vector3()),FRIDGE_HOME_SIZE=[FRIDGE_BASE_M.x,FRIDGE_BASE_M.z,FRIDGE_BASE_M.y].map(v=>Math.round(v*10000)/100);
+let fridgeSize=[...FRIDGE_HOME_SIZE],fridgeToken=0,fridgeBusy=false,fridgeResultSig='';
+const fridgeSkip=()=>new Set(FRIDGE_OBJ.userData.cols);
+function fridgeValid(a){return a.length===3&&a.every((v,i)=>Number.isFinite(v)&&v>=[45,40,100][i]&&v<=[100,100,220][i]);}
+function fridgeLocalBox(a){const sc=new THREE.Vector3(a[0]/100/FRIDGE_BASE_M.x,a[2]/100/FRIDGE_BASE_M.y,a[1]/100/FRIDGE_BASE_M.z);return new THREE.Box3(FRIDGE_BASE.min.clone().multiply(sc),FRIDGE_BASE.max.clone().multiply(sc));}
+function fridgeInstall(a,p,rot){const l=fridgeLocalBox(a),clear=l.clone();clear.min.x-=.02;clear.max.x+=.02;clear.min.z-=.05;clear.max.y+=.05;const cols=cargoEnv({h:clear.max.y},fridgeSkip()).boxes;
+ const body=washRectFits(washWorldBox(l,p,rot),cols),spacing=body&&washRectFits(washWorldBox(clear,p,rot),cols);let front=0;
+ if(body)for(let i=1;i<=150;i++){const f=new THREE.Box3(new THREE.Vector3(l.min.x,.05,l.max.z+.004),new THREE.Vector3(l.max.x,Math.min(l.max.y,1.8),l.max.z+i/100));if(!washRectFits(washWorldBox(f,p,rot),cols))break;front=i;}
+ return {body,spacing,front,ok:spacing&&front>=60};}
+function fridgeSig(){return fridgeSize.join(',')+'|'+spaceKey();}
+function syncFridgeSizeUI(){if(dimSel!==FRIDGE_F)return;['w','d','h'].forEach((k,i)=>{const n=$('#fridge-'+k),r=$('#fridge-'+k+'-range');if(document.activeElement!==n)n.value=fridgeSize[i];r.value=fridgeSize[i];});const q=fridgeInstall(fridgeSize,FRIDGE_F.p,FRIDGE_F.rot);cardSize.textContent=`寬 ${fridgeSize[0]} × 深 ${fridgeSize[1]} × 高 ${fridgeSize[2]} cm`;$('#fridge-fit').textContent=`${q.body?'機身無干涉':'機身干涉'}｜後5／側2／頂5 cm：${q.spacing?'符合':'不足'}｜前方約 ${q.front} cm（關門；散熱暫定）`;if(fridgeResultSig&&fridgeResultSig!==fridgeSig()){$('#fridge-result').textContent='配置已改變，請重新檢查。';fridgeResultSig='';}}
+function setFridgeSize(a){if(!fridgeValid(a))return false;fridgeToken++;const f=FRIDGE_F,o=FRIDGE_OBJ,l=fridgeLocalBox(a),b=bindFurn(f);o.scale.set(a[0]/100/FRIDGE_BASE_M.x,a[2]/100/FRIDGE_BASE_M.y,a[1]/100/FRIDGE_BASE_M.z);fridgeSize=[...a];f.min.copy(l.min);f.max.copy(l.max);b.loc[0]=[[l.min.x,l.min.z],[l.max.x,l.min.z],[l.max.x,l.max.z],[l.min.x,l.max.z]];b.cols[0].minY=l.min.y;b.cols[0].maxY=l.max.y;placeFurn(f,f.p.x,f.p.z,f.rot);cargoInvalidate();refreshWalk();fridgeResultSig='';$('#fridge-result').textContent='尺寸預覽已變更，請重新檢查；不覆蓋原工程圖或方案。';showDims(f);return true;}
+function fridgeRoute(a,p,rot,budget=3500){const s=scaledCargo([...a,2],1,false),center=fridgeLocalBox(a).getCenter(new THREE.Vector3()).applyMatrix4(new THREE.Matrix4().makeRotationY(rot));return cargoSearch(cargoPresetEnds('fridge')[0],{x:p.x+center.x,z:p.z+center.z},s,cargoEnv(s,fridgeSkip()),22000,budget,-rot);}
+for(const [i,k] of ['w','d','h'].entries()){const n=$('#fridge-'+k),r=$('#fridge-'+k+'-range');r.oninput=()=>{const a=[...fridgeSize];a[i]=Number(r.value);n.value=r.value;setFridgeSize(a);};n.onchange=()=>{const a=[...fridgeSize];a[i]=Number(n.value);if(n.value===''||!setFridgeSize(a)){n.value=fridgeSize[i];syncFridgeSizeUI();}};}
+$('#fridge-reset').onclick=()=>setFridgeSize(FRIDGE_HOME_SIZE);
+$('#fridge-test').onclick=()=>{if(fridgeBusy)return;const a=[...fridgeSize],p={x:FRIDGE_F.p.x,z:FRIDGE_F.p.z},rot=FRIDGE_F.rot,token=fridgeToken,sig=fridgeSig(),q=fridgeInstall(a,p,rot);fridgeBusy=true;$('#fridge-test').disabled=true;$('#fridge-result').textContent='搜尋目前位置搬運路徑…';setTimeout(()=>{try{if(token!==fridgeToken||sig!==fridgeSig()){$('#fridge-result').textContent='配置已改變，請重新檢查。';return;}const r=fridgeRoute(a,p,rot);fridgeResultSig=sig;$('#fridge-result').textContent=`${a.join('×')}：安裝條件 ${q.ok?'符合':'未符合'}；${r.status==='found'?'找到搬運路徑 '+r.path.length+' 步':r.status==='limit'?'搜尋達上限':r.status==='goal'?'終點容不下含餘量外箱':r.status==='start'?'起點容不下含餘量外箱':'未找到路徑'}。搬運每側2cm；未檢查門片開啟、包裝與現場散熱。`;}finally{fridgeBusy=false;$('#fridge-test').disabled=false;}},30);};
+const fridgePreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{const r=fridgePreviousTest();showDims(FRIDGE_F);if(fridgeCard.hidden||!washerCard.hidden||canMove(FRIDGE_F))throw Error('fridge browse card');const original=[...fridgeSize];const p=FRIDGE_F.p.clone(),rot=FRIDGE_F.rot;$('#fridge-w').value='65';$('#fridge-w').dispatchEvent(new Event('change'));if(fridgeSize[0]!==65)throw Error('fridge input');if(!setFridgeSize([65,65,185]))throw Error('fridge size');const b=new THREE.Box3().setFromObject(FRIDGE_OBJ).getSize(new THREE.Vector3()),l=FRIDGE_F.max.clone().sub(FRIDGE_F.min),c=FRIDGE_F.bind.cols[0];if(Math.abs(l.x-.65)+Math.abs(l.z-.65)+Math.abs(l.y-1.85)>.0001||Math.abs(b.y-1.85)>.0001||Math.abs(c.maxY-1.85)>.0001||Math.abs(c.maxX-c.minX-.65)>.0001||FRIDGE_F.p.distanceTo(p)>.0001||FRIDGE_F.rot!==rot)throw Error('fridge size/collider mismatch');const oversized=fridgeInstall([100,100,220],p,rot);if(oversized.body)throw Error('fridge oversized collision not detected');$('#fridge-reset').click();if(fridgeSize.some((v,i)=>v!==original[i]))throw Error('fridge reset');showDims(null);if(!fridgeCard.hidden)throw Error('fridge card hidden');const probes=[[60,60,180],[65,60,180],[65,65,185]].map(a=>{const q=fridgeInstall(a,p,rot),route=fridgeRoute(a,p,rot,650);return {size:a,...q,route:route.status,steps:route.path?.length||0};});r.fridgeSize={original,preview:true,oversizedBlocked:true,probes};return r;};
 
 /* =========================================================
    13. 主迴圈
