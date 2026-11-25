@@ -271,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="24006670585be90b2718f9383f36785e11957ac2026723066f8c264cb6a6db05" data-commit="3c60cec4bef18005fe3e1505998b648c5fadcf01" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 3c60cec4bef18005fe3e1505998b648c5fadcf01 | SHA-256 24006670585be90b2718f9383f36785e11957ac2026723066f8c264cb6a6db05">版本 v1-24006670585b · Commit 3c60cec4bef1</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="ff94e437226e614c5bd005baf81f80ab190bee0256f1727f4d324cb49028aa39" data-commit="5fcba8f89da3f4c4b5f6b82d3d2cee352c505213" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 5fcba8f89da3f4c4b5f6b82d3d2cee352c505213 | SHA-256 ff94e437226e614c5bd005baf81f80ab190bee0256f1727f4d324cb49028aa39">版本 v1-ff94e437226e · Commit 5fcba8f89da3</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -1438,17 +1438,17 @@ function fridge(){
   B(g,.12,.16,.004,M.blackGlass,.2,1.45,.316,false);
   return g;
 }
-function washer(){
-  const g=new THREE.Group();
-  RB(g,.6,.85,.515,.02,M.whiteApp,0,0,0);
-  // 深色筒口固定在機身；圓形門板以左側鉸鏈向外轉動（通用示意，非特定機型）。
-  const drum=mk(new THREE.CircleGeometry(.153,32),M.blackMetal);drum.position.set(0,.43,.259);g.add(drum);
-  const pivot=new THREE.Group();pivot.position.set(-.185,.43,.270);g.add(pivot);
-  const ring=mk(new THREE.TorusGeometry(.16,.025,12,32),M.chrome);ring.position.x=.185;pivot.add(ring);
-  const glassD=mk(new THREE.CircleGeometry(.154,32),M.darkGlass);glassD.position.set(.185,0,.005);pivot.add(glassD);
-  B(pivot,.025,.065,.025,M.chrome,.346,-.032,.008);
-  B(g,.56,.09,.006,M.blackGlass,0,.72,.2575,false);
-  pivot.traverse(o=>{if(o.isMesh)o.userData.noMerge=true;}); // 保留轉動機構，不合併至機身
+// 寬、深、高為關門後最大外徑（含門圈）；通用示意，非原廠 CAD。
+function washer(w=.60,d=.5525,h=.85){
+  const g=new THREE.Group(),bodyD=d-.0375,z=bodyD/2,r=Math.min(w*.185/.60,h*.185/.85),cy=h*.43/.85;
+  RB(g,w,h,bodyD,.02,M.whiteApp,0,0,0);
+  const drum=mk(new THREE.CircleGeometry(r*.153/.185,32),M.blackMetal);drum.position.set(0,cy,z+.0015);g.add(drum);
+  const pivot=new THREE.Group();pivot.position.set(-r,cy,z+.0125);g.add(pivot);
+  const ring=mk(new THREE.TorusGeometry(r-.025,.025,12,32),M.chrome);ring.position.x=r;pivot.add(ring);
+  const glassD=mk(new THREE.CircleGeometry(r*.154/.185,32),M.darkGlass);glassD.position.set(r,0,.005);pivot.add(glassD);
+  B(pivot,.025,.065,.025,M.chrome,2*r-.024,-.032,.008);
+  B(g,w-.04,.09,.006,M.blackGlass,0,h*.72/.85,z,false);
+  pivot.traverse(o=>{if(o.isMesh)o.userData.noMerge=true;});
   g.userData.washerDoor={pivot,angle:0,target:0,col:null};
   return g;
 }
@@ -3372,6 +3372,10 @@ let dimSel=null;
 const washerCard=document.createElement('div');washerCard.className='dim-btns';washerCard.hidden=true;washerCard.style.flexWrap='wrap';
 washerCard.innerHTML='<span style="flex-basis:100%">洗衣機開口方向（平面圖）</span><button type="button" data-wash-yaw="90">右</button><button type="button" data-wash-yaw="180">上</button><button type="button" data-wash-yaw="270">左</button><button type="button" data-wash-yaw="0">下</button><span id="washer-status" style="flex-basis:100%;font-size:11px"></span>';dimCard.appendChild(washerCard);
 washerCard.addEventListener('click',e=>{const b=e.target.closest('[data-wash-yaw]');if(b)setWasherYaw(Number(b.dataset.washYaw));});
+const washerSizeUI=document.createElement('div');washerSizeUI.style.cssText='width:100%;max-width:340px;display:grid;gap:4px;white-space:normal';
+washerSizeUI.innerHTML='<span>機身外徑 cm（含關閉門片）・本頁預覽</span>'+[['w','寬',45,100],['d','深',40,100],['h','高',70,130]].map(([k,n,a,b])=>`<label style="display:flex;align-items:center;gap:6px">${n}<input aria-label="洗衣機${n}度" id="wash-${k}-range" type="range" min="${a}" max="${b}" step="0.25" style="flex:1;min-width:80px"><input aria-label="洗衣機${n}度數值" id="wash-${k}" type="number" min="${a}" max="${b}" step="0.25" style="width:68px"></label>`).join('')+'<div class="dim-btns" style="flex-wrap:wrap"><button type="button" id="wash-reset" class="alt">原尺寸</button><button type="button" id="wash-test">檢查安裝／搬運</button><button type="button" id="wash-max">搜尋較大尺寸</button></div><span id="wash-fit" style="font-size:11px;white-space:normal"></span><span id="wash-result" style="font-size:11px;white-space:pre-line;max-height:110px;overflow:auto"></span>';
+washerCard.appendChild(washerSizeUI);
+
 // 家具調整版：卡片多一排「轉 90°／回原位」
 const moveBtns=MOVABLE?(()=>{ const d=document.createElement('div'); d.className='dim-btns'; d.innerHTML='<button type="button">轉 90°（R）</button><button type="button" class="alt">回原位</button><button type="button" class="alt" hidden></button>'; dimCard.appendChild(d); return d; })():null;
 
@@ -4307,10 +4311,10 @@ function cargoFits(p,s,env){const {x,z,a}=p,co=Math.cos(a),si=Math.sin(a),u=s.w/
  // Sample perimeter and interior to reject unsupported floor. Floor gaps narrower than sampling may be missed.
  const nx=Math.max(1,Math.ceil(s.w/.12)),nz=Math.max(1,Math.ceil(s.d/.12));for(let i=0;i<=nx;i++)for(let j=0;j<=nz;j++){const l=-u+s.w*i/nx,k=-v+s.d*j/nz;if(!onFloor(x+l*co-k*si,z+l*si+k*co,env.floors))return false;}return true;}
 function cargoEdge(a,b,s,env){let delta=b.a-a.a;while(delta>Math.PI/2)delta-=Math.PI;while(delta< -Math.PI/2)delta+=Math.PI;const dist=Math.hypot(b.x-a.x,b.z-a.z),n=Math.max(1,Math.ceil((dist+Math.abs(delta)*Math.hypot(s.w,s.d)/2)/.035));for(let i=1;i<=n;i++){const t=i/n;if(!cargoFits({x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t,a:a.a+delta*t},s,env))return false;}return true;}
-function cargoSearch(start,goal,s,env,limit=28000,budget=3500){const step=.10,A=8,da=Math.PI/A,heap=[],cost=new Map(),prev=new Map(),nodes=new Map(),cache=new Map();let expanded=0;const bound=floorBounds(env.floors),key=(i,j,k)=>`${i},${j},${k}`,h=p=>Math.hypot(p.x-goal.x,p.z-goal.z),at=(i,j,k)=>({x:start.x+i*step,z:start.z+j*step,a:k*da,i,j,k});
+function cargoSearch(start,goal,s,env,limit=28000,budget=3500,goalYaw=null){const step=.10,A=8,da=Math.PI/A,heap=[],cost=new Map(),prev=new Map(),nodes=new Map(),cache=new Map();let expanded=0;const bound=floorBounds(env.floors),key=(i,j,k)=>`${i},${j},${k}`,h=p=>Math.hypot(p.x-goal.x,p.z-goal.z),at=(i,j,k)=>({x:start.x+i*step,z:start.z+j*step,a:k*da,i,j,k});
  const push=o=>{heap.push(o);let i=heap.length-1;while(i){const j=(i-1)>>1;if(heap[j].f<=o.f)break;heap[i]=heap[j];i=j;}heap[i]=o;};const pop=()=>{const t=heap[0],v=heap.pop();if(heap.length){let i=0;while(2*i+1<heap.length){let j=2*i+1;if(j+1<heap.length&&heap[j+1].f<heap[j].f)j++;if(heap[j].f>=v.f)break;heap[i]=heap[j];i=j;}heap[i]=v;}return t;};
  const valid=p=>{const k=key(p.i,p.j,p.k);if(!cache.has(k))cache.set(k,p.x>=bound.x0&&p.x<=bound.x1&&p.z>=bound.z0&&p.z<=bound.z1&&cargoFits(p,s,env));return cache.get(k);};
- const goalFits=Array.from({length:A},(_,k)=>cargoFits({x:goal.x,z:goal.z,a:k*da},s,env));if(!goalFits.some(Boolean))return {status:'goal',expanded};
+ const goalFits=Array.from({length:A},(_,k)=>(goalYaw===null||Math.abs(Math.sin(k*da-goalYaw))<1e-6)&&cargoFits({x:goal.x,z:goal.z,a:k*da},s,env));if(!goalFits.some(Boolean))return {status:'goal',expanded};
  for(let k=0;k<A;k++){const p=at(0,0,k);if(!valid(p))continue;const id=key(0,0,k);cost.set(id,0);nodes.set(id,p);push({id,g:0,f:h(p)});}if(!heap.length)return {status:'start',expanded};
  const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];const deadline=performance.now()+budget;
  while(heap.length&&expanded<limit&&performance.now()<deadline){const o=pop();if(o.g!==cost.get(o.id))continue;const p=nodes.get(o.id);expanded++;if(h(p)<=step*1.45&&goalFits[p.k]){const g={x:goal.x,z:goal.z,a:p.a};if(cargoEdge(p,g,s,env)){const path=[g];let id=o.id;while(id){path.push(nodes.get(id));id=prev.get(id);}return {status:'found',path:path.reverse(),expanded};}}
@@ -4500,6 +4504,7 @@ function refreshWasherCard(message=''){
  if(dimSel!==WASHER_F)return;
  cardBtn.hidden=false;poseBtn.hidden=true;cardBtn.textContent=WASH_DOOR.target>0?'關閉滾筒門':'打開滾筒門';cardBtn.setAttribute('aria-pressed',String(WASH_DOOR.target>0));
  for(const b of washerCard.querySelectorAll('[data-wash-yaw]')){const on=Number(b.dataset.washYaw)===washerDeg();b.setAttribute('aria-pressed',String(on));b.classList.toggle('alt',!on);}
+ if(typeof syncWasherSizeUI==='function')syncWasherSizeUI();
  $('#washer-status').textContent=message||`朝${washerNames[washerDeg()]||'自訂'}｜門角 ${Math.round(WASH_DOOR.angle)}°（通用左鉸 110° 示意）`;
 }
 function washerBoxConflict(b,skip){return spaceBoxes(b.max.y,skip).some(c=>c.maxY>b.min.y+.004&&c.minY<b.max.y-.004&&c.maxX>b.min.x+.004&&c.minX<b.max.x-.004&&c.maxZ>b.min.z+.004&&c.minZ<b.max.z-.004);}
@@ -4526,6 +4531,37 @@ window.__h3dInspectionSelfTest=()=>{const r=washerPreviousTest();if(!WASHER_F||w
  cardBtn.click();for(let i=0;i<80;i++)updateWasherDoor(.04);if(WASH_DOOR.angle!==0||WASH_DOOR.col.maxY!==-1)throw Error('washer closing failed');
  const original=washerDeg(),changed=setWasherYaw(0);if(changed&&washerDeg()!==0)throw Error('washer direction mismatch');if(changed&&!setWasherYaw(original))throw Error('washer direction restore');
  showDims(null);if(!washerCard.hidden)throw Error('washer card hidden');r.washer={defaultDirection:'right',doorOpenedDegrees:opened,doorClosed:true,orientationSwitch:changed?'applied':'blocked by geometry',pipeDepthEstimateCm:8};return r;};
+
+/* 洗衣機外徑預覽；重新建構圓形門與鉸鏈，不以整機非等比縮放扭曲門片。 */
+const WASHER_HOME_SIZE=[60,55.25,85];let washerSize=[...WASHER_HOME_SIZE],washBusy=false,washSizeToken=0;
+function washerSizeValid(a){return a.length===3&&a.every((v,i)=>Number.isFinite(v)&&v>=[45,40,70][i]&&v<=[100,100,130][i]);}
+const washSkip=()=>new Set([...WASHER_OBJ.userData.cols,WASH_DOOR.col]);
+function washLocalBox(a){const [w,d,h]=a.map(v=>v/100),z=(d-.0375)/2;return new THREE.Box3(new THREE.Vector3(-w/2,0,-z),new THREE.Vector3(w/2,h,z+.0375));}
+function washWorldBox(local,p,rot){return local.clone().applyMatrix4(new THREE.Matrix4().makeRotationY(rot).setPosition(p.x,0,p.z));}
+function washRectFits(b,cols,checkFloor=true){if(cols.some(c=>c.maxY>b.min.y+.004&&c.minY<b.max.y-.004&&c.maxX>b.min.x+.004&&c.minX<b.max.x-.004&&c.maxZ>b.min.z+.004&&c.minZ<b.max.z-.004))return false;if(!checkFloor)return true;for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){const x=b.min.x+(b.max.x-b.min.x)*i/4,z=b.min.z+(b.max.z-b.min.z)*j/4;if(!onFloor(x,z,FLOORS))return false;}return true;}
+function washInstall(a,p,rot,cols=spaceBoxes(2.26,washSkip())){
+ const l=washLocalBox(a),actual=washWorldBox(l,p,rot),clear=l.clone();clear.min.x-=.02;clear.max.x+=.02;clear.min.z-=.05;
+ const body=washRectFits(actual,cols),spacing=body&&washRectFits(washWorldBox(clear,p,rot),cols);
+ let front=0; if(body){for(let cm=1;cm<=150;cm++){const f=new THREE.Box3(new THREE.Vector3(l.min.x,.05,l.max.z+.004),new THREE.Vector3(l.max.x,Math.min(l.max.y,.85),l.max.z+cm/100));if(!washRectFits(washWorldBox(f,p,rot),cols))break;front=cm;}}
+ // Door envelope is conservative: radius and thickness swept about generic left hinge in 3 degree increments.
+ const [w,d,h]=a.map(v=>v/100),r=Math.min(w*.185/.60,h*.185/.85),cy=h*.43/.85,pivot=new THREE.Vector3(-r,cy,(d-.0375)/2+.0125);let angle=0;
+ if(body)for(let deg=3;deg<=112;deg+=3){const t=Math.min(110,deg),door=new THREE.Box3(new THREE.Vector3(0,-r,-.025),new THREE.Vector3(2*r,r,.025));door.applyMatrix4(new THREE.Matrix4().makeRotationY(-t*PI/180).setPosition(pivot));if(!washRectFits(washWorldBox(door,p,rot),cols,false))break;angle=t;if(t===110)break;}
+ return {body,spacing,front,angle,ok:spacing&&front>=60&&angle===110};
+}
+function syncWasherSizeUI(){if(dimSel!==WASHER_F)return;['w','d','h'].forEach((k,i)=>{const n=$('#wash-'+k),r=$('#wash-'+k+'-range');if(document.activeElement!==n)n.value=washerSize[i];r.value=washerSize[i];});const q=washInstall(washerSize,WASHER_F.p,WASHER_F.rot);$('#wash-fit').textContent=`${q.body?'機身無干涉':'機身干涉'}｜後5／側2 cm：${q.spacing?'符合':'不足'}｜前方約 ${q.front} cm｜門可開約 ${q.angle}°（模型）`;}
+function setWasherSize(a){if(!washerSizeValid(a))return false;washSizeToken++;resetWasherDoor();const f=WASHER_F,o=WASHER_OBJ,newObj=washer(...a.map(v=>v/100));const newDoor=newObj.userData.washerDoor;for(const old of [...o.children]){o.remove(old);old.traverse(m=>{if(m.isMesh)m.geometry.dispose();});}while(newObj.children.length)o.add(newObj.children[0]);WASH_DOOR.pivot=newDoor.pivot;washerSize=[...a];const l=washLocalBox(a);f.min.copy(l.min);f.max.copy(l.max);const b=f.bind;b.loc[0]=[[l.min.x,l.min.z],[l.max.x,l.min.z],[l.max.x,l.max.z],[l.min.x,l.max.z]];b.cols[0].minY=0;b.cols[0].maxY=a[2]/100;placeFurn(f,f.p.x,f.p.z,f.rot);cargoInvalidate();refreshWalk();$('#wash-result').textContent='尺寸預覽已變更，請重新檢查；不覆蓋原工程圖或方案。';showDims(f);return true;}
+// Find an installation position on balcony only, fixed facing right for the purchase-size survey. 5cm position grid.
+function washFindInstall(a,rot=HP){const cols=spaceBoxes(2.26,washSkip()),floor=FLOORS.find(f=>f.top===-.04),home=WASHER_F.p;if(!floor)return null;const candidates=[];for(let x=floor.minX+.15;x<=floor.maxX-.15;x+=.05)for(let z=floor.minZ+.15;z<=floor.maxZ-.15;z+=.05)candidates.push({x,z});candidates.sort((a,b)=>Math.hypot(a.x-home.x,a.z-home.z)-Math.hypot(b.x-home.x,b.z-home.z));for(const p of candidates){const l=washLocalBox(a);l.min.x-=.02;l.max.x+=.02;l.min.z-=.05;l.max.z+=.60;if(!washRectFits(washWorldBox(l,p,rot),cols))continue;const q=washInstall(a,p,rot,cols);if(q.ok)return {p,...q};}return null;}
+function washRoute(a,p,rot,budget=1100){const s=scaledCargo([...a,2],1,false),l=washLocalBox(a),center=l.getCenter(new THREE.Vector3()).applyMatrix4(new THREE.Matrix4().makeRotationY(rot));const g={x:p.x+center.x,z:p.z+center.z};return cargoSearch(cargoPresetEnds('washer')[0],g,s,cargoEnv(s,washSkip()),22000,budget,-rot);}
+const WASH_TRIALS=[[80,80,100],[75,75,100],[70,75,100],[70,70,100],[65,75,95],[65,70,95],[60,70,85],[60,65,85],[60,60,85],[60,55,85]];
+function washProbe(a,budget=1100){const fit=washFindInstall(a);if(!fit)return {size:a,install:false,route:'not-tested'};const r=washRoute(a,fit.p,HP,budget);return {size:a,install:true,front:fit.front,door:fit.angle,position:fit.p,route:r.status,steps:r.path?.length||0};}
+function washResultText(q){return `${q.size.join('×')}：${q.install?'安裝／開門符合，前方 '+q.front+'cm':'安裝條件未找到位置'}；${q.route==='found'?'找到搬運路徑':q.route==='not-tested'?'未測搬運':q.route==='limit'?'搬運搜尋達上限':'未找到搬運路徑'}`;}
+for(const [i,k] of ['w','d','h'].entries()){const n=$('#wash-'+k),r=$('#wash-'+k+'-range');r.oninput=()=>{const a=[...washerSize];a[i]=Number(r.value);n.value=r.value;setWasherSize(a);};n.onchange=()=>{const a=[...washerSize];a[i]=Number(n.value);if(!setWasherSize(a))syncWasherSizeUI();};}
+$('#wash-reset').onclick=()=>setWasherSize(WASHER_HOME_SIZE);
+$('#wash-test').onclick=()=>{if(washBusy)return;const a=[...washerSize],q=washInstall(a,WASHER_F.p,WASHER_F.rot),token=washSizeToken,sig=spaceKey(),p={x:WASHER_F.p.x,z:WASHER_F.p.z},rot=WASHER_F.rot;$('#wash-result').textContent='搜尋目前位置搬運路徑…';washBusy=true;setTimeout(()=>{try{if(token!==washSizeToken||spaceKey()!==sig)return;const r=washRoute(a,p,rot,3500);$('#wash-result').textContent=`${a.join('×')}：安裝／開門條件 ${q.ok?'符合':'未符合'}；${r.status==='found'?'找到搬運路徑 '+r.path.length+' 步':r.status==='limit'?'搜尋達上限':'未找到路徑'}。每側搬運餘量2cm，終點方向固定；非現場保證。`;}finally{washBusy=false;}},30);};
+$('#wash-max').onclick=async()=>{if(washBusy)return;washBusy=true;const token=washSizeToken,sig=spaceKey(),rows=[];try{for(const a of WASH_TRIALS){await new Promise(r=>setTimeout(r,0));if(token!==washSizeToken||sig!==spaceKey())return;$('#wash-result').textContent='搜尋朝右配置 '+a.join('×')+'…';rows.push(washProbe(a,1100));$('#wash-result').textContent=rows.map(washResultText).join('\n');}const best=rows.filter(q=>q.install&&q.route==='found').sort((a,b)=>b.size[0]*b.size[1]-a.size[0]*a.size[1])[0];$('#wash-result').textContent=(best?'已找到的最大受測底面積：'+best.size.join('×')+' cm（另有適用位置；未自動移動）':'本批未找到同時符合條件的尺寸')+'\n'+rows.map(washResultText).join('\n');}finally{washBusy=false;}};
+const washerSizePreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{const r=washerSizePreviousTest();showDims(WASHER_F);const original=[...washerSize];if(!setWasherSize([65,65,95]))throw Error('washer resize');const b=WASHER_F.max.clone().sub(WASHER_F.min);if(Math.abs(b.x-.65)+Math.abs(b.z-.65)+Math.abs(b.y-.95)>.00001||Math.abs(WASHER_F.bind.cols[0].maxY-.95)>.00001||Math.abs(WASHER_F.bind.cols[0].maxX-WASHER_F.bind.cols[0].minX-.65)>.00001)throw Error('washer size/collider mismatch');if(!setWasherSize(original))throw Error('washer reset');showDims(null);const probes=WASH_TRIALS.map(a=>washProbe(a,650));r.washerSize={original,preview:true,fitRules:{rear:5,side:2,front:60,door:110,transportMargin:2,positionGrid:5},probes};return r;};
 
 /* =========================================================
    13. 主迴圈
