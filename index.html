@@ -271,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="03d2506d28fa39789fe8386179f3149b747030b04672071c30c46780066568c2" data-commit="dc59a0588c6063fdfacf424fe8006a744bd28e4c" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit dc59a0588c6063fdfacf424fe8006a744bd28e4c | SHA-256 03d2506d28fa39789fe8386179f3149b747030b04672071c30c46780066568c2">版本 v1-03d2506d28fa · Commit dc59a0588c60</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="2719653680fdd88352c9a7fd7ba75cbc50dd9bef34a8c11c93250929f404c97b" data-commit="58ad598c4c7638b721206b2f76be0548998a2034" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 58ad598c4c7638b721206b2f76be0548998a2034 | SHA-256 2719653680fdd88352c9a7fd7ba75cbc50dd9bef34a8c11c93250929f404c97b">版本 v1-2719653680fd · Commit 58ad598c4c76</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -1441,9 +1441,15 @@ function fridge(){
 function washer(){
   const g=new THREE.Group();
   RB(g,.6,.85,.515,.02,M.whiteApp,0,0,0);
-  const ring=mk(new THREE.TorusGeometry(.16,.025,12,32),M.chrome); ring.position.set(0,.43,.2575); g.add(ring);
-  const glassD=mk(new THREE.CircleGeometry(.16,32),M.darkGlass); glassD.position.set(0,.43,.2595); g.add(glassD);
+  // 深色筒口固定在機身；圓形門板以左側鉸鏈向外轉動（通用示意，非特定機型）。
+  const drum=mk(new THREE.CircleGeometry(.153,32),M.blackMetal);drum.position.set(0,.43,.259);g.add(drum);
+  const pivot=new THREE.Group();pivot.position.set(-.185,.43,.270);g.add(pivot);
+  const ring=mk(new THREE.TorusGeometry(.16,.025,12,32),M.chrome);ring.position.x=.185;pivot.add(ring);
+  const glassD=mk(new THREE.CircleGeometry(.154,32),M.darkGlass);glassD.position.set(.185,0,.005);pivot.add(glassD);
+  B(pivot,.025,.065,.025,M.chrome,.346,-.032,.008);
   B(g,.56,.09,.006,M.blackGlass,0,.72,.2575,false);
+  pivot.traverse(o=>{if(o.isMesh)o.userData.noMerge=true;}); // 保留轉動機構，不合併至機身
+  g.userData.washerDoor={pivot,angle:0,target:0,col:null};
   return g;
 }
 // 客房原有鐵架 148×40×60（渲染_客房_01、_02：深灰方管開放層架）；正面朝 +z
@@ -1858,18 +1864,50 @@ R(staticG,[741,647.6,803.6,656],.016,.019,M.steel,false);                       
 { const x0=X(720), z=Z(549.8)+.04; B(staticG,.4,.015,.015,M.chrome,x0,1.25,z); B(staticG,.34,.5,.03,M.towel,x0,.78,z+.005); }
 C(staticG,.05,.05,.1,M.chrome,X(604.9)+.05,.62,Z(612),16).rotation.z=HP;
 
-/* ---- 陽台 ---- */
-furn(put(washer(),680,213,0),'洗衣機');                                               // 洗衣機 60×51.5
-{ const g=new THREE.Group();                                                         // 不鏽鋼水槽 60×50
-  for(const sx of [-1,1]) for(const sz of [-1,1]) B(g,.03,.72,.03,M.steel,sx*.22,0,sz*.26);
-  B(g,.5,.2,.58,M.steel,0,.72,0); B(g,.44,.005,.5,M.shadowDark,0,.92,.02,false);
-  C(g,.012,.012,.3,M.chrome,0,.92,-.26,10); B(g,.02,.02,.14,M.chrome,0,1.2,-.2);
-  put(g,757,211.5,0);
-  // 熱水器：裝在洗手槽上方的牆上（找洗手槽右側最近的牆面貼上去）
-  const sx=X(757), sz=Z(211.5); let wx=sx+.6;
-  for(const c of colliders) if(c.maxY>2&&c.minZ<=sz&&sz<=c.maxZ&&c.minX>=sx&&c.minX<wx) wx=c.minX;
-  B(staticG,.18,.6,.36,M.whiteApp,wx-.09,1.45,sz); B(staticG,.004,.08,.12,M.gapDark,wx-.181,1.62,sz,false);   // 熱水器＋面板
-  addCol(wx-.18,wx,sz-.18,sz+.18,1.45,2.05); }
+/* ---- 陽台：取消洗手槽，依 2026-11-25 現場照片保留外露管線與上方設備 ---- */
+// 機身原尺寸不變，正面由 +z 轉向圖面右側 +x；保留原中心與原模型地坪定位。
+const WASHER_OBJ=furn(put(washer(),680,213,HP),'洗衣機');
+WASHER_OBJ.userData.cols=[colliders.at(-1)];
+// 管線位置、管徑、高度、突出深度均為照片比例估算，不能當施工實測。右牆以結構柱內側為基準。
+const BAL_PIPE_DEPTH=.08, BAL_WALL_X=MX(759.3), BAL_FLOOR=-.04;
+const BAL_PIPE_GROUP=new THREE.Group();staticG.add(BAL_PIPE_GROUP);
+const pipeMat=std({color:0xa4a7a4,metalness:.45,roughness:.5});
+function balconyPipe(g,a,b,r,mat=pipeMat,obstacle=true){
+ const p=new THREE.Vector3(...a),q=new THREE.Vector3(...b),v=q.clone().sub(p),len=v.length();if(len<.001)return;
+ const mesh=mk(new THREE.CylinderGeometry(r,r,len,12),mat);mesh.position.copy(p).add(q).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());g.add(mesh);
+ if(obstacle)addCol(Math.min(p.x,q.x)-r,Math.max(p.x,q.x)+r,Math.min(p.z,q.z)-r,Math.max(p.z,q.z)+r,Math.min(p.y,q.y)-r,Math.max(p.y,q.y)+r);
+}
+{ // 原水槽右牆：外露水平管、上方閥件、下方龍頭與地面排水口。
+ const x=BAL_WALL_X-.045,z0=MZ(198),z1=MZ(265),y=.86,g=BAL_PIPE_GROUP;
+ balconyPipe(g,[x,y,z0],[x,y,z1],.018);
+ balconyPipe(g,[x,y,z1],[x,.22,z1],.018);
+ for(const z of [MZ(207),MZ(221)]){
+   balconyPipe(g,[BAL_WALL_X-.005,y+.09,z],[x,y+.09,z],.018);
+   balconyPipe(g,[x,y+.09,z],[x,y,z],.018);
+ }
+ const zf=MZ(217);balconyPipe(g,[BAL_WALL_X-.006,.68,zf],[BAL_WALL_X-.067,.68,zf],.012,M.chrome);
+ B(g,.018,.035,.055,M.chrome,BAL_WALL_X-.055,.683,zf,false);
+ const zv=MZ(253);balconyPipe(g,[x,y,zv],[x,1.65,zv],.014);
+ balconyPipe(g,[x,1.65,zv],[x,2.17,zv],.012);
+ B(g,.055,.095,.12,pipeMat,x,1.58,zv);
+ for(const z of [zv-.045,zv+.045]){C(g,.023,.023,.038,M.chrome,x,1.66,z,12);B(g,.025,.012,.07,M.blackMetal,x,1.70,z,false);}
+ const zd=MZ(263);C(g,.041,.041,.10,pipeMat,BAL_WALL_X-.055,BAL_FLOOR,zd,16);C(g,.030,.030,.002,M.shadowDark,BAL_WALL_X-.055,.061,zd,16,false);
+ addCol(BAL_WALL_X-.096,BAL_WALL_X-.014,zd-.041,zd+.041,BAL_FLOOR,.06);
+ // 原模型上方熱水器保留（照片所見主要是閥件／配管；機體與安裝高度仍需現場確認）。
+ const hz=MZ(222);B(g,.18,.60,.36,M.whiteApp,BAL_WALL_X-.09,1.45,hz);B(g,.004,.08,.12,M.gapDark,BAL_WALL_X-.181,1.62,hz,false);
+ addCol(BAL_WALL_X-.18,BAL_WALL_X,hz-.18,hz+.18,1.45,2.05);
+ furnM('陽台右牆外露管線（突出約8 cm・照片估算）',759.3-cmP(8),198,759.3,265,.20,1.0);
+ const f=FURN.at(-1);f.rot=HP;const a=f.min.x,b=f.max.x;f.min.x=f.min.z;f.max.x=f.max.z;f.min.z=a;f.max.z=b;
+ furnM('陽台上方熱水器（原模型保留・尺寸待核）',759.3-cmP(18),222-cmP(18),759.3,222+cmP(18),1.45,2.05);
+}
+{ // 入口左側照片可見的保溫直管；貼管道間凹角，不虛構精確管徑。
+ const x=MX(652),z=MZ(269),r=.045,g=BAL_PIPE_GROUP;
+ balconyPipe(g,[x,BAL_FLOOR,z],[x,2.26,z],r,std({color:0xc8b894,roughness:.9}));
+ const zf=MZ(239);balconyPipe(g,[MX(643.7),.73,zf],[MX(643.7)+.06,.73,zf],.012,M.chrome);
+ B(g,.02,.025,.045,M.chrome,MX(643.7)+.045,.745,zf,false);
+ furnM('陽台入口保溫直管（直徑約9 cm・照片估算）',652-cmP(4.5),269-cmP(4.5),652+cmP(4.5),269+cmP(4.5),BAL_FLOOR,2.26);
+}
+BAL_PIPE_GROUP.traverse(o=>{if(o.isMesh)o.userData.noMerge=true;}); // 保留管線零件與點選／驗證模型
 R(staticG,[650,181,775,184.5],-.05,.3,M.concrete); R(staticG,[650,184.5,654.6,250.4],-.05,.3,M.concrete);
 R(staticG,[650,181,775,184.5],1.05,1.1,M.blackMetal); R(staticG,[650,184.5,654.6,250.4],1.05,1.1,M.blackMetal);
 for(let x=652; x<775; x+=8.5) R(staticG,[x,182,x+.9,183.5],.3,1.05,M.blackMetal);
@@ -3333,6 +3371,9 @@ const dimLabs=[0,1,2,3].map(()=>{ const el=document.createElement('div'); el.cla
 const dimCard=(()=>{ const el=document.createElement('div'); el.className='dim-card'; el.hidden=true; el.innerHTML='<b></b><span></span><div class="dim-btns"><button type="button" hidden></button><button type="button" class="alt" hidden></button></div>'; document.body.appendChild(el); return el; })();
 const cardName=dimCard.querySelector('b'), cardSize=dimCard.querySelector('span'), [cardBtn,poseBtn]=dimCard.querySelectorAll('button');
 let dimSel=null;
+const washerCard=document.createElement('div');washerCard.className='dim-btns';washerCard.hidden=true;washerCard.style.flexWrap='wrap';
+washerCard.innerHTML='<span style="flex-basis:100%">洗衣機開口方向（平面圖）</span><button type="button" data-wash-yaw="90">右</button><button type="button" data-wash-yaw="180">上</button><button type="button" data-wash-yaw="270">左</button><button type="button" data-wash-yaw="0">下</button><span id="washer-status" style="flex-basis:100%;font-size:11px"></span>';dimCard.appendChild(washerCard);
+washerCard.addEventListener('click',e=>{const b=e.target.closest('[data-wash-yaw]');if(b)setWasherYaw(Number(b.dataset.washYaw));});
 // 家具調整版：卡片多一排「轉 90°／回原位」
 const moveBtns=MOVABLE?(()=>{ const d=document.createElement('div'); d.className='dim-btns'; d.innerHTML='<button type="button">轉 90°（R）</button><button type="button" class="alt">回原位</button><button type="button" class="alt" hidden></button>'; dimCard.appendChild(d); return d; })():null;
 
@@ -3350,6 +3391,7 @@ function showDims(f){
   if(MOVABLE&&!f){ dimMat.color.setHex(0x9a6b45); dimBoxMat.color.setHex(0x9a6b45); }
   const on=!!f;
   dimLines.visible=on&&FURN_DIMS_ON; dimBox.visible=on&&(FURN_DIMS_ON||EDIT_MODE); dimCard.hidden=!on; cardSize.hidden=!FURN_DIMS_ON; dimLabs.forEach(l=>l.visible=on&&FURN_DIMS_ON);
+  washerCard.hidden=f?.obj!==WASHER_OBJ;
   if(!f) return;
   if(moveBtns){ moveBtns.hidden=!canMove(f); const lb=moveBtns.children[2]; lb.hidden=!f.obj||!f.obj.userData.set;
     if(!lb.hidden){ lb.textContent=`整組${f.obj.userData.set}一起動：${SET_LINK?'開':'關'}`; lb.setAttribute('aria-pressed',String(SET_LINK)); } }
@@ -3383,6 +3425,7 @@ function showDims(f){
   cardName.textContent=f.name+(f.obj===SOFA_OBJ&&SOFA.t>0?'（坐深拉長）':'')+(f.obj===TABLE_OBJ?TABLE_NAME[TABLE.n]:'')+(f.obj===DESK_OBJ?(DESK.target?'（站立）':'（坐姿）'):'');
   cardSize.textContent=`寬 ${W} × 深 ${D} × 高 ${Hh} cm`+seatTxt+(a.y>.05?`・離地 ${cm(a.y)} cm`:'')+(f.obj===DESK_OBJ?`・可升降 ${cm(DESK.h0)}～${cm(DESK.h0+DESK.ext)}`:'')+(warn?`　${warn}`:'');
   if(isTV){cardSize.textContent=`機身寬 145 × 高 84 × 深 3 cm・離牆 ${tvmPose.d.toFixed(1)} cm`;cardBtn.hidden=false;cardBtn.textContent="調整 H90 壁掛架";cardBtn.setAttribute("aria-pressed","false");poseBtn.hidden=true;return;}
+  if(f.obj===WASHER_OBJ){refreshWasherCard();return;}
   cardBtn.hidden=f.obj!==SOFA_OBJ&&f.obj!==WARD_OBJ&&f.obj!==TABLE_OBJ&&f.obj!==DESK_OBJ&&!(LUG_OBJ&&f.obj===LUG_OBJ)&&!(LAUNDRY.obj&&f.obj===LAUNDRY.obj)&&!cabOf(f);
   if(f.obj===WARD_OBJ) refreshWardBtn(); else if(f.obj===TABLE_OBJ) refreshTableBtn(); else if(f.obj===DESK_OBJ) refreshDeskBtn(); else if(LUG_OBJ&&f.obj===LUG_OBJ) refreshLugBtn(); else if(LAUNDRY.obj&&f.obj===LAUNDRY.obj) refreshLaundryBtn(); else if(cabOf(f)) refreshCabBtn(f); else refreshSofaBtn();
 }
@@ -3401,7 +3444,7 @@ function pickFurnRay(){
  let best=null, bd=Infinity;
  for(const f of FURN){
    if(f.obj&&!f.obj.visible)continue;
-   if([TVSET,TVLOW,TVBACK,TVR,TVHANG].includes(f.obj)){
+   if([TVSET,TVLOW,TVBACK,TVR,TVHANG,WASHER_OBJ].includes(f.obj)){
      const h=tvWallMeshHit(f);if(h&&h.distance*h.distance<bd){bd=h.distance*h.distance;best=f;}continue;
    }
    _inv.makeRotationY(-f.rot);
@@ -3448,6 +3491,7 @@ addEventListener('pointerup',e=>{
   const t=tap; if(!t||e.pointerId!==t.id) return; tap=null;
   if(e.target!==renderer.domElement||Math.hypot(e.clientX-t.x,e.clientY-t.y)>6||performance.now()-t.t>600) return;
   const dh=pickDoor(e), fh=pickFurnHit(e);
+  if(fh?.furn.obj===WASHER_OBJ){showDims(fh.furn);return;}
   if(dh&&(!fh||state.mode==='plan'||dh.d2<=fh.d2)){ toggleDoor(dh.door); return; }
   const f=fh?fh.furn:null; if(f?.obj===TVSET){showDims(f);openTVMControls();return;} showDims(f===dimSel?null:f);
 });
@@ -3483,7 +3527,7 @@ function setSofaSlide(open,quiet){
 }
 function applySofa(){ const e=SOFA.t*SOFA.t*(3-2*SOFA.t); SOFA.deck.visible=SOFA.t>0; SOFA.seat.position.z=SOFA.ext*e; }
 function sofaDone(){ if(dimSel&&dimSel.obj===SOFA_OBJ) showDims(dimSel); }
-cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===TVSET){openTVMControls();return;} if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else if(LAUNDRY.obj&&o===LAUNDRY.obj) setLaundry(!LAUNDRY.on); else if(cabOf(dimSel)) setCab(dimSel.name,!CAB_BY.get(dimSel.name).some(d=>d.want)); else setSofaSlide(!SOFA.target); });
+cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===TVSET){openTVMControls();return;} if(o===WASHER_OBJ){toggleWasherDoor();return;} if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else if(LAUNDRY.obj&&o===LAUNDRY.obj) setLaundry(!LAUNDRY.on); else if(cabOf(dimSel)) setCab(dimSel.name,!CAB_BY.get(dimSel.name).some(d=>d.want)); else setSofaSlide(!SOFA.target); });
 poseBtn.addEventListener('click',()=>{
   if(dimSel&&dimSel.obj===WARD_OBJ){ setWard(0); return; }
   if(dimSel&&dimSel.obj===TABLE_OBJ){ setTable(0); return; }
@@ -3608,6 +3652,7 @@ function applyDesk(){ DESK.top.position.y=DESK.ext*smooth(DESK.t); }
 function deskDone(){ if(dimSel===DESK_F) showDims(DESK_F); else measure(DESK_F); }
 
 function updateFurn(dt){
+  updateWasherDoor(dt);
   updateCabDoors(dt);                                                             // 櫃門開關（13_櫃門開關與動線.js）
   dimG.visible=state.mode!=='fps'&&state.mode!=='ceiling'; dimCard.hidden=!dimSel||state.mode==='fps'||state.mode==='ceiling';
   if(DESK.t!==DESK.target){ DESK.t=DESK.t<DESK.target?Math.min(1,DESK.t+dt*.8):Math.max(0,DESK.t-dt*.8); applyDesk(); if(DESK.t===DESK.target) deskDone(); }
@@ -3647,6 +3692,7 @@ function bindFurn(f){
 // 把家具放到 (x,z,rot)，碰撞盒、座位、坐在上面的人一起更新
 function placeFurn(f,x,z,rot){
   const o=f.obj, b=bindFurn(f);
+  if(o===WASHER_OBJ)resetWasherDoor(); // 移動／轉向時先收門，避免沿用舊碰撞盒
   o.position.x=x; o.position.z=z; o.rotation.y=rot; o.updateWorldMatrix(true,true);
   f.p.copy(o.position); f.rot=rot;
   const c=Math.cos(rot), s=Math.sin(rot);
@@ -4256,7 +4302,7 @@ $('#heat-toggle').onclick=()=>{heatOn=!heatOn;if(heatOn){if(!extraView())setMode
 // Rigid rectangular package, horizontal translation and yaw only; every edge is checked at intermediate poses.
 const CARGO_PRESETS={fridge:[60,65,180,'冰箱'],washer:[60,45,85,'洗衣機'],sofa:[195,90,90,'沙發'],bed:[188,25,152,'雙人床'],single:[188,25,91,'單人床']};
 function cargoSpec(){const values=['cargo-w','cargo-d','cargo-h','cargo-pad'].map(id=>Number($('#'+id).value));if(values.slice(0,3).some(v=>!Number.isFinite(v)||v<5||v>300)||!Number.isFinite(values[3])||values[3]<0||values[3]>20)throw Error('請輸入 5–300 cm 尺寸及 0–20 cm 每側餘量');return {w:(values[0]+2*values[3])/100,d:(values[1]+2*values[3])/100,h:(values[2]+values[3])/100,raw:values};}
-function cargoSkip(){const key=$('#cargo-preset').value;if(!$('#cargo-skip').checked||!CARGO_PRESETS[key])return new Set();const f=FURN.find(f=>f.name.startsWith(CARGO_PRESETS[key][3]));return new Set(f?.bind?.cols||[]);}
+function cargoSkip(){const key=$('#cargo-preset').value;if(!$('#cargo-skip').checked||!CARGO_PRESETS[key])return new Set();const f=FURN.find(f=>f.name.startsWith(CARGO_PRESETS[key][3]));return new Set([...(f?.bind?.cols||[]),...(f?.obj===WASHER_OBJ?[WASH_DOOR.col]:[])]);}
 function cargoEnv(s,skip){const boxes=spaceBoxes(s.h,skip);for(const [x0,x1,z0,z1,y0,y1] of [[638.1,681.3,345.5,403.6,1.93,1.95],[638.1,681.3,403.6,406,0,2.4]])if(y0<s.h+.015)boxes.push({minX:MX(x0),maxX:MX(x1),minZ:MZ(z0),maxZ:MZ(z1),minY:y0,maxY:y1});return {boxes,floors:FLOORS};}
 function cargoFits(p,s,env){const {x,z,a}=p,co=Math.cos(a),si=Math.sin(a),u=s.w/2,v=s.d/2,rx=Math.abs(co)*u+Math.abs(si)*v,rz=Math.abs(si)*u+Math.abs(co)*v;if(s.h>2.39)return false;if(!onFloor(x,z,env.floors))return false;
  for(const b of env.boxes){const bx=(b.minX+b.maxX)/2,bz=(b.minZ+b.maxZ)/2,dx=bx-x,dz=bz-z,hx=(b.maxX-b.minX)/2,hz=(b.maxZ-b.minZ)/2;if(Math.abs(dx)>=rx+hx||Math.abs(dz)>=rz+hz)continue;if(Math.abs(dx*co+dz*si)>=u+hx*Math.abs(co)+hz*Math.abs(si)||Math.abs(-dx*si+dz*co)>=v+hx*Math.abs(si)+hz*Math.abs(co))continue;return false;}
@@ -4446,6 +4492,41 @@ window.__h3dInspectionSelfTest=()=>{
  const before=JSON.stringify(furnLayout());$('#tvm-drag').click();event('pointerdown',x,y);if(!tvmDrag||activeCtl().enabled)throw Error('TV drag capture');event('pointermove',x+18,y-150);event('pointerup',x+18,y-150);if(tvmDrag||!activeCtl().enabled||tvmPose.d<=6.5||tvmPose.yaw<=0||JSON.stringify(furnLayout())!==before||tvmConflict())throw Error('TV drag pose/lock');
  setTVMDrag(false);$('#tvm-reset').click();showDims(null);$('#tv-mount-controls').open=false; if(tvmDragOn)throw Error('TV drag reset');r.tvPick={screen:true,lower:true,back:true,moved:true,pointerTap:true,pointerDrag:true,independentPanel:true};return r;
 };
+
+/* 洗衣機：獨立朝向／滾筒門操作，瀏覽模式可用；四方向是平面圖固定座標。 */
+const WASHER_F=FURN.find(f=>f.obj===WASHER_OBJ), WASH_DOOR=WASHER_OBJ.userData.washerDoor;
+WASH_DOOR.col={minX:0,maxX:0,minZ:0,maxZ:0,minY:0,maxY:-1};colliders.push(WASH_DOOR.col);
+const washerDeg=()=>((Math.round(WASHER_F.rot*180/Math.PI)%360)+360)%360;
+const washerNames={0:'下',90:'右',180:'上',270:'左'};
+function refreshWasherCard(message=''){
+ if(dimSel!==WASHER_F)return;
+ cardBtn.hidden=false;poseBtn.hidden=true;cardBtn.textContent=WASH_DOOR.target>0?'關閉滾筒門':'打開滾筒門';cardBtn.setAttribute('aria-pressed',String(WASH_DOOR.target>0));
+ for(const b of washerCard.querySelectorAll('[data-wash-yaw]')){const on=Number(b.dataset.washYaw)===washerDeg();b.setAttribute('aria-pressed',String(on));b.classList.toggle('alt',!on);}
+ $('#washer-status').textContent=message||`朝${washerNames[washerDeg()]||'自訂'}｜門角 ${Math.round(WASH_DOOR.angle)}°（通用左鉸 110° 示意）`;
+}
+function washerBoxConflict(b,skip){return spaceBoxes(b.max.y,skip).some(c=>c.maxY>b.min.y+.004&&c.minY<b.max.y-.004&&c.maxX>b.min.x+.004&&c.minX<b.max.x-.004&&c.maxZ>b.min.z+.004&&c.minZ<b.max.z-.004);}
+function syncWasherDoor(){const d=WASH_DOOR;d.pivot.rotation.y=-d.angle*Math.PI/180;d.pivot.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(d.pivot);Object.assign(d.col,{minX:b.min.x,maxX:b.max.x,minZ:b.min.z,maxZ:b.max.z,minY:b.min.y,maxY:d.angle>.01?b.max.y:-1});return b;}
+function resetWasherDoor(){WASH_DOOR.angle=WASH_DOOR.target=0;syncWasherDoor();}
+function toggleWasherDoor(){WASH_DOOR.target=WASH_DOOR.target>0?0:110;refreshWasherCard();}
+function updateWasherDoor(dt){const d=WASH_DOOR;if(d.angle===d.target)return;
+ const goal=d.angle+Math.sign(d.target-d.angle)*Math.min(Math.abs(d.target-d.angle),REDUCED?110:dt*150),start=d.angle,n=Math.max(1,Math.ceil(Math.abs(goal-start)/3)),skip=new Set([...WASHER_OBJ.userData.cols,d.col]);
+ for(let i=1;i<=n;i++){const prev=d.angle;d.angle=start+(goal-start)*i/n;const b=syncWasherDoor();if(d.angle>0&&simGuard&&washerBoxConflict(b,skip)){d.angle=prev;d.target=prev;syncWasherDoor();refreshWasherCard('門片碰到障礙，已停止；角度 '+Math.round(prev)+'°');toast('洗衣機滾筒門碰到障礙，已停止');return;}}
+ if(d.angle===d.target)refreshWasherCard();else if(dimSel===WASHER_F)$('#washer-status').textContent=`朝${washerNames[washerDeg()]||'自訂'}｜門角 ${Math.round(d.angle)}°`;
+}
+function setWasherYaw(deg){if(![0,90,180,270].includes(deg))return false;const f=WASHER_F,rot=deg*Math.PI/180;
+ if(WASH_DOOR.angle>.01||WASH_DOOR.target>0){WASH_DOOR.target=0;refreshWasherCard('請先關閉滾筒門，再轉方向');return false;}
+ // 先檢查目的朝向的封閉機身外框；不是原地搬運旋轉動畫。
+ const old=WASHER_OBJ.rotation.y;WASHER_OBJ.rotation.y=rot;WASHER_OBJ.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(WASHER_OBJ);WASHER_OBJ.rotation.y=old;WASHER_OBJ.updateWorldMatrix(true,true);
+ const skip=new Set([...WASHER_OBJ.userData.cols,WASH_DOOR.col]);if(washerBoxConflict(b,skip)){refreshWasherCard('此朝向與牆／管線／家具干涉，未套用');toast('洗衣機此朝向有干涉');return false;}
+ placeFurn(f,f.p.x,f.p.z,rot);saveLayout();showDims(f);cargoInvalidate();refreshWalk();return true;
+}
+const washerPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{const r=washerPreviousTest();if(!WASHER_F||washerDeg()!==90||WASH_DOOR.angle!==0||WASH_DOOR.col.maxY!==-1||BAL_PIPE_GROUP.children.length<10||WASH_DOOR.pivot.children.length<3)throw Error('washer balcony defaults '+JSON.stringify({yaw:washerDeg(),angle:WASH_DOOR.angle,col:WASH_DOOR.col.maxY,pipes:BAL_PIPE_GROUP.children.length,doorParts:WASH_DOOR.pivot.children.length}));
+ showDims(WASHER_F);if(washerCard.hidden||cardBtn.hidden||!cardBtn.textContent.includes('滾筒門')||canMove(WASHER_F))throw Error('washer browse controls');
+ cardBtn.click();for(let i=0;i<80;i++)updateWasherDoor(.04);const opened=WASH_DOOR.angle;if(opened<10||WASH_DOOR.col.maxY<0)throw Error('washer opening failed');
+ cardBtn.click();for(let i=0;i<80;i++)updateWasherDoor(.04);if(WASH_DOOR.angle!==0||WASH_DOOR.col.maxY!==-1)throw Error('washer closing failed');
+ const original=washerDeg(),changed=setWasherYaw(0);if(changed&&washerDeg()!==0)throw Error('washer direction mismatch');if(changed&&!setWasherYaw(original))throw Error('washer direction restore');
+ showDims(null);if(!washerCard.hidden)throw Error('washer card hidden');r.washer={defaultDirection:'right',doorOpenedDegrees:opened,doorClosed:true,orientationSwitch:changed?'applied':'blocked by geometry',pipeDepthEstimateCm:8};return r;};
 
 /* =========================================================
    13. 主迴圈
