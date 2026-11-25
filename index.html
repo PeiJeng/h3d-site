@@ -271,7 +271,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
 <aside class="panel" id="panel" aria-label="模型控制">
   <header class="tb">
     <div class="tb-main">
-      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="97392a051cad867483a4489fa7bced1757de7c4207094a4e99fba66b18465685" data-commit="f7f96e3b79a5e8fe9223e1bb2c809810c0bd6944" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit f7f96e3b79a5e8fe9223e1bb2c809810c0bd6944 | SHA-256 97392a051cad867483a4489fa7bced1757de7c4207094a4e99fba66b18465685">版本 v1-97392a051cad · Commit f7f96e3b79a5</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
+      <div class="brand">3D MODEL</div><div id="h3d-version" data-source-sha="f8025b8116d652850dc5771d0075b096fd35eae8041492e40e3e3d97b79d41fb" data-commit="8fc83f95cea44c49ee99094376f9e76cd675c59d" style="font:11px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere" title="Commit 8fc83f95cea44c49ee99094376f9e76cd675c59d | SHA-256 f8025b8116d652850dc5771d0075b096fd35eae8041492e40e3e3d97b79d41fb">版本 v1-f8025b8116d6 · Commit 8fc83f95cea4</div><div style="font:11px/1.5 var(--sans);overflow-wrap:anywhere"><span id="h3d-version-status" role="status" aria-live="polite">檢查版本中</span> <button id="h3d-version-reload" type="button" hidden style="font:inherit;cursor:pointer">重新載入</button></div><script id="h3d-version-check">
 (()=>{
   'use strict';
   const label=document.getElementById('h3d-version');
@@ -388,7 +388,7 @@ kbd.k{font:500 10px var(--mono);border:1px solid var(--rule);border-bottom-width
     </div></details>
     <details class="panel-group" id="panel-cargo"><summary>07　大型家具搬運</summary><div class="group-body">
       <div class="toggles"><button class="tog" id="cargo-toggle" aria-pressed="false">大型家具搬運</button></div>
-        <div id="cargo-controls" hidden style="margin-top:8px"><label>搬運物 <select id="cargo-preset"><option value="fridge">冰箱（60×65×180）</option><option value="washer">洗衣機（60×45×85）</option><option value="sofa">沙發（195×90×90）</option><option value="bed">雙人床墊側立（188×25×152）</option><option value="single">單人床墊側立（188×25×91）</option><option value="custom">自訂</option></select></label><div class="toggles" style="margin:6px 0"><label>寬／長 <input id="cargo-w" type="number" step="0.1" min="5" max="300" value="60" style="width:55px"></label><label>深 <input id="cargo-d" type="number" step="0.1" min="5" max="300" value="65" style="width:55px"></label><label>高 <input id="cargo-h" type="number" step="0.1" min="5" max="300" value="180" style="width:55px"></label><label>每側餘量 <input id="cargo-pad" type="number" step="0.1" min="0" max="20" value="2" style="width:55px"> cm</label></div><label><input id="cargo-skip" type="checkbox"> 忽略模型中同款家具（尚未搬入）</label><div class="toggles" style="margin:6px 0"><button class="chip" id="cargo-default">大門 → 預設目的地</button><button class="chip" id="cargo-a">選起點 A</button><button class="chip" id="cargo-b">選終點 B</button><button class="chip" id="cargo-run">搜尋搬運路徑</button></div><output id="cargo-result" aria-live="polite">先選起點與終點中心</output><input id="cargo-step" type="range" min="0" max="0" value="0" disabled style="width:100%" aria-label="搬運步驟"><div class="toggles"><button class="chip" id="cargo-play" disabled>播放搬運</button><button class="chip" id="cargo-rewind" disabled>回到起點</button></div><div class="toggles" style="margin-top:6px"><select id="cargo-scale-mode" aria-label="反推方式"><option value="footprint">寬深同比例，固定高度</option><option value="all">寬深高同比例</option></select><button class="chip" id="cargo-max">反推可搬入尺寸</button><button class="chip" id="cargo-max-cancel" disabled>取消反推</button><button class="chip" id="cargo-max-apply" disabled>套用已驗證尺寸</button></div><output id="cargo-max-result" aria-live="polite"></output><p class="note">預設起點為模型大門外公共走廊中心（公共走廊非實測）；終點為對應家具目前位置。預設路線會忽略該件尚未搬入的家具；其他門扇仍按目前狀態。反推只代表已找到路徑的取樣尺寸，不是絕對最大值。預設尺寸為採購篩選／床墊示意值，請輸入含包裝實測尺寸。固定姿態、水平平移與轉向（10 cm／22.5°，中間姿態取樣），目前門扇及家具位置；不模擬傾斜、拆卸、搬運人員、樓梯或電梯。未找到路徑不等於無法搬入；須現場確認。</p></div>
+        <div id="cargo-controls" hidden style="margin-top:8px"><label>搬運物 <select id="cargo-preset"><option value="fridge">冰箱（60×65×180）</option><option value="washer">洗衣機（60×45×85）</option><option value="sofa">沙發（210×105×90・高暫估）</option><option value="bed">雙人床墊側立（188×25×152）</option><option value="single">單人床墊側立（188×25×91）</option><option value="custom">自訂</option></select></label><div class="toggles" style="margin:6px 0"><label>寬／長 <input id="cargo-w" type="number" step="0.1" min="5" max="300" value="60" style="width:55px"></label><label>深 <input id="cargo-d" type="number" step="0.1" min="5" max="300" value="65" style="width:55px"></label><label>高 <input id="cargo-h" type="number" step="0.1" min="5" max="300" value="180" style="width:55px"></label><label>每側餘量 <input id="cargo-pad" type="number" step="0.1" min="0" max="20" value="2" style="width:55px"> cm</label></div><label><input id="cargo-skip" type="checkbox"> 忽略模型中同款家具（尚未搬入）</label><div class="toggles" style="margin:6px 0"><button class="chip" id="cargo-default">大門 → 預設目的地</button><button class="chip" id="cargo-a">選起點 A</button><button class="chip" id="cargo-b">選終點 B</button><button class="chip" id="cargo-run">搜尋搬運路徑</button></div><output id="cargo-result" aria-live="polite">先選起點與終點中心</output><input id="cargo-step" type="range" min="0" max="0" value="0" disabled style="width:100%" aria-label="搬運步驟"><div class="toggles"><button class="chip" id="cargo-play" disabled>播放搬運</button><button class="chip" id="cargo-rewind" disabled>回到起點</button></div><div class="toggles" style="margin-top:6px"><select id="cargo-scale-mode" aria-label="反推方式"><option value="footprint">寬深同比例，固定高度</option><option value="all">寬深高同比例</option></select><button class="chip" id="cargo-max">反推可搬入尺寸</button><button class="chip" id="cargo-max-cancel" disabled>取消反推</button><button class="chip" id="cargo-max-apply" disabled>套用已驗證尺寸</button></div><output id="cargo-max-result" aria-live="polite"></output><p class="note">預設起點為模型大門外公共走廊中心（公共走廊非實測）；終點為對應家具目前位置。預設路線會忽略該件尚未搬入的家具；其他門扇仍按目前狀態。反推只代表已找到路徑的取樣尺寸，不是絕對最大值。預設尺寸為採購篩選／床墊示意值，請輸入含包裝實測尺寸。固定姿態、水平平移與轉向（10 cm／22.5°，中間姿態取樣），目前門扇及家具位置；不模擬傾斜、拆卸、搬運人員、樓梯或電梯。未找到路徑不等於無法搬入；須現場確認。</p></div>
     </div></details>
     <details class="panel-group" id="panel-schemes"><summary>08　家具方案與儲存</summary><div class="group-body">
     <div>
@@ -1158,23 +1158,23 @@ R(staticG,NR([725.3,590.9,729.1,673.8]),2.0,2.03,M.chrome);
    5. 家具建構函式（區域座標：正面朝 +z，底面 y=0）
    ========================================================= */
 const leafGeo = new THREE.SphereGeometry(1,10,6);
-function sofa(W=2.3,D=1.0){   // D：總深（261109 AR05：195×90）；寬不到 210 做兩人座（兩塊座墊）
-  const g=new THREE.Group(), f=M.sofa, EXT=.3, N=W<2.1?2:3;
+function sofa(W=2.3,D=1.0){   // 261125 選購手寫單：210×105、雙座墊、淺木腳 12cm；原伸縮僅為預覽
+  const g=new THREE.Group(), f=M.sofa, EXT=.3, N=W<=2.1?2:3, FOOT=.12;
   console.assert(W>1.2&&D>=.8,'沙發尺寸不合理');
-  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.018,.014,.1,M.blackMetal,sx*(W/2-.1),0,sz*(D/2-.1),10);
-  RB(g,W,.22,D,.04,f,0,.1,0);
-  for(const sx of [-1,1]) RB(g,.17,.5,D,.06,f,sx*(W/2-.085),.1,0);
+  for(const sx of [-1,1]) for(const sz of [-1,1]) C(g,.018,.014,FOOT,M.oak,sx*(W/2-.1),0,sz*(D/2-.1),10);
+  RB(g,W,.20,D,.04,f,0,FOOT,0);
+  for(const sx of [-1,1]) RB(g,.17,.48,D,.06,f,sx*(W/2-.085),FOOT,0);
   RB(g,W-.34,.5,.2,.06,f,0,.3,-D/2+.1);
   // 可伸縮坐深：座墊連同下方抽出座板一起往前滑 30cm（總深 D → D+30、坐深 D/2+10 → 再加 30），靠背不動
   const seat=new THREE.Group(), deck=new THREE.Group(); g.add(seat); seat.add(deck); deck.visible=false;
-  RB(deck,W-.36,.2,EXT,.03,f,0,.11,D/2-EXT/2);
-  for(const sx of [-1,1]) C(deck,.018,.014,.11,M.blackMetal,sx*(W/2-.35),0,D/2-.08,10);
+  RB(deck,W-.36,.19,EXT,.03,f,0,FOOT,D/2-EXT/2);
+  for(const sx of [-1,1]) C(deck,.018,.014,FOOT,M.oak,sx*(W/2-.35),0,D/2-.08,10);
   const cw=(W-.34)/N;
   for(let i=0;i<N;i++){ const x=-(W-.34)/2+cw*(i+.5);
     RB(seat,cw-.012,.15,D-.2,.06,f,x,.31,.1);
     RB(g,cw-.02,.44,.22,.07,f,x,.44,-D/2+.29).rotation.x=-.12; }   // 靠墊厚 22：坐深 60
   [[-(W/2-.2),M.pillowA,.55],[W/2-.2,M.pillowB,-.55]].forEach(([x,m,ry])=>{ RB(g,.36,.36,.12,.06,m,x,.46,-D/2+.41).rotation.set(-.22,ry,x>0?-.1:.1); });
-  g.userData.slide={seat,deck,ext:EXT,depth:D,seatBack:-.1};   // seatBack：靠墊前緣，量「坐深」的起點
+  g.userData.slide={seat,deck,ext:EXT,depth:D,seatBack:-.1,width:W,foot:FOOT,seatCount:N};   // seatBack：靠墊前緣，量「坐深」的起點
   return g;
 }
 // 抽拉式延伸餐桌：兩端桌面下各藏一片 30cm 延伸板（連滑軌），拉出後升到與桌面齊平（120 → 150 → 180）；桌腳不動
@@ -1614,9 +1614,10 @@ ceilingRegion([490.7,275.5,630,469.7],FLAT_CH,'flat','次臥平頂 CH260 暫估'
 ceilingRegion([681.3,303.2,792.6,469.7],2.37,'original','廚房 CH237');
 ceilingRegion([595.2,563.3,793.6,673.8],2.28,'original','浴廁 CH228');
 ceilingRegion([643.7,190.5,759.3,288.3],2.26,'original','陽台 CH226');
-const SOFA_W=1.95, SOFA_D=.9, SOFA_Y=NPM(0,675.3-(SOFA_D/2+.005)/S)[1];           // 沙發 195×90 靠南牆（261109 AR05 平面配置圖）
+const SOFA_W=2.10, SOFA_D=1.05, SOFA_Y=NPM(0,675.3-(SOFA_D/2+.005)/S)[1];           // 261125 選購手寫單：210×(100+5)，靠南牆
 const SOFA_X=NPM(323.7,0)[0];                                                      // AR05 量圖：沙發 254.4～393pt，靠窗側扶手離窗牆約 60cm
-const SOFA_OBJ=furn(put(sofa(SOFA_W,SOFA_D),SOFA_X,SOFA_Y,PI,true,dynG),'沙發'), SOFA_COL=colliders[colliders.length-1]; // 沙發 195×90（坐深可拉長，總深到 120，不合併）
+const SOFA_OBJ=furn(put(sofa(SOFA_W,SOFA_D),SOFA_X,SOFA_Y,PI,true,dynG),'沙發'), SOFA_COL=colliders[colliders.length-1]; // 210×105，原拉長30僅預覽
+SOFA_OBJ.userData.cols=[SOFA_COL];
 { const rug=mk(new THREE.BoxGeometry(2.0,.012,1.4),M.rug,false,true); rug.position.set(X(SOFA_X),.017,Z(566)); staticG.add(rug); }
 { const f=B(staticG,1.2,.8,.03,M.walnut,X(SOFA_X),1.18,Z(665)-.015); const a=mk(new THREE.PlaneGeometry(1.15,.75),M.art,false,true); a.position.set(X(SOFA_X),1.58,Z(665)-.031); a.rotation.y=PI; staticG.add(a); }   // 沙發上方海景畫
 // 一紗一布簾（收在兩側）＋窗簾盒
@@ -2310,7 +2311,7 @@ function addSeat(name,xPt,yPt,lx,lz,rot,h,lean,arms){
   const c=Math.cos(rot), sn=Math.sin(rot);
   const s={name,x:X(xPt)+lx*c+lz*sn,z:Z(yPt)-lx*sn+lz*c,yaw:rot,h,lean,arms}; SEATS.push(s); return s;
 }
-(SOFA_W<2.1?[-.42,.42]:[-.6,0,.6]).forEach(lx=>addSeat('客廳沙發',SOFA_X,SOFA_Y,lx,.1,PI,.46,-.16,'lap'));
+(SOFA_OBJ.userData.slide.seatCount===2?[-(SOFA_W-.34)/4,(SOFA_W-.34)/4]:[-.6,0,.6]).forEach(lx=>addSeat('客廳沙發',SOFA_X,SOFA_Y,lx,.1,PI,.46,-.16,'lap'));
 SEATS.forEach(s=>{ if(s.name==='客廳沙發') s.sofa=true; });
 addSeat('客房書桌椅',572,GDESK_Y,0,-.06,-HP,.53,.04,'desk');
 for(const y of CHAIR_Y){ addSeat('餐椅',DINE_X-42,y,0,-.04,HP,.52,0,'desk'); addSeat('餐椅',DINE_X+42,y,0,-.04,-HP,.52,0,'desk'); }
@@ -3424,7 +3425,7 @@ function showDims(f){
     const sb=SOFA.seatBack, sf=SOFA.depth/2+SOFA.seat.position.z, sx=a.x+.55, sy=.48;
     seg(ln,sx,sy,sb,sx,sy,sf); seg(ln,sx-.05,sy,sb,sx+.05,sy,sb); seg(ln,sx-.05,sy,sf,sx+.05,sy,sf);
     dimLabs[3].position.set(sx,sy,(sb+sf)/2); dimLabs[3].element.textContent=`坐深 ${cm(sf-sb)}`; dimLabs[3].visible=FURN_DIMS_ON;
-    seatTxt=`・坐深 ${cm(sf-sb)} cm`;
+    seatTxt=`・坐深 ${cm(sf-sb)} cm（示意）・淺木腳 ${cm(SOFA.foot)} cm`;
     dimLines.geometry.dispose(); dimLines.geometry=new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(ln,3));
   }
   dimCard.style.bottom=(ui.hint.offsetHeight+28)+'px';
@@ -3516,7 +3517,7 @@ addEventListener('keydown',e=>{ if(e.code==='Escape'&&dimSel&&state.mode!=='fps'
 const SOFA={...SOFA_OBJ.userData.slide, t:0, target:0, base:{...SOFA_COL}, pose:'cross'};
 const seatDepth=open=>cm(SOFA.depth/2+(open?SOFA.ext:0)-SOFA.seatBack);
 function refreshSofaBtn(){
-  cardBtn.textContent=SOFA.target?'收回坐深':`拉長坐深 +${cm(SOFA.ext)} cm`; cardBtn.setAttribute('aria-pressed',String(!!SOFA.target));
+  cardBtn.textContent=SOFA.target?'收回坐深':`拉長坐深 +${cm(SOFA.ext)} cm（預覽）`; cardBtn.setAttribute('aria-pressed',String(!!SOFA.target));
   poseBtn.hidden=!(dimSel&&dimSel.obj===SOFA_OBJ&&SOFA.target); poseBtn.textContent=SOFA.pose==='cross'?'改成躺著':'改成盤腿';
 }
 // 沙發上的人依目前姿勢重新坐好
@@ -3525,15 +3526,20 @@ const poseName=P=>P.lying?'躺著':SOFA_POSE==='cross'?'盤腿':'坐好';
 function setSofaSlide(open,quiet){
   const want=open?1:0; if(SOFA.target===want) return;
   SOFA.target=want; refreshSofaBtn();
-  // 碰撞範圍：沙發朝 -z（旋轉 180°），拉長時往前加上伸出的座墊
-  SOFA_COL.minZ=SOFA.base.minZ-(open?SOFA.ext:0);
+  // 依當前沙發位置／朝向重算；開啟時預留完整伸出區，收回時不提前釋放。
+  syncSofaCol();
   SOFA_POSE=open?SOFA.pose:'sit'; const on=reseatSofa();
   const who=on.length?`，${on.map(P=>P.name+poseName(P)).join('、')}`:'';
   if(!quiet) toast(open?`坐深拉長：${seatDepth(0)} → ${seatDepth(1)} cm（沙發總深 ${cm(SOFA.depth)} → ${cm(SOFA.depth+SOFA.ext)}）${who}`:`坐深收回 ${seatDepth(0)} cm${who}`);
   if(quiet||REDUCED){ SOFA.t=want; applySofa(); sofaDone(); }
 }
-function applySofa(){ const e=SOFA.t*SOFA.t*(3-2*SOFA.t); SOFA.deck.visible=SOFA.t>0; SOFA.seat.position.z=SOFA.ext*e; }
-function sofaDone(){ if(dimSel&&dimSel.obj===SOFA_OBJ) showDims(dimSel); }
+function syncSofaCol(){
+  const p=SOFA_OBJ.position,r=SOFA_OBJ.rotation.y,c=Math.cos(r),s=Math.sin(r),e=SOFA.ext*Math.max(SOFA.target,SOFA.t*SOFA.t*(3-2*SOFA.t));
+  const pts=[-SOFA.width/2,SOFA.width/2].flatMap(x=>[-SOFA.depth/2,SOFA.depth/2+e].map(z=>[p.x+x*c+z*s,p.z-x*s+z*c]));
+  Object.assign(SOFA_COL,{minX:Math.min(...pts.map(q=>q[0])),maxX:Math.max(...pts.map(q=>q[0])),minZ:Math.min(...pts.map(q=>q[1])),maxZ:Math.max(...pts.map(q=>q[1]))});
+}
+function applySofa(){ const e=SOFA.t*SOFA.t*(3-2*SOFA.t); SOFA.deck.visible=SOFA.t>0; SOFA.seat.position.z=SOFA.ext*e; syncSofaCol(); }
+function sofaDone(){ const f=FURN.find(f=>f.obj===SOFA_OBJ);if(dimSel===f)showDims(f);else measure(f);refreshWalk();cargoInvalidate(); }
 cardBtn.addEventListener('click',()=>{ const o=dimSel&&dimSel.obj; if(o===TVSET){openTVMControls();return;} if(o===WASHER_OBJ){toggleWasherDoor();return;} if(o===WARD_OBJ) setWard(WARD.pos%3+1); else if(o===TABLE_OBJ) setTable((TABLE.n+1)%3); else if(o===DESK_OBJ) setDeskUp(!DESK.target); else if(o===VANITY_OBJ) setVanityShelves(!VANITY.on); else if(LUG_OBJ&&o===LUG_OBJ) setLug(!LUG.target); else if(LAUNDRY.obj&&o===LAUNDRY.obj) setLaundry(!LAUNDRY.on); else if(cabOf(dimSel)) setCab(dimSel.name,!CAB_BY.get(dimSel.name).some(d=>d.want)); else setSofaSlide(!SOFA.target); });
 poseBtn.addEventListener('click',()=>{
   if(dimSel&&dimSel.obj===WARD_OBJ){ setWard(0); return; }
@@ -3706,6 +3712,7 @@ function placeFurn(f,x,z,rot){
   b.cols.forEach((k,i)=>{ const p=b.loc[i].map(([lx,lz])=>[x+lx*c+lz*s,z-lx*s+lz*c]);   // 碰撞盒照原尺寸跟著搬、轉
     k.minX=Math.min(...p.map(q=>q[0])); k.maxX=Math.max(...p.map(q=>q[0])); k.minZ=Math.min(...p.map(q=>q[1])); k.maxZ=Math.max(...p.map(q=>q[1])); });
   if(o===TVSET)syncTVMCol();
+  if(o===SOFA_OBJ)syncSofaCol();
   interior.forEach(l=>{ if(l.castShadow) l.shadow.needsUpdate=true; });   // 燈的陰影只在需要時重算：家具動了就重算
   for(const q of b.seats){ q.st.x=x+q.lx*c+q.lz*s; q.st.z=z-q.lx*s+q.lz*c; q.st.yaw=rot+q.dy; PEOPLE.filter(P=>P.seat===q.st).forEach(P=>seatPerson(P,q.st)); }
 }
@@ -4041,7 +4048,8 @@ function auditRows(){
  r('客廳 AR16-1','下櫃抽屜／側開格柵／抽屜',[80,80,80],CAB_DOORS.filter(d=>d.cab===TV_NAMES[0]).map(d=>cround(d.w)),'兩抽屜各 80、中間格柵側開 80'),
  r('客廳 AR16','高櫃 寬×深×高',[80,38,240],scaled((TVW.x1-TVW.xh)*S,(TVW.z1-TVW.z0)*S,TVW.top),'把手外凸另計'),
  r('客廳 AR16','電視 寬×高／下緣',[145,84,75],[tv[0],tv[2],bottomOf(TV_PANEL)],'電視外框網格實測'),
- r('客廳 AR05','沙發 寬×深',[195,90],sofa?.slice(0,2),'初始模型外包框，伸縮後另計'),
+ r('客廳 11/25 選購單','沙發 寬×深',[210,105],sofa?.slice(0,2),'加深5cm已包含；總高與伸縮行程未提供'),
+ r('客廳 11/25 選購單','沙發腳高度',[12],[cround(SOFA_OBJ.userData.slide.foot)],'淺木腳；未提供實際腳型'),
  r('餐廳 AR05','餐桌 長×寬',[120,80],table?[table[1],table[0]]:null,'收合狀態'),
  r('餐廳 AR15','矮櫃 寬×深×高',[171,45,100],scaled((SB.z1-SB.z0)*S,(SB.x1-SB.x0)*S,SB.top),'建模外徑'),
  r('餐廳 AR15','吊櫃 寬×深×高',[171,30,88],scaled((SB.z1-SB.z0)*S,(SB.x1-SB.xu)*S,SB.uy1-SB.uy0),'H150–238，頂部收邊待現場'),
@@ -4307,7 +4315,7 @@ function heatRaster(boxes,floors=FLOORS,step=.10){const b=floorBounds(floors),nx
 function refreshHeat(){heatSig=spaceKey();clearMeasureGroup(clearanceHeatG);const {cells,step}=heatRaster(spaceBoxes()),bands=[[],[],[],[]];for(const c of cells)bands[c.w<.6-1e-8?0:c.w<.8-1e-8?1:c.w<1-1e-8?2:3].push(c);const colors=[0xb91c1c,0xea850e,0xe7bf28,0x30966a],m=new THREE.Matrix4();for(let i=0;i<4;i++){if(!bands[i].length)continue;const mesh=new THREE.InstancedMesh(new THREE.BoxGeometry(step*.93,.007,step*.93),new THREE.MeshBasicMaterial({color:colors[i],transparent:true,opacity:.56,depthWrite:false}),bands[i].length);bands[i].forEach((c,j)=>{m.makeTranslation(c.x,groundAt(c.x,c.z)+.024,c.z);mesh.setMatrixAt(j,m);});mesh.renderOrder=4;clearanceHeatG.add(mesh);}$('#heat-result').textContent=`10 cm 網格｜紅 ${bands[0].length} 格、橘 ${bands[1].length} 格、黃 ${bands[2].length} 格、綠 ${bands[3].length} 格；局部 X/Z 截面較小值，非完整路徑淨寬。`;return {cells:cells.length,bands:bands.map(b=>b.length)};}
 $('#heat-toggle').onclick=()=>{heatOn=!heatOn;if(heatOn){if(!extraView())setMode('plan');refreshHeat();}syncExtraUI();};
 // Rigid rectangular package, horizontal translation and yaw only; every edge is checked at intermediate poses.
-const CARGO_PRESETS={fridge:[60,65,180,'冰箱'],washer:[60,45,85,'洗衣機'],sofa:[195,90,90,'沙發'],bed:[188,25,152,'雙人床'],single:[188,25,91,'單人床']};
+const CARGO_PRESETS={fridge:[60,65,180,'冰箱'],washer:[60,45,85,'洗衣機'],sofa:[210,105,90,'沙發'],bed:[188,25,152,'雙人床'],single:[188,25,91,'單人床']};
 function cargoSpec(){const values=['cargo-w','cargo-d','cargo-h','cargo-pad'].map(id=>Number($('#'+id).value));if(values.slice(0,3).some(v=>!Number.isFinite(v)||v<5||v>300)||!Number.isFinite(values[3])||values[3]<0||values[3]>20)throw Error('請輸入 5–300 cm 尺寸及 0–20 cm 每側餘量');return {w:(values[0]+2*values[3])/100,d:(values[1]+2*values[3])/100,h:(values[2]+values[3])/100,raw:values};}
 function cargoSkip(){const key=$('#cargo-preset').value;if(!$('#cargo-skip').checked||!CARGO_PRESETS[key])return new Set();const f=FURN.find(f=>f.name.startsWith(CARGO_PRESETS[key][3]));return new Set([...(f?.bind?.cols||[]),...(f?.obj===WASHER_OBJ?[WASH_DOOR.col]:[])]);}
 function cargoEnv(s,skip){const boxes=spaceBoxes(s.h,skip);for(const [x0,x1,z0,z1,y0,y1] of [[638.1,681.3,345.5,403.6,1.93,1.95],[638.1,681.3,403.6,406,0,2.4]])if(y0<s.h+.015)boxes.push({minX:MX(x0),maxX:MX(x1),minZ:MZ(z0),maxZ:MZ(z1),minY:y0,maxY:y1});return {boxes,floors:FLOORS};}
@@ -4588,6 +4596,17 @@ $('#fridge-reset').onclick=()=>setFridgeSize(FRIDGE_HOME_SIZE);
 $('#fridge-test').onclick=()=>{if(fridgeBusy)return;const a=[...fridgeSize],p={x:FRIDGE_F.p.x,z:FRIDGE_F.p.z},rot=FRIDGE_F.rot,token=fridgeToken,sig=fridgeSig(),q=fridgeInstall(a,p,rot);fridgeBusy=true;$('#fridge-test').disabled=true;$('#fridge-result').textContent='搜尋目前位置搬運路徑…';setTimeout(()=>{try{if(token!==fridgeToken||sig!==fridgeSig()){$('#fridge-result').textContent='配置已改變，請重新檢查。';return;}const r=fridgeRoute(a,p,rot);fridgeResultSig=sig;$('#fridge-result').textContent=`${a.join('×')}：安裝條件 ${q.ok?'符合':'未符合'}；${r.status==='found'?'找到搬運路徑 '+r.path.length+' 步':r.status==='limit'?'搜尋達上限':r.status==='goal'?'終點容不下含餘量外箱':r.status==='start'?'起點容不下含餘量外箱':'未找到路徑'}。搬運每側2cm；未檢查門片開啟、包裝與現場散熱。`;}finally{fridgeBusy=false;$('#fridge-test').disabled=false;}},30);};
 const fridgePreviousTest=window.__h3dInspectionSelfTest;
 window.__h3dInspectionSelfTest=()=>{const r=fridgePreviousTest();showDims(FRIDGE_F);if(fridgeCard.hidden||!washerCard.hidden||canMove(FRIDGE_F))throw Error('fridge browse card');const original=[...fridgeSize];const p=FRIDGE_F.p.clone(),rot=FRIDGE_F.rot;$('#fridge-w').value='65';$('#fridge-w').dispatchEvent(new Event('change'));if(fridgeSize[0]!==65)throw Error('fridge input');if(!setFridgeSize([65,65,185]))throw Error('fridge size');const b=new THREE.Box3().setFromObject(FRIDGE_OBJ).getSize(new THREE.Vector3()),l=FRIDGE_F.max.clone().sub(FRIDGE_F.min),c=FRIDGE_F.bind.cols[0];if(Math.abs(l.x-.65)+Math.abs(l.z-.65)+Math.abs(l.y-1.85)>.0001||Math.abs(b.y-1.85)>.0001||Math.abs(c.maxY-1.85)>.0001||Math.abs(c.maxX-c.minX-.65)>.0001||FRIDGE_F.p.distanceTo(p)>.0001||FRIDGE_F.rot!==rot)throw Error('fridge size/collider mismatch');const oversized=fridgeInstall([100,100,220],p,rot);if(oversized.body)throw Error('fridge oversized collision not detected');$('#fridge-reset').click();if(fridgeSize.some((v,i)=>v!==original[i]))throw Error('fridge reset');showDims(null);if(!fridgeCard.hidden)throw Error('fridge card hidden');const probes=[[60,60,180],[65,60,180],[65,65,185]].map(a=>{const q=fridgeInstall(a,p,rot),route=fridgeRoute(a,p,rot,650);return {size:a,...q,route:route.status,steps:route.path?.length||0};});r.fridgeSize={original,preview:true,oversizedBlocked:true,probes};return r;};
+
+/* 261125 沙發：新尺寸、雙座墊、腳高、伸縮預覽及轉向後碰撞盒。 */
+const sofaPreviousTest=window.__h3dInspectionSelfTest;
+window.__h3dInspectionSelfTest=()=>{const out=sofaPreviousTest(),f=FURN.find(f=>f.obj===SOFA_OBJ),p=f.p.clone(),rot=f.rot;
+ const approx=(a,b)=>Math.abs(a-b)<.002;const size=()=>{measure(f);return f.max.clone().sub(f.min);};
+ const closed=size();if(!approx(closed.x,2.10)||!approx(closed.z,1.05)||SOFA.foot!==.12||SOFA.seatCount!==2||SEATS.filter(s=>s.sofa).length!==2)throw Error('sofa purchase dimensions');
+ showDims(f);if(!cardSize.textContent.includes('210')||!cardSize.textContent.includes('105')||!cardSize.textContent.includes('淺木腳 12'))throw Error('sofa card dimensions');
+ setSofaSlide(true,true);const open=size();if(!approx(open.z,1.35)||!approx(SOFA_COL.maxZ-SOFA_COL.minZ,1.35))throw Error('sofa extension dimensions');
+ placeFurn(f,p.x+.03,p.z,0);if(!approx(SOFA_COL.maxZ,p.z+.825)||!approx(SOFA_COL.minZ,p.z-.525))throw Error('sofa rotated collision');
+ placeFurn(f,p.x,p.z,rot);setSofaSlide(false,true);if(!approx(size().z,1.05)||!approx(SOFA_COL.maxZ-SOFA_COL.minZ,1.05))throw Error('sofa reset');
+ showDims(null);out.sofaPurchase={closed:[210,105,cround(closed.y)],foot:12,seats:2,extensionPreviewDepth:135,clearanceToTV:cround(SOFA_GAP),extendedClearance:cround(SOFA_GAP-SOFA.ext),rotatedCollision:true};return out;};
 
 /* =========================================================
    13. 主迴圈
